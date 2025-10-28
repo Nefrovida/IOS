@@ -1,18 +1,101 @@
-# Ignorar la carpeta de build
-build/
-
-# Ignorar archivos generados de Xcode
-*.xcodeproj/xcuserdata/
-*.xcworkspace/xcuserdata/
-*.playground/xcuserdata/
-
-# Ignorar productos de compilación
+# ==========================
+# Xcode
+# ==========================
 DerivedData/
+build/
+xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.moved-aside
+*.xcuserdatad
+*.xcscmblueprint
+
+# ==========================
+# Swift Package Manager
+# ==========================
+.build/
+Packages/
+Package.pins
+Package.resolved
+*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
+
+# ==========================
+# CocoaPods
+# ==========================
+Pods/
+Podfile.lock
+
+# ==========================
+# Carthage
+# ==========================
+Carthage/Build/
+
+# ==========================
+# Fastlane
+# ==========================
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# ==========================
+# Archives & Symbols
+# ==========================
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# ==========================
+# Playgrounds
+# ==========================
+timeline.xctimeline
+playground.xcworkspace
+
+# ==========================
+# macOS Files
+# ==========================
 .DS_Store
+.AppleDouble
+.LSOverride
 
-# Ignorar archivos de pruebas que no quieres subir (si es el caso)
-# Ejemplo: si quieres ignorar la carpeta de pruebas pero mantenerla localmente
-*.VitalSoft.xcodeproj
+# Icon must end with two \r
+Icon
 
-# Archivos específicos de Swift Package Manager
-.swiftpm/
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# ==========================
+# SwiftLint / Code Quality
+# ==========================
+.swiftlint.yml
+.swiftformat
+
+# ==========================
+# Environment / Configs
+# ==========================
+*.env
+Secrets.xcconfig
+Config.xcconfig
+
+# ==========================
+# Other IDEs / Tools
+# ==========================
+.idea/
+.vscode/
+*.swp
+*.swo
