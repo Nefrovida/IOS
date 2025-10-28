@@ -1,0 +1,18 @@
+# Ignorar la carpeta de build
+build/
+
+# Ignorar archivos generados de Xcode
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.playground/xcuserdata/
+
+# Ignorar productos de compilación
+DerivedData/
+.DS_Store
+
+# Ignorar archivos de pruebas que no quieres subir (si es el caso)
+# Ejemplo: si quieres ignorar la carpeta de pruebas pero mantenerla localmente
+*.VitalSoft.xcodeproj
+
+# Archivos específicos de Swift Package Manager
+.swiftpm/
