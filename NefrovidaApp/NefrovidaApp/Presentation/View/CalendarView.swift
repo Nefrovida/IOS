@@ -1,0 +1,98 @@
+//
+//  CalendarView.swift
+//  NefrovidaApp
+//
+//  Created by Manuel Bajos Rivera on 08/11/25.
+//
+
+//
+//  AgendaScreen.swift
+//  NefrovidaApp
+//
+//  Created by Manuel Bajos Rivera on 08/11/25.
+//
+
+// Presentation/View/AgendaScreen.swift
+import SwiftUI
+
+struct AgendaScreen: View {
+    @StateObject private var vm: AgendaViewModel
+
+    // DI entry (cámbialo a RemoteAppointmentRepository cuando conectes API real)
+    init() {
+        let repo = MockAppointmentRepository()
+        let uc = GetAppointmentsForDayUseCase(repository: repo)
+        _vm = StateObject(wrappedValue: AgendaViewModel(getAppointmentsUC: uc))
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Top bar simple
+            HStack {
+                Image(systemName: "person.crop.circle")
+                Spacer()
+                Text("NEFRO Vida").font(.headline)
+                Spacer()
+                Image(systemName: "bell")
+            }
+            .padding()
+            .background(.ultraThinMaterial)
+
+            // Tabs (Citas / Solicitudes)
+            HStack(spacing: 12) {
+                ChipTab(title: "Citas", isSelected: true)
+                ChipTab(title: "Solicitudes", isSelected: false)
+                Spacer()
+                Text(vm.monthTitle())
+                    .font(.title3).fontWeight(.bold)
+            }
+            .padding(.horizontal)
+
+            // Week strip
+            WeekStrip(days: vm.currentWeekDays(),
+                      selected: vm.selectedDate,
+                      onSelect: vm.select)
+
+            // Agenda
+            if vm.isLoading {
+                ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let err = vm.errorMessage {
+                VStack(spacing: 10) {
+                    Text(err).foregroundStyle(.red)
+                    Button("Reintentar") { vm.select(date: vm.selectedDate) }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView {
+                    if vm.appointments.isEmpty {
+                        Text("No hay citas para este día.")
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity, minHeight: 240)
+                    } else {
+                        AgendaList(appointments: vm.appointments)
+                            .padding(.top, 12)
+                    }
+                }
+            }
+
+            // Bottom bar (tabs)
+            HStack {
+                VStack { Image(systemName: "house"); Text("Inicio").font(.caption2) }
+                Spacer()
+                VStack { Image(systemName: "testtube.2"); Text("Análisis").font(.caption2) }
+                Spacer()
+                VStack { Image(systemName: "text.bubble"); Text("Foros").font(.caption2) }
+                Spacer()
+                VStack { Image(systemName: "calendar"); Text("Agenda").font(.caption2).fontWeight(.semibold) }
+            }
+            .padding(.horizontal, 22)
+            .padding(.vertical, 10)
+            .background(.ultraThinMaterial)
+        }
+        .onAppear { vm.onAppear() }
+    }
+}
+
+#Preview {
+    AgendaScreen()
+}
