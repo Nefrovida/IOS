@@ -1,0 +1,42 @@
+/*
+ Localizable.strings
+ NefrovidaApp
+
+ Created by Enrique Ayala on 08/11/25.
+ Default (Base) Spanish localization.
+*/
+
+"title_analisis" = "Análisis";
+"btn_create_analisis" = "Crear Análisis";
+"empty_analisis" = "No hay análisis disponibles";
+
+"acc_profile" = "Perfil";
+"acc_notifications" = "Notificaciones";
+"acc_search" = "Buscar";
+"acc_filter" = "Filtrar";
+"acc_options" = "Opciones";
+"acc_options_hint" = "Abrir opciones para modificar o borrar";
+"acc_close" = "Cerrar";
+"acc_modify_hint" = "Modificar análisis";
+"acc_delete_hint" = "Borrar análisis";
+"acc_create_hint" = "Crear un nuevo análisis";
+
+"btn_modify" = "Modificar";
+"btn_delete" = "Borrar";
+
+"success_title" = "Éxito";
+"delete_success_message" = "El análisis se ha borrado con éxito";
+
+"tab_home" = "Inicio";
+"tab_analisis" = "Análisis";
+"tab_foros" = "Foros";
+"tab_agenda" = "Agenda";
+
+"error_generic" = "Ha ocurrido un error. Inténtalo de nuevo más tarde.";
+"error_invalid_response" = "Respuesta no válida del servidor.";
+"error_bad_request" = "Solicitud incorrecta.";
+"error_unauthorized" = "No autorizado.";
+"error_forbidden" = "Acceso denegado.";
+"error_not_found" = "No encontrado.";
+"error_server" = "Error del servidor (%d).";
+"error_unexpected_status" = "Estado inesperado (%d).";

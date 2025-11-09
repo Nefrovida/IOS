@@ -7,15 +7,11 @@
 
 import SwiftUI
 
+/// Vista raíz que muestra la pantalla de gestión de análisis.
+/// Sustituye el placeholder anterior para que puedas ver inmediatamente la nueva UI.
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+        AnalisisListView()
     }
 }
 
