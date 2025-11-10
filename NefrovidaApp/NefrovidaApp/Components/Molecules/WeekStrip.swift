@@ -1,0 +1,33 @@
+import SwiftUI
+
+struct WeekStrip: View {
+    let days: [Date]
+    let selected: Date
+    let onSelect: (Date) -> Void
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 30) {
+                ForEach(days, id: \.self) { day in
+                    Button { onSelect(day) } label: {
+                        DayPill(date: day, isSelected: Calendar.current.isDate(day, inSameDayAs: selected))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+        }
+        .background(RoundedRectangle(cornerRadius: 12).fill(Color.nvLightBlue))
+        .padding(.horizontal)
+    }
+}
+
+#Preview {
+        WeekStrip(
+            days: (0..<5).compactMap { Calendar.current.date(byAdding: .day, value: $0, to: Date()) },
+            selected: Date(),
+            onSelect: { _ in }
+        )
+    }
+
