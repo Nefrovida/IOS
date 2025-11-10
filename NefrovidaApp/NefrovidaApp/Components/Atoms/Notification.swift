@@ -1,10 +1,3 @@
-//
-//  Notification.swift
-//  NefrovidaApp
-//
-//  Created by Manuel Bajos Rivera on 10/11/25.
-//
-
 import SwiftUI
 
 struct Notification: View {

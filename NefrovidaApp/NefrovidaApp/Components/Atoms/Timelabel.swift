@@ -1,4 +1,3 @@
-// Components/Atoms/TimeLabel.swift
 import SwiftUI
 
 struct TimeLabel: View {

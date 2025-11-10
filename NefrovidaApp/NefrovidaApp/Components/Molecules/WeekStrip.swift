@@ -1,4 +1,3 @@
-// Components/Molecules/WeekStrip.swift
 import SwiftUI
 
 struct WeekStrip: View {

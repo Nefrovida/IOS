@@ -1,4 +1,3 @@
-// Components/Atoms/DayPill.swift
 import SwiftUI
 
 struct DayPill: View {

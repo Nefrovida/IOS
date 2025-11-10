@@ -1,5 +1,3 @@
-// Data/Repository/RemoteAppointmentRepository.swift
-
 import Foundation
 import Alamofire
 

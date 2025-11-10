@@ -1,11 +1,3 @@
-//
-//  CalendarModel.swift
-//  NefrovidaApp
-//
-//  Created by Manuel Bajos Rivera on 08/11/25.
-//
-
-// Data/Model/AppointmentDTO.swift
 import Foundation
 
 struct AppointmentDTO: Codable {

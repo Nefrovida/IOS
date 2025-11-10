@@ -1,4 +1,3 @@
-// Components/Molecules/AppointmentCard.swift
 import SwiftUI
 
 struct AppointmentCard: View {

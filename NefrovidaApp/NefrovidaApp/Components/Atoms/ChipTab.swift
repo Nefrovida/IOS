@@ -1,4 +1,3 @@
-// Components/Atoms/ChipTab.swift
 import SwiftUI
 
 struct ChipTab: View {

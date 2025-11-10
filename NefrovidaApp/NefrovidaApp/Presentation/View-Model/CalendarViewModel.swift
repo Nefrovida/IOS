@@ -1,24 +1,14 @@
-//
-//  CalendarViewModel.swift
-//  NefrovidaApp
-//
-//  Created by Manuel Bajos Rivera on 08/11/25.
-//
-
-// Presentation/View-Model/AgendaViewModel.swift
 import Foundation
 import Combine
 
 @MainActor
 final class AgendaViewModel: ObservableObject {
-    // Entrada / estado de UI
     @Published var selectedDate: Date
     @Published private(set) var appointments: [Appointment] = []
     @Published private(set) var isLoading = false
     @Published private(set) var errorMessage: String?
 
 
-    // Dependencias Clean
     private let getAppointmentsUC: GetAppointmentsForDayUseCase
     private let calendar = Calendar(identifier: .gregorian)
 
@@ -39,17 +29,14 @@ final class AgendaViewModel: ObservableObject {
 
     func monthTitle() -> String {
         let name = DateFormats.monthTitle.string(from: selectedDate)
-        // Capitalizamos primera letra estilo "Octubre"
         return name.prefix(1).uppercased() + name.dropFirst()
     }
 
-    /// Semana (lun..dom) de la fecha seleccionada
     func currentWeekDays() -> [Date] {
         var startOfWeek: Date = selectedDate
         let comps = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: selectedDate)
         startOfWeek = calendar.date(from: comps) ?? selectedDate
-        // Forzar lunes como inicio
-        let weekday = calendar.component(.weekday, from: startOfWeek) // 1=Dom
+        let weekday = calendar.component(.weekday, from: startOfWeek)
         let shift = (weekday == 1) ? 1 : 0
         startOfWeek = calendar.date(byAdding: .day, value: shift, to: startOfWeek) ?? startOfWeek
         return (0..<5).compactMap { calendar.date(byAdding: .day, value: $0, to: startOfWeek) }

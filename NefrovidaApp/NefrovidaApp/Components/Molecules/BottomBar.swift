@@ -1,9 +1,3 @@
-//
-//  BottomBar.swift
-//  NefrovidaApp
-//
-//  Created by Manuel Bajos Rivera on 09/11/25.
-//
 import SwiftUI
 
 struct BottomBar: View {

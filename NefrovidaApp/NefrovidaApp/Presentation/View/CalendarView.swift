@@ -1,24 +1,8 @@
-//
-//  CalendarView.swift
-//  NefrovidaApp
-//
-//  Created by Manuel Bajos Rivera on 08/11/25.
-//
-
-//
-//  AgendaScreen.swift
-//  NefrovidaApp
-//
-//  Created by Manuel Bajos Rivera on 08/11/25.
-//
-
-// Presentation/View/AgendaScreen.swift
 import SwiftUI
 
 struct AgendaScreen: View {
     @StateObject private var vm: AgendaViewModel
 
-    // DI entry (cámbialo a RemoteAppointmentRepository cuando conectes API real)
     init() {
         let repo = MockAppointmentRepository()
         let uc = GetAppointmentsForDayUseCase(repository: repo)
@@ -27,7 +11,6 @@ struct AgendaScreen: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Top bar simple
             HStack {
                 Profile()
                 Spacer()
@@ -40,7 +23,6 @@ struct AgendaScreen: View {
             
             Spacer()
 
-            // Tabs (Citas / Solicitudes)
             HStack(spacing: 12) {
                 ChipTab(title: "Citas", isSelected: true)
                 ChipTab(title: "Solicitudes", isSelected: false)
@@ -51,7 +33,7 @@ struct AgendaScreen: View {
             .padding(.horizontal)
 
             Spacer()
-            // Week strip
+
             WeekStrip(days: vm.currentWeekDays(),
                       selected: vm.selectedDate,
                       onSelect: vm.select)
@@ -65,7 +47,6 @@ struct AgendaScreen: View {
             )
 
 
-            // Agenda
             if vm.isLoading {
                 ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if let err = vm.errorMessage {
@@ -87,7 +68,6 @@ struct AgendaScreen: View {
                 }
             }
 
-            // Bottom bar (tabs)
             BottomBar()
 
         }

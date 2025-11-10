@@ -1,9 +1,8 @@
-// Components/Organisms/AgendaList.swift
 import SwiftUI
 
 struct AgendaList: View {
-    let appointments: [Appointment]   // del VM para el día
-    private let hours = Array(8...18) // 8am-6pm
+    let appointments: [Appointment]
+    private let hours = Array(8...18) 
 
     var body: some View {
         VStack(spacing: 0) {
