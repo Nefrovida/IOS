@@ -55,6 +55,15 @@ struct AgendaScreen: View {
             WeekStrip(days: vm.currentWeekDays(),
                       selected: vm.selectedDate,
                       onSelect: vm.select)
+            
+            .simultaneousGesture(
+                DragGesture()
+                    .onEnded { value in
+                        if value.translation.width < -30 { vm.goNextWeek() }
+                        if value.translation.width > 30 { vm.goPrevWeek() }
+                    }
+            )
+
 
             // Agenda
             if vm.isLoading {

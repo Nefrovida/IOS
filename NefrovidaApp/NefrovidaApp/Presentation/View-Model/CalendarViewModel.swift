@@ -68,6 +68,19 @@ final class AgendaViewModel: ObservableObject {
         }
         await fetch(forKey: key)
     }
+    
+    func goNextWeek() {
+        if let newDate = calendar.date(byAdding: .day, value: 7, to: selectedDate) {
+            select(date: newDate)
+        }
+    }
+
+    func goPrevWeek() {
+        if let newDate = calendar.date(byAdding: .day, value: -7, to: selectedDate) {
+            select(date: newDate)
+        }
+    }
+
 
     private func fetch(forKey key: String) async {
         isLoading = true
