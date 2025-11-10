@@ -8,7 +8,7 @@ struct WeekStrip: View {
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 14) {
+            HStack(spacing: 30) {
                 ForEach(days, id: \.self) { day in
                     Button { onSelect(day) } label: {
                         DayPill(date: day, isSelected: Calendar.current.isDate(day, inSameDayAs: selected))
@@ -25,4 +25,10 @@ struct WeekStrip: View {
 }
 
 #Preview {
-}
+        WeekStrip(
+            days: (0..<5).compactMap { Calendar.current.date(byAdding: .day, value: $0, to: Date()) },
+            selected: Date(),
+            onSelect: { _ in }
+        )
+    }
+

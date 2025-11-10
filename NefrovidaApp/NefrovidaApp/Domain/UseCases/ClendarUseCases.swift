@@ -1,11 +1,3 @@
-//
-//  ClendarUseCases.swift
-//  NefrovidaApp
-//
-//  Created by Manuel Bajos Rivera on 08/11/25.
-//
-
-// Domain/UseCases/GetAppointmentsForDayUseCase.swift
 import Foundation
 
 public final class GetAppointmentsForDayUseCase {

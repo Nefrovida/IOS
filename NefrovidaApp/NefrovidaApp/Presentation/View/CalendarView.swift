@@ -29,11 +29,11 @@ struct AgendaScreen: View {
         VStack(spacing: 0) {
             // Top bar simple
             HStack {
-                Image(systemName: "person.crop.circle")
+                Profile()
                 Spacer()
-                Text("NEFRO Vida").font(.headline)
+                NefroVidaLogo()
                 Spacer()
-                Image(systemName: "bell")
+                Notification()
             }
             .padding()
             .background(.ultraThinMaterial)
@@ -59,8 +59,8 @@ struct AgendaScreen: View {
             .simultaneousGesture(
                 DragGesture()
                     .onEnded { value in
-                        if value.translation.width < -30 { vm.goNextWeek() }
-                        if value.translation.width > 30 { vm.goPrevWeek() }
+                        if value.translation.width < -40 { vm.goNextWeek() }
+                        if value.translation.width > 40 { vm.goPrevWeek() }
                     }
             )
 

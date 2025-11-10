@@ -17,8 +17,6 @@ final class AgendaViewModel: ObservableObject {
     @Published private(set) var isLoading = false
     @Published private(set) var errorMessage: String?
 
-    // Cache RAM por día "yyyy-MM-dd" -> citas
-    private var cache: [String: [Appointment]] = [:]
 
     // Dependencias Clean
     private let getAppointmentsUC: GetAppointmentsForDayUseCase
@@ -54,18 +52,12 @@ final class AgendaViewModel: ObservableObject {
         let weekday = calendar.component(.weekday, from: startOfWeek) // 1=Dom
         let shift = (weekday == 1) ? 1 : 0
         startOfWeek = calendar.date(byAdding: .day, value: shift, to: startOfWeek) ?? startOfWeek
-        return (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: startOfWeek) }
+        return (0..<5).compactMap { calendar.date(byAdding: .day, value: $0, to: startOfWeek) }
     }
-
-    // MARK: - Private
 
     private func loadIfNeeded(for date: Date) async {
         errorMessage = nil
         let key = DateFormats.apiDay.string(from: date)
-        if let cached = cache[key] {
-            self.appointments = cached
-            return
-        }
         await fetch(forKey: key)
     }
     
@@ -87,7 +79,6 @@ final class AgendaViewModel: ObservableObject {
         defer { isLoading = false }
         do {
             let list = try await getAppointmentsUC.execute(date: key)
-            cache[key] = list
             self.appointments = list
         } catch {
             self.errorMessage = "No se pudieron cargar las citas."

@@ -3,7 +3,7 @@
 import Foundation
 import Alamofire
 
-public final class RemoteAppointmentRepository: AppointmentRepository {
+public final class RemoteAppointmentRepository : AppointmentRepository {
 
     private let baseURL: String
 

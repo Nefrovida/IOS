@@ -1,10 +1,3 @@
-//
-//  CalendarEntity.swift
-//  NefrovidaApp
-//
-//  Created by Manuel Bajos Rivera on 08/11/25.
-//
-
 import Foundation
 
 public struct Appointment: Identifiable, Equatable {
