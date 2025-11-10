@@ -1,29 +1,37 @@
-//
-//  CalendarRepository.swift
-//  NefrovidaApp
-//
-//  Created by Manuel Bajos Rivera on 08/11/25.
-//
-
 // Data/Repository/RemoteAppointmentRepository.swift
+
 import Foundation
+import Alamofire
 
 public final class RemoteAppointmentRepository: AppointmentRepository {
+
     private let baseURL: String
-    public init(baseURL: String) { self.baseURL = baseURL }
+
+    public init(baseURL: String) {
+        self.baseURL = baseURL
+    }
 
     public func fetchAppointments(forDate date: String) async throws -> [Appointment] {
-        guard var comps = URLComponents(string: "\(baseURL)/appointments") else {
-            throw URLError(.badURL)
-        }
-        comps.queryItems = [URLQueryItem(name: "date", value: date)]
-        guard let url = comps.url else { throw URLError(.badURL) }
+        let endpoint = "\(baseURL)/appointments"
+        
+        let params: Parameters = [
+            "date": date
+        ]
+        
+        let request = AF.request(endpoint, method: .get, parameters: params).validate()
+        let result = await request.serializingData().response
 
-        let (data, response) = try await URLSession.shared.data(from: url)
-        if let http = response as? HTTPURLResponse, http.statusCode >= 400 {
-            throw URLError(.badServerResponse)
+        switch result.result {
+        case .success(let data):
+            do {
+                let dtoList = try JSONDecoder().decode([AppointmentDTO].self, from: data)
+                return dtoList.map { $0.toDomain() }
+            } catch {
+                throw error
+            }
+
+        case .failure(let error):
+            throw error
         }
-        let list = try JSONDecoder().decode([AppointmentDTO].self, from: data)
-        return list.map { $0.toDomain() }
     }
 }

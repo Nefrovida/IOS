@@ -1,10 +1,3 @@
-//
-//  WeekStrip.swift
-//  NefrovidaApp
-//
-//  Created by Manuel Bajos Rivera on 08/11/25.
-//
-
 // Components/Molecules/WeekStrip.swift
 import SwiftUI
 
@@ -26,8 +19,10 @@ struct WeekStrip: View {
             .padding(.horizontal)
             .padding(.vertical, 8)
         }
-        .background(RoundedRectangle(cornerRadius: 12).fill(Color.blue.opacity(0.12)))
+        .background(RoundedRectangle(cornerRadius: 12).fill(Color.nvLightBlue))
         .padding(.horizontal)
     }
 }
 
+#Preview {
+}

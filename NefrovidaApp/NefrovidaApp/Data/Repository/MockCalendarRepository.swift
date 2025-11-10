@@ -1,23 +1,26 @@
-//
-//  MockCalendarRepository.swift
-//  NefrovidaApp
-//
-//  Created by Manuel Bajos Rivera on 08/11/25.
-//
-
-// Data/Repository/MockAppointmentRepository.swift
-import Foundation
-
 public final class MockAppointmentRepository: AppointmentRepository {
     public init() {}
+
     public func fetchAppointments(forDate date: String) async throws -> [Appointment] {
-        // demo: una cita a las 08:00
-        return [
-            Appointment(doctorName: "Manuel Bajos",
-                        appointmentType: "Análisis",
-                        studyName: "Biometría Hemática (BM)",
-                        date: date,
-                        hour: "08:00")
-        ]
+
+        if date == "2025-11-10" {
+            return [
+                Appointment(doctorName: "Dr. A",
+                            appointmentType: "Análisis",
+                            studyName: "Biometría Hemática (BM)",
+                            date: date, hour: "08:00")
+            ]
+        }
+
+        if date == "2025-11-11" {
+            return [
+                Appointment(doctorName: "Dra. López",
+                            appointmentType: "Consulta",
+                            studyName: "Control mensual",
+                            date: date, hour: "10:00")
+            ]
+        }
+
+        return [] // otros días sin citas
     }
 }

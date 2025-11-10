@@ -37,6 +37,8 @@ struct AgendaScreen: View {
             }
             .padding()
             .background(.ultraThinMaterial)
+            
+            Spacer()
 
             // Tabs (Citas / Solicitudes)
             HStack(spacing: 12) {
@@ -48,6 +50,7 @@ struct AgendaScreen: View {
             }
             .padding(.horizontal)
 
+            Spacer()
             // Week strip
             WeekStrip(days: vm.currentWeekDays(),
                       selected: vm.selectedDate,
@@ -76,18 +79,8 @@ struct AgendaScreen: View {
             }
 
             // Bottom bar (tabs)
-            HStack {
-                VStack { Image(systemName: "house"); Text("Inicio").font(.caption2) }
-                Spacer()
-                VStack { Image(systemName: "testtube.2"); Text("Análisis").font(.caption2) }
-                Spacer()
-                VStack { Image(systemName: "text.bubble"); Text("Foros").font(.caption2) }
-                Spacer()
-                VStack { Image(systemName: "calendar"); Text("Agenda").font(.caption2).fontWeight(.semibold) }
-            }
-            .padding(.horizontal, 22)
-            .padding(.vertical, 10)
-            .background(.ultraThinMaterial)
+            BottomBar()
+
         }
         .onAppear { vm.onAppear() }
     }
