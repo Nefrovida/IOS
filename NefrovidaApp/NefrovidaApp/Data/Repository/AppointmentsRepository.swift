@@ -21,7 +21,7 @@ class MockAppointmentsRepository: AppointmentsRepository {
     private var store: [Appointment] = [
         .init(id: 1, patientName: "Juan Pérez",  analysisName: "Examen de riñón", date: .now, status: .pendiente),
         .init(id: 2, patientName: "Mario Pérez", analysisName: "Examen de riñón", date: .now, status: .pendiente),
-        .init(id: 3, patientName: "Juan Pérez",  analysisName: "Examen de riñón", date: .now, status: .conResultados)
+        .init(id: 3, patientName: "Eva Perón",  analysisName: "Examen de riñón", date: .now, status: .conResultados)
     ]
 
     func fetchPending() async throws -> [Appointment] {
@@ -36,7 +36,7 @@ class MockAppointmentsRepository: AppointmentsRepository {
     }
 
     func uploadFile(to presignedURL: URL, data: Data, mime: String) async throws {
-        // Aquí harías un PUT; en mock, solo esperamos.
+        // placeholer del PUT
         try await Task.sleep(nanoseconds: 300_000_000)
     }
 

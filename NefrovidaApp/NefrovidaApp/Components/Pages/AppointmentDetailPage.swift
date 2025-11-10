@@ -27,22 +27,18 @@ struct AppointmentDetailPage: View {
                 Text(appointment.analysisName).font(.subheadline)
             }
 
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Adjuntar archivo").font(.title3).bold()
-                Button {
-                    showImporter = true
-                } label: {
-                    HStack {
-                        Text("Archivo seleccionado")
-                        Spacer()
-                        Text(vm.fileName)
-                            .lineLimit(1)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding()
-                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12))
-                }
+            VStack(spacing: 8) {
+                AvatarCircle()
+                Text(appointment.patientName).font(.title3).bold()
+                Text(appointment.analysisName).font(.subheadline).foregroundStyle(.secondary)
+                Text(appointment.date.formatted(date: .numeric, time: .omitted))
+                    .font(.caption).foregroundStyle(.secondary)
             }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous).fill(NV.cardBG)
+            )
+            .nvShadow(NV.elevation(1))
 
             Button {
                 Task { await vm.upload() }

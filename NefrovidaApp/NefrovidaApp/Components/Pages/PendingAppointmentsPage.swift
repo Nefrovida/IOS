@@ -12,28 +12,65 @@ struct PendingAppointmentsPage: View {
 
     var body: some View {
         NavigationStack {
-            List(vm.items) { appt in
-                NavigationLink {
-                    AppointmentDetailPage(appointment: appt)
-                } label: {
-                    HStack {
-                        Image(systemName: appt.status == .pendiente ? "clock" : "checkmark.seal")
-                        VStack(alignment: .leading) {
-                            Text(appt.patientName).font(.headline)
-                            Text(appt.analysisName).font(.subheadline)
+            ZStack {
+                NV.pageBG.ignoresSafeArea()
+
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        // Encabezado
+                        Text("Resultados pendientes")
+                            .font(.system(size: 26, weight: .heavy))
+                            .foregroundStyle(NV.blue)
+                            .padding(.top, 8)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        // Barra de acciones (lupa/filtro) – placeholders
+//                        HStack(spacing: 18) {
+//                            Spacer()
+//                            Image(systemName: "magnifyingglass").font(.title3)
+//                            Image(systemName: "line.3.horizontal.decrease.circle").font(.title3)
+//                        }
+//                        .foregroundStyle(.secondary)
+
+                        // Tarjetas
+                        LazyVStack(spacing: 14) {
+                            ForEach(vm.items) { appt in
+                                NavigationLink {
+                                    AppointmentDetailPage(appointment: appt)
+                                } label: {
+                                    AppointmentCard(
+                                        patientName: appt.patientName,
+                                        analysisName: appt.analysisName,
+                                        dateText: appt.date.formatted(date: .numeric, time: .omitted),
+                                        status: appt.status
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                                .padding(.horizontal, 8)
+                            }
                         }
-                        Spacer()
-                        Text(appt.status == .pendiente ? "Pendiente" : "Entregado")
-                            .foregroundStyle(appt.status == .pendiente ? .yellow : .green)
+                        .padding(.bottom, 24)
                     }
+                    .padding(.horizontal, 16)
                 }
-            }
-            .navigationTitle("Resultados pendientes")
-            .task { await vm.load() }
-            .overlay {
+
                 if vm.loading { ProgressView() }
             }
-            .alert("Error", isPresented: .constant(vm.error != nil), actions: {}, message: { Text(vm.error ?? "") })
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Image(systemName: "person.crop.circle")
+                }
+                ToolbarItem(placement: .principal) {
+                    Text("NefroVida").font(.headline)
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Image(systemName: "bell")
+                }
+            }
+            .task { await vm.load() }
+            .alert("Error", isPresented: .constant(vm.error != nil)) { } message: {
+                Text(vm.error ?? "")
+            }
         }
     }
 }
