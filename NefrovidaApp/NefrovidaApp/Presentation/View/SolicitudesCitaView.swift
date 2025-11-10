@@ -1,14 +1,13 @@
 //
-//  Pages.swift
+//  SolicitudesCitaView.swift
 //  NefrovidaApp
 //
-//  Created by Manuel Bajos Rivera on 28/10/25.
+//  Created by Leonardo Cervantes on 08/11/25.
 //
 
 import SwiftUI
 
-// MARK: - Appointment Requests Page
-struct SolicitudesCitaPage: View {
+struct SolicitudesCitaView: View {
   @StateObject private var viewModel = CitasViewModel()
   @State private var showFilterSheet = false
 
@@ -19,7 +18,7 @@ struct SolicitudesCitaPage: View {
         case .idle, .loading:
           ProgressView("Cargando solicitudes…")
             .progressViewStyle(.circular)
-            .accessibilityLabel("Cargando solicitudes")
+            .accessibilityLabel(Text("Cargando solicitudes"))
         case .mostrandoSolicitudes:
           listContent
         case .seleccionandoDoctorHorario:
@@ -29,7 +28,7 @@ struct SolicitudesCitaPage: View {
               set: { _ in }
             )) {
               if let solicitud = viewModel.selectedSolicitud {
-                AgendarCitaPage(solicitud: solicitud, viewModel: viewModel)
+                AgendarCitaView(solicitud: solicitud, viewModel: viewModel)
               }
             }
         case .error(let message):
@@ -70,10 +69,10 @@ struct SolicitudesCitaPage: View {
           Text("""
           Paciente: \(solicitud.paciente.user.nombreCompleto)
           Tipo: \(solicitud.tipoConsulta)
-
+          
           Doctor: \(doctor.nombreCompleto)
           Especialidad: \(doctor.especialidad.trimmingCharacters(in: .whitespaces))
-
+          
           Fecha: \(viewModel.selectedDate.format("dd/MM/yyyy"))
           Hora: \(slot.horario)
           """)
@@ -99,66 +98,6 @@ struct SolicitudesCitaPage: View {
   }
 }
 
-// MARK: - Schedule Appointment Page
-struct AgendarCitaPage: View {
-  let solicitud: SolicitudCita
-  @ObservedObject var viewModel: CitasViewModel
-  @Environment(\.dismiss) private var dismiss
-  @State private var showConfirmDialog = false
-
-  var body: some View {
-    NavigationStack {
-      ScrollView {
-        VStack(alignment: .leading, spacing: AppSpacing.xl) {
-          PatientHeader(solicitud: solicitud)
-          DoctorPickerSection(viewModel: viewModel)
-
-          if viewModel.selectedDoctor != nil {
-            DatePickerSection(viewModel: viewModel)
-            TimeSlotsSection(viewModel: viewModel)
-            scheduleButton
-          }
-        }
-        .padding(AppSpacing.lg)
-      }
-      .navigationTitle("Agendar Cita")
-      .navigationBarTitleDisplayMode(.inline)
-      .toolbar {
-        ToolbarItem(placement: .cancellationAction) {
-          Button("Cancelar") {
-            viewModel.resetSelection()
-            dismiss()
-          }
-        }
-      }
-      .onAppear {
-        Task {
-          await viewModel.cargarDoctores()
-        }
-      }
-      .alert("Confirmar Cita", isPresented: $showConfirmDialog) {
-        Button("Cancelar", role: .cancel) {}
-        Button("Confirmar") {
-          Task {
-            await viewModel.onProgramarCita()
-          }
-          dismiss()
-        }
-      } message: {
-        if let doctor = viewModel.selectedDoctor,
-           let slot = viewModel.selectedSlot {
-          Text("¿Confirmar cita con \(doctor.nombreCompleto) el \(viewModel.selectedDate.format("dd/MM/yyyy")) a las \(slot.horario)?")
-        }
-      }
-    }
-  }
-
-  private var scheduleButton: some View {
-    PrimaryButton(
-      title: "Programar Cita",
-      action: { showConfirmDialog = true },
-      isEnabled: viewModel.selectedDoctor != nil && viewModel.selectedSlot != nil,
-      accessibilityLabel: "Programar cita médica"
-    )
-  }
+#Preview {
+  SolicitudesCitaView()
 }
