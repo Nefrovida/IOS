@@ -45,15 +45,31 @@ struct infoCard: View {
                 button
                         .frame(width: 95)
                     
-            } else {
-                Toggle(isOn: $asistio) {
-                    Text("Asistió")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(Color.nvBrand)
+                } else {
+                    // The toggle button indicates its status depending on whether it is active or not.
+                    VStack(spacing: 6) {
+                        Toggle("", isOn: $asistio)
+                            .labelsHidden()
+                            .shadow(color: .black.opacity(0.2), radius: 6, x: 0, y: 6)
+                        if asistio {
+                            Text("Asistio")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundStyle(.green)
+                                .transition(.opacity)
+                        }
+                        else {
+                            Text("No asistio")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundStyle(Color.nvBrand)
+                                .transition(.opacity)
+                        }
+                    }
+                    // Adds the padding to the right
+                    .padding(.trailing, 15)
+                    .animation(.easeInOut(duration: 0.2), value: asistio)
                 }
-                .frame(height: 20)
-                }
-            }
+            // The card size is define
+            }.frame(height: 100)
             .padding(.horizontal, 10)
             .padding(.vertical, 10)
             .background(
