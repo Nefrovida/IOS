@@ -1,13 +1,6 @@
-//
-//  button.swift
-//  NefrovidaApp
-//
-//  Created by Manuel Bajos Rivera on 10/11/25.
-//
-
 import SwiftUI
 
-struct PrimaryButton: View {           // ojo luego este nombre lo vas a cambiar a algo tipo PrimaryButton -> porque ButtonStyle choca con SwiftUI ButtonStyle real
+struct PrimaryButton: View {
     var text : String
     var color : Color
     var vertical : CGFloat
@@ -22,7 +15,7 @@ struct PrimaryButton: View {           // ojo luego este nombre lo vas a cambiar
                 .padding(.vertical, vertical)
                 .padding(.horizontal, horizontal)
                 .background(color)
-                .cornerRadius(30) // super redondo
+                .cornerRadius(30)
                 .shadow(color: .black.opacity(0.2), radius: 12, x: 0, y: 6)
         }
         .foregroundColor(.black)
