@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct buttonBar: View {
-    var image : Image = Image("")
     var imageName : String = ""
     var text : String = ""
     var move: ()-> Void
