@@ -12,7 +12,7 @@ struct NefrovidaAppApp: App {
     var body: some Scene {
         WindowGroup {
 //            ContentView()
-            PendingAppointmentsPage()
+            PendingLabAppointmentsPage()
         }
     }
 }

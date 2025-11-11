@@ -1,38 +1,38 @@
 //
-//  AppointmentDetailPage.swift
+//  LabAppointmentDetailPage.swift
 //  NefrovidaApp
 //
 //  Created by Iván FV on 06/11/25.
 //
-// Components/Pages/AppointmentDetailPage.swift
+// Components/Pages/LabAppointmentDetailPage.swift
 
 import SwiftUI
 import UniformTypeIdentifiers
 
-struct AppointmentDetailPage: View {
-    let appointment: Appointment
+struct LabAppointmentDetailPage: View {
+    let labappointment: LabAppointment
     @StateObject private var vm: UploadResultVM
 
     @State private var showImporter = false
 
-    init(appointment: Appointment) {
-        self.appointment = appointment
-        _vm = StateObject(wrappedValue: UploadResultVM(appointment: appointment))
+    init(labappointment: LabAppointment) {
+        self.labappointment = labappointment
+        _vm = StateObject(wrappedValue: UploadResultVM(labappointment: labappointment))
     }
 
     var body: some View {
         VStack(spacing: 24) {
             VStack {
                 Image(systemName: "person.crop.circle").font(.largeTitle)
-                Text(appointment.patientName).font(.title3)
-                Text(appointment.analysisName).font(.subheadline)
+                Text(labappointment.patientName).font(.title3)
+                Text(labappointment.analysisName).font(.subheadline)
             }
 
             VStack(spacing: 8) {
                 AvatarCircle()
-                Text(appointment.patientName).font(.title3).bold()
-                Text(appointment.analysisName).font(.subheadline).foregroundStyle(.secondary)
-                Text(appointment.date.formatted(date: .numeric, time: .omitted))
+                Text(labappointment.patientName).font(.title3).bold()
+                Text(labappointment.analysisName).font(.subheadline).foregroundStyle(.secondary)
+                Text(labappointment.date.formatted(date: .numeric, time: .omitted))
                     .font(.caption).foregroundStyle(.secondary)
             }
             .padding()

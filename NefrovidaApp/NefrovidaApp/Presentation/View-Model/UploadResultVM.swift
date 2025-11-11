@@ -16,13 +16,13 @@ class UploadResultVM: ObservableObject {
     @Published var success = false
     @Published var error: String?
 
-    let appointment: Appointment
+    let labappointment: LabAppointment
     private let requestPresign: RequestPresign
     private let putFile: PutFileToStorage
     private let confirm: ConfirmUpload
 
-    init(appointment: Appointment, repo: AppointmentsRepository = MockAppointmentsRepository()) {
-        self.appointment = appointment
+    init(labappointment: LabAppointment, repo: LabAppointmentsRepository = MockLabAppointmentsRepository()) {
+        self.labappointment = labappointment
         self.requestPresign = RequestPresign(repo: repo)
         self.putFile = PutFileToStorage(repo: repo)
         self.confirm = ConfirmUpload(repo: repo)
@@ -39,10 +39,10 @@ class UploadResultVM: ObservableObject {
         uploading = true; defer { uploading = false }
         do {
             let mime = fileName.lowercased().hasSuffix(".png") ? "image/png" : "application/pdf"
-            let presigned = try await requestPresign(appointment.id, mime: mime, size: data.count)
+            let presigned = try await requestPresign(labappointment.id, mime: mime, size: data.count)
             try await putFile(presigned, data: data, mime: mime)
             let hash = data.sha256Hex()
-            try await confirm(appointment.id, hashHex: hash, uri: presigned, size: data.count)
+            try await confirm(labappointment.id, hashHex: hash, uri: presigned, size: data.count)
             success = true
         } catch { self.error = error.localizedDescription }
     }

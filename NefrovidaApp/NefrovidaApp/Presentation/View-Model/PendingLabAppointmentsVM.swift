@@ -1,5 +1,5 @@
 //
-//  PendingAppointmentsVM.swift
+//  PendingLabAppointmentsVM.swift
 //  NefrovidaApp
 //
 //  Created by Iván FV on 06/11/25.
@@ -8,15 +8,15 @@
 import Foundation
 import Combine
 
-class PendingAppointmentsVM: ObservableObject {
-    @Published var items: [Appointment] = []
+class PendingLabAppointmentsVM: ObservableObject {
+    @Published var items: [LabAppointment] = []
     @Published var loading = false
     @Published var error: String?
 
-    private let getPending: GetPendingAppointments
+    private let getPending: GetPendingLabAppointments
 
-    init(repo: AppointmentsRepository = MockAppointmentsRepository()) {
-        self.getPending = GetPendingAppointments(repo: repo)
+    init(repo: LabAppointmentsRepository = MockLabAppointmentsRepository()) {
+        self.getPending = GetPendingLabAppointments(repo: repo)
     }
 
     @MainActor

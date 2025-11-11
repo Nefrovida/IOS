@@ -7,28 +7,28 @@
 
 import Foundation
 
-struct GetPendingAppointments {
-    let repo: AppointmentsRepository
-    func callAsFunction() async throws -> [Appointment] { try await repo.fetchPending() }
+struct GetPendingLabAppointments {
+    let repo: LabAppointmentsRepository
+    func callAsFunction() async throws -> [LabAppointment] { try await repo.fetchPending() }
 }
 
 struct RequestPresign {
-    let repo: AppointmentsRepository
+    let repo: LabAppointmentsRepository
     func callAsFunction(_ id: Int, mime: String, size: Int) async throws -> URL {
-        try await repo.requestPresignedURL(appointmentId: id, mime: mime, size: size)
+        try await repo.requestPresignedURL(labappointmentId: id, mime: mime, size: size)
     }
 }
 
 struct PutFileToStorage {
-    let repo: AppointmentsRepository
+    let repo: LabAppointmentsRepository
     func callAsFunction(_ url: URL, data: Data, mime: String) async throws {
         try await repo.uploadFile(to: url, data: data, mime: mime)
     }
 }
 
 struct ConfirmUpload {
-    let repo: AppointmentsRepository
+    let repo: LabAppointmentsRepository
     func callAsFunction(_ id: Int, hashHex: String, uri: URL, size: Int) async throws {
-        try await repo.confirmUpload(appointmentId: id, hashHex: hashHex, remoteURI: uri, size: size)
+        try await repo.confirmUpload(labappointmentId: id, hashHex: hashHex, remoteURI: uri, size: size)
     }
 }

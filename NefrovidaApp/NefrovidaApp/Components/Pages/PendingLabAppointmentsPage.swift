@@ -1,15 +1,15 @@
 //
-//  PendingAppointmentsPage.swift
+//  PendingLabAppointmentsPage.swift
 //  NefrovidaApp
 //
 //  Created by Iván FV on 06/11/25.
 //
-// Components/Pages/PendingAppointmentsPage.swift
+// Components/Pages/PendingLabAppointmentsPage.swift
 
 import SwiftUI
 
-struct PendingAppointmentsPage: View {
-    @StateObject var vm = PendingAppointmentsVM()
+struct PendingLabAppointmentsPage: View {
+    @StateObject var vm = PendingLabAppointmentsVM()
 
     var body: some View {
         NavigationStack {
@@ -37,9 +37,9 @@ struct PendingAppointmentsPage: View {
                         LazyVStack(spacing: 14) {
                             ForEach(vm.items) { appt in
                                 NavigationLink {
-                                    AppointmentDetailPage(appointment: appt)
+                                    LabAppointmentDetailPage(labappointment: appt)
                                 } label: {
-                                    AppointmentCard(
+                                    labAppointmentCard(
                                         patientName: appt.patientName,
                                         analysisName: appt.analysisName,
                                         dateText: appt.date.formatted(date: .numeric, time: .omitted),
