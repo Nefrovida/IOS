@@ -1,17 +1,18 @@
 import SwiftUI
 
-struct PrimaryButton: View {
+struct nefroButton: View {
     var text : String
     var color : Color
     var vertical : CGFloat
     var horizontal : CGFloat
+    var textSize : CGFloat
     var action : () -> Void
     
     
     var body: some View {
         Button(action: action) {
             Text(text)
-                .font(.system(size: 20, weight: .bold))
+                .font(.system(size: textSize, weight: .bold))
                 .padding(.vertical, vertical)
                 .padding(.horizontal, horizontal)
                 .background(color)
@@ -23,5 +24,5 @@ struct PrimaryButton: View {
 }
 
 #Preview {
-    PrimaryButton(text: "Hello World",color:Color(red: 0.82, green: 0.94, blue: 0.97), vertical: 10, horizontal: 10 ,action: {})
+    nefroButton(text: "Hello World",color:Color(red: 0.82, green: 0.94, blue: 0.97), vertical: 10, horizontal: 10,textSize: 30 ,action: {})
 }

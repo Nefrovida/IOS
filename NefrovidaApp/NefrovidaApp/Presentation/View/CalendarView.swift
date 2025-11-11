@@ -16,8 +16,8 @@ struct AgendaScreen: View {
             Spacer()
 
             HStack(spacing: 12) {
-                ChipTab(title: "Citas", isSelected: true)
-                ChipTab(title: "Solicitudes", isSelected: false)
+                ChipTab(title: "Citas", isSelected: true){print("hola")}
+                ChipTab(title: "Solicitudes", isSelected: false){print("hola")}
                 Spacer()
                 Text(vm.monthTitle())
                     .font(.title3).fontWeight(.bold)
