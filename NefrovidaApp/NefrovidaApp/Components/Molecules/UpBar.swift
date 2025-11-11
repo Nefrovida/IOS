@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct BottomBar: View {
+struct UpBar: View {
     var body: some View {
         HStack{
             buttonBar(imageName:"house", text: "inicio"){ print("hola")}
@@ -16,5 +16,5 @@ struct BottomBar: View {
     }
 }
 #Preview {
-    BottomBar()
+    UpBar()
 }
