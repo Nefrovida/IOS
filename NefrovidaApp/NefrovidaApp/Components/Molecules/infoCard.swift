@@ -5,6 +5,7 @@ struct infoCard: View {
     var image = ProfileView()
     var name: String
     var typeOfExam: String
+    // The button atom is used
     var button : nefroButton?
     var cel : String
     var date : String
@@ -13,17 +14,18 @@ struct infoCard: View {
             image
                 .font(.system(size: 50))
                 .padding(10)
-            
+                // Defines the main fields displayed in the card
                 VStack(alignment: .leading, spacing: 8) {
+                    // Name of the person
                     Text(name)
                         .font(.system(size: 30, weight: .bold))
                         .foregroundStyle(Color.nvBrand)
-
+                    // Type of exam to be perfomed
                     Text(typeOfExam)
                         .font(.nvBody)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
-                    
+                    // Patient's phone number or today's date
                     if cel != ""{
                         Text(cel)
                             .font(.nvBody)
@@ -40,7 +42,7 @@ struct infoCard: View {
 
                 Spacer(minLength: 12)
 
-                
+                // If there is no button, an “toggle” button is placed.
                 if button != nil{
                 button
                         .frame(width: 95)
@@ -82,7 +84,7 @@ struct infoCard: View {
     }
 
 
-
+// A preview to visualize the aplication of the infoCard
 #Preview {
     infoCard(name: "Manuel", typeOfExam: "Examen de riñones", button: nefroButton(text: "Agendar",color:Color(red: 0.82, green: 0.94, blue: 0.97), vertical: 8, horizontal: 8,textSize: 15 ,action: {}), cel: "", date: "10-11-2025")
     
