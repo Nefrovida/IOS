@@ -15,15 +15,30 @@ struct nefroPop: View {
     var indication: String
     var buttonText: String
     var buttonAction: () -> Void
+    var closeAction: () -> Void
     
     var body: some View {
         VStack(spacing: 20) {
-            // Main title of the pop up
-            Text(title)
-                .font(.title2)
-                .fontWeight(.bold)
-                .foregroundColor(.black)
-            
+            ZStack {
+                // Main title of the pop up
+                Text(title)
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.black)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                
+                HStack {
+                    // Button to close the pop up
+                    Spacer()
+                    Button(action: closeAction) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.gray)
+                            .font(.title2)
+                            .padding(10)
+                    }
+                }
+            }
             // Main descripcion
             Text(description)
                 .font(.body)
@@ -73,6 +88,7 @@ struct nefroPop: View {
         subtitle: "Indicaciones para el examen",
         indication: "Ayuno de 4 horas.",
         buttonText: "Continuar",
-        buttonAction: { print("Botón presionado") }
+        buttonAction: { print("Botón presionado") },
+        closeAction: { print("PopUp Cerrado") }
     )
 }
