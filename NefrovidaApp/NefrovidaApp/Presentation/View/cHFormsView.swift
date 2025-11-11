@@ -9,18 +9,16 @@ import SwiftUI
 
 struct CHForms: View {
     var body: some View {
-        
+        @State var email = ""
+
         VStack(spacing: 0) {
-            HStack {
-                Profile()
-                Spacer()
-                NefroVidaLogo()
-                Spacer()
-                Notification()
-            }
-            .padding()
-            .background(.ultraThinMaterial)
+           UpBar()
+
             Title(text: "Formulario de factor de riesgo")
+            
+            textField(placeholder: "Nombre", text: $email)
+            
+            
             
             Spacer()
 
