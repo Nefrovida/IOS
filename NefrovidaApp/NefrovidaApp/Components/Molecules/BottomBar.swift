@@ -3,7 +3,7 @@ import SwiftUI
 struct BottomBar: View {
     var body: some View {
         HStack{
-            buttonBar(imageName:"house", text: "inicio"){ print("hola")}
+            buttonBar(imageName:"house", text: "Inicio"){ print("hola")}
             Spacer()
             buttonBar(imageName:"testtube.2", text: "Analisis"){ print("hola")}
             Spacer()
