@@ -11,21 +11,13 @@ struct AgendaScreen: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
-                Profile()
-                Spacer()
-                NefroVidaLogo()
-                Spacer()
-                Notification()
-            }
-            .padding()
-            .background(.ultraThinMaterial)
+           UpBar()
             
             Spacer()
 
             HStack(spacing: 12) {
-                ChipTab(title: "Citas", isSelected: true)
-                ChipTab(title: "Solicitudes", isSelected: false)
+                ChipTab(title: "Citas", isSelected: true){print("hola")}
+                ChipTab(title: "Solicitudes", isSelected: false){print("hola")}
                 Spacer()
                 Text(vm.monthTitle())
                     .font(.title3).fontWeight(.bold)
