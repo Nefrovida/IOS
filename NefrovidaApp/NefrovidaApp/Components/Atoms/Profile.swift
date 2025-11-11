@@ -1,17 +1,11 @@
 import SwiftUI
 
-struct Profile: View
-{
+struct ProfileView: View {
     var body: some View {
-        Button(action : goToProfile){
-            Image(systemName: "person.crop.circle")
-        }.foregroundColor(.black)
-    }
-    func goToProfile(){
-        
+        Label("", systemImage: "person.crop.circle")
     }
 }
 
 #Preview {
-    Profile()
+    ProfileView()
 }

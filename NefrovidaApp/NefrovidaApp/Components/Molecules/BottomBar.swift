@@ -3,13 +3,13 @@ import SwiftUI
 struct BottomBar: View {
     var body: some View {
         HStack{
-            House()
+            buttonBar(imageName:"house", text: "Inicio"){ print("hola")}
             Spacer()
-            Analysis()
+            buttonBar(imageName:"testtube.2", text: "Analisis"){ print("hola")}
             Spacer()
-            Schedule()
+            buttonBar(imageName:"calendar", text: "Agenda"){ print("hola")}
             Spacer()
-            Forum()
+            buttonBar(imageName:"text.bubble", text: "Foros"){ print("hola")}
         }.padding(.horizontal, 22)
             .padding(.vertical, 10)
             .background(.ultraThinMaterial)
