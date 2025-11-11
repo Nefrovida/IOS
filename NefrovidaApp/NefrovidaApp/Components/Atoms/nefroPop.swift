@@ -48,11 +48,10 @@ struct InfoPopupAtom: View {
                 color: .white,
                 vertical: 10,
                 horizontal: 50,
+                hasStroke: true,
                 textSize: 18,
                 action: buttonAction
-            ).overlay(
-                RoundedRectangle(cornerRadius: 22)
-                    .stroke(Color.cyan.opacity(0.7), lineWidth: 2))
+            )
         }
         .padding()
         .background(Color(red: 0.85, green: 0.95, blue: 0.97))
