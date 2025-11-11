@@ -3,9 +3,10 @@ import SwiftUI
 struct ChipTab: View {
     let title: String
     let isSelected: Bool
+    let move : () -> Void
     
     var body: some View {
-        Button(action: goToOtherView) {
+        Button(action: move) {
             Text(title)
                 .font(.nvBody)
                 .padding(.vertical, 8)
@@ -17,11 +18,8 @@ struct ChipTab: View {
                 )
         }.foregroundColor(.black)
     }
-    func goToOtherView() {
-        
-    }
 }
 
 #Preview {
-    ChipTab(title: "test", isSelected: true)
+    ChipTab(title: "test", isSelected: true){print("Hola")}
 }
