@@ -2,7 +2,7 @@
 public final class MockAppointmentRepository: AppointmentRepository {
     public init() {}
 
-    public func fetchAppointments(forDate date: String) async throws -> [Appointment] {
+    public func fetchAppointments(forDate date: String,idUser: String) async throws -> [Appointment] {
 
         if date == "2025-11-05" {
             return [

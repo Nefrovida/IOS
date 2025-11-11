@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        AgendaScreen()
+        AgendaScreen(idUser: "asjd212")
     }
 }
 
