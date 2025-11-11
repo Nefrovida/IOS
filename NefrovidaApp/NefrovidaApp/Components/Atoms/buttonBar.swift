@@ -4,14 +4,15 @@ struct buttonBar: View {
     var image : Image = Image("")
     var imageName : String = ""
     var text : String = ""
-    var  move: ()-> Void
+    var move: ()-> Void
     var body: some View {
         VStack {
             Button(action: move) {
                 VStack{
-                    Label("",systemImage: imageName)
+                    Image(systemName: imageName)
                     Text(text);
                 }
+                .frame(alignment: .center)
             }.padding(10)
                 .foregroundColor(.black)
                 
