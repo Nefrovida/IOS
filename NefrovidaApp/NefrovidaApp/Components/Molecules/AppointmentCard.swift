@@ -4,6 +4,7 @@
 //
 //  Created by Iván FV on 08/11/25.
 //
+// Components/Molecules/AppointmentCard.swift
 
 import SwiftUI
 

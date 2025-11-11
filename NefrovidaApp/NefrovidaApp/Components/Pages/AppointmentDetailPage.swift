@@ -4,6 +4,7 @@
 //
 //  Created by Iván FV on 06/11/25.
 //
+// Components/Pages/AppointmentDetailPage.swift
 
 import SwiftUI
 import UniformTypeIdentifiers
