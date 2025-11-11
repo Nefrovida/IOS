@@ -19,7 +19,7 @@ struct AnalysisTypeCard: View {
             
             VStack(alignment: .leading, spacing: 8) {
                 Text(title)
-                    .font(.system(size: 20, weight: .bold))
+                    .font(.system(size: 22, weight: .bold))
                     .foregroundStyle(Color.nvBrand)
 
                 Text(description)
