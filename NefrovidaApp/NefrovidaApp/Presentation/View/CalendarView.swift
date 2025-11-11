@@ -11,15 +11,7 @@ struct AgendaScreen: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
-                Profile()
-                Spacer()
-                NefroVidaLogo()
-                Spacer()
-                Notification()
-            }
-            .padding()
-            .background(.ultraThinMaterial)
+           UpBar()
             
             Spacer()
 
