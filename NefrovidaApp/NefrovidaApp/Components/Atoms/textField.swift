@@ -14,17 +14,19 @@ struct textField: View {
     var isSecure: Bool = false
     var iconName: String?
     
+    @FocusState private var isFocused: Bool
     // Flag used to determine whether text is visible or not.
     @State private var showText: Bool = false
 
     var body: some View {
         HStack {
             if isSecure && !showText {
-                SecureField(placeholder, text: $text)
+                SecureField(placeholder, text: $text).focused($isFocused)
             } else {
                 TextField(placeholder, text: $text)
                     .autocapitalization(.none)
                     .keyboardType(.default)
+                    .focused($isFocused)
             }
             // Depending of the icon it has a special funcionality.
             // If is "eye", you can either see or hide the text in the text field.
@@ -50,13 +52,18 @@ struct textField: View {
                 Image(systemName: icon)
                     .foregroundColor(.gray)
             }
-        }
+        }.font(.system(size:16))
+            .frame(height:20)
+            .contentShape(RoundedRectangle(cornerRadius: 26))
+            .onTapGesture {
+                isFocused = true
+            }
         // Here, the style of the textField is defined
         .padding()
         .background(Color.white)
-        .cornerRadius(30)
+        .cornerRadius(22) // Corner radius: 22 for keeping consistency
         .overlay(
-            RoundedRectangle(cornerRadius: 25)
+            RoundedRectangle(cornerRadius: 22)
                 .stroke(Color.cyan.opacity(0.7), lineWidth: 2))
                 .shadow(color: Color.cyan.opacity(0.3), radius: 6, x: 0, y: 3)
                 .padding(.horizontal)
