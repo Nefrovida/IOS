@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct InfoPopupAtom: View {
-    // Parámetros para reutilización
+struct nefroPop: View {
+    // The parameters for reuse are established.
     var title: String
     var description: String
     var subtitle: String
@@ -18,20 +18,20 @@ struct InfoPopupAtom: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            // Título principal
+            // Main title of the pop up
             Text(title)
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(.black)
             
-            // Descripción principal
+            // Main descripcion
             Text(description)
                 .font(.body)
                 .multilineTextAlignment(.center)
                 .foregroundColor(.gray)
                 .padding(.horizontal, 8)
             
-            // Subtítulo + indicación
+            // Subtitle and medical indication
             VStack(spacing: 4) {
                 Text(subtitle)
                     .font(.headline)
@@ -42,12 +42,13 @@ struct InfoPopupAtom: View {
                     .foregroundColor(.gray)
             }
             
-            // Botón (usando tu átomo nefroButton)
+            // The nefroButton is used
             nefroButton(
                 text: buttonText,
                 color: .white,
                 vertical: 10,
                 horizontal: 50,
+                // Variable that adds the cyan stroke around the button
                 hasStroke: true,
                 textSize: 18,
                 action: buttonAction
@@ -61,8 +62,9 @@ struct InfoPopupAtom: View {
     }
 }
 
+// A preview to visualize the aplication of the nefroPop
 #Preview {
-    InfoPopupAtom(
+    nefroPop(
         title: "¡Importante!",
         description: """
         ¿Para qué sirve este estudio?
