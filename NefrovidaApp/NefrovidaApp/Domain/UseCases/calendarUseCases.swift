@@ -9,3 +9,4 @@ final class GetAppointmentsForDayUseCase {
         try await repository.fetchAppointments(forDate: date, idUser: idUser)
     }
 }
+

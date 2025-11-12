@@ -5,7 +5,9 @@ struct AppointmentCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Tipo de cita: \(appt.appointmentType)")
+            Text("Tipo: \(appt.appointmentType)")
+                .font(.nvSemibold)
+                .foregroundColor(appt.appointmentType == "ANÁLISIS" ? .blue : .black)
                 .font(.nvBody)
             Text("Lugar: \(appt.place ?? "No especificado")")
                 .font(.nvBody)
