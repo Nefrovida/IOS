@@ -9,7 +9,8 @@ import SwiftUI
 
 struct loginView: View {
     // Variables to be able to display the view
-    @State private var email: String = ""
+    // @StateObject private var viewModel = LoginViewModel()
+    @State private var user: String = ""
     @State private var password: String = ""
     var body: some View {
         ZStack {
@@ -29,7 +30,7 @@ struct loginView: View {
                     .padding(.top, 30)
                 // The loginForm molecule is used
                 LoginForm(
-                    email: $email,
+                    user: $user,
                     password: $password,
                     onLogin: { print("Se inicio sesión")}
                 )

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LoginForm: View {
-    @Binding var email: String
+    @Binding var user: String
     @Binding var password: String
     // Call the login logic from the viewModel
     var onLogin: () -> Void
@@ -20,7 +20,7 @@ struct LoginForm: View {
                 .foregroundColor(Color(red: 3/255, green: 12/255, blue: 90/255))
                 .padding(20)
             // The textField atom is used for the User and Password field
-            textField(placeholder: "Usuario", text: $email, isSecure: false, iconName: "xmark")
+            textField(placeholder: "Usuario", text: $user, isSecure: false, iconName: "xmark")
             textField(placeholder: "Contraseña", text: $password, isSecure: true, iconName: "eye")
             
             // Button that redirects to the view for change the password
@@ -57,6 +57,6 @@ struct LoginForm: View {
 // A preview to visualize the aplication of the loginForm
 #Preview {
     @Previewable @State var password = ""
-    @Previewable @State var email = ""
-    LoginForm(email: $email, password: $password, onLogin: { })
+    @Previewable @State var user = ""
+    LoginForm(user: $user, password: $password, onLogin: { })
 }

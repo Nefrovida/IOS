@@ -85,6 +85,7 @@
 				A4C88D072EB1ABFD007C8050 /* NefrovidaApp */,
 				A4C88D152EB1ABFE007C8050 /* NefrovidaAppTests */,
 				A4C88D1F2EB1ABFE007C8050 /* NefrovidaAppUITests */,
+				E58C0F712EC44C960062607C /* Frameworks */,
 				A4C88D062EB1ABFD007C8050 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -97,6 +98,13 @@
 				A4C88D1C2EB1ABFE007C8050 /* NefrovidaAppUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		E58C0F712EC44C960062607C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
