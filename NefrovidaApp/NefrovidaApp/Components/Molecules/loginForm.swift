@@ -15,6 +15,10 @@ struct LoginForm: View {
 
     var body: some View {
         VStack(spacing: 16) {
+            Text("¡Bienvenid@!")
+                .font(Font.largeTitle.bold())
+                .foregroundColor(Color(red: 3/255, green: 12/255, blue: 90/255))
+                .padding(20)
             // The textField atom is used for the User and Password field
             textField(placeholder: "Usuario", text: $email, isSecure: false, iconName: "xmark")
             textField(placeholder: "Contraseña", text: $password, isSecure: true, iconName: "eye")
