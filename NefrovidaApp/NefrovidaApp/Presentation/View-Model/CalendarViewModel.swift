@@ -73,7 +73,7 @@ final class AgendaViewModel: ObservableObject {
             self.appointments = list
         } catch {
             // Handles any network or decoding errors.
-            self.errorMessage = "Failed to load appointments."
+            self.errorMessage = "Error al obtener citas."
         }
     }
 

@@ -7,7 +7,7 @@ final class GetAppointmentsForDayUseCase {
     private let repository: AppointmentRepository
     
     // Range of the hour of work.
-    private let workHoursRange = 8...18
+    private let workHoursRange = 7...17
 
     // Initial of the use case.
     // - Parameter repository: Implemention of the repository
