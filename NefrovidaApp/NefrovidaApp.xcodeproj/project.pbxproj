@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		A4C8F4812EBF27DC00AB794E /* CalendarKit in Frameworks */ = {isa = PBXBuildFile; productRef = A4C8F4802EBF27DC00AB794E /* CalendarKit */; };
-		A4D55CCC2EC1BFDC000BF38A /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = A4D55CCB2EC1BFDC000BF38A /* Alamofire */; };
+		E58931772EC4667F00D28AA9 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = E58931762EC4667F00D28AA9 /* Alamofire */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,7 +58,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A4C8F4812EBF27DC00AB794E /* CalendarKit in Frameworks */,
-				A4D55CCC2EC1BFDC000BF38A /* Alamofire in Frameworks */,
+				E58931772EC4667F00D28AA9 /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -128,7 +128,7 @@
 			name = NefrovidaApp;
 			packageProductDependencies = (
 				A4C8F4802EBF27DC00AB794E /* CalendarKit */,
-				A4D55CCB2EC1BFDC000BF38A /* Alamofire */,
+				E58931762EC4667F00D28AA9 /* Alamofire */,
 			);
 			productName = NefrovidaApp;
 			productReference = A4C88D052EB1ABFD007C8050 /* NefrovidaApp.app */;
@@ -214,7 +214,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				A4C8F47F2EBF27DC00AB794E /* XCRemoteSwiftPackageReference "CalendarKit" */,
-				A4D55CCA2EC1BFDC000BF38A /* XCRemoteSwiftPackageReference "Alamofire" */,
+				E58931752EC4667F00D28AA9 /* XCRemoteSwiftPackageReference "Alamofire" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A4C88D062EB1ABFD007C8050 /* Products */;
@@ -648,7 +648,7 @@
 				minimumVersion = 1.1.11;
 			};
 		};
-		A4D55CCA2EC1BFDC000BF38A /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+		E58931752EC4667F00D28AA9 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
 			requirement = {
@@ -664,9 +664,9 @@
 			package = A4C8F47F2EBF27DC00AB794E /* XCRemoteSwiftPackageReference "CalendarKit" */;
 			productName = CalendarKit;
 		};
-		A4D55CCB2EC1BFDC000BF38A /* Alamofire */ = {
+		E58931762EC4667F00D28AA9 /* Alamofire */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = A4D55CCA2EC1BFDC000BF38A /* XCRemoteSwiftPackageReference "Alamofire" */;
+			package = E58931752EC4667F00D28AA9 /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
 		};
 /* End XCSwiftPackageProductDependency section */
