@@ -27,6 +27,7 @@ struct LoginForm: View {
             Button("¿Olvidaste tu contraseña?") {}
             .font(.caption)
             .foregroundColor(.blue)
+            .padding()
             
             // The nefroButton is used for the Log In button
             nefroButton(
@@ -44,6 +45,7 @@ struct LoginForm: View {
             Button("¿Nuevo? Crea tu cuenta aquí") {}
             .font(.footnote)
             .foregroundColor(.gray)
+            .padding()
         }
         .padding()
         .background(Color.white.opacity(0.9))
