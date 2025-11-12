@@ -28,6 +28,7 @@ struct LoginForm: View {
             nefroButton(
                 text: "Iniciar Sesión",
                 color: Color(red: 3/255, green: 12/255, blue: 90/255),
+                textColor: .white,
                 vertical: 10,
                 horizontal: 50,
                 // Variable that adds the cyan stroke around the button
