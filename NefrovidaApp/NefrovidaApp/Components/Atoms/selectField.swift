@@ -7,7 +7,7 @@ struct SelectField: View {
     var placeholder: String = "Selecciona una opción"
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        HStack(spacing: 6) {
             Text(label)
                 .font(.caption)
                 .foregroundColor(.gray)
