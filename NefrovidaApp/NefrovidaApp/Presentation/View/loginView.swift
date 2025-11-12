@@ -8,10 +8,7 @@
 import SwiftUI
 
 struct loginView: View {
-    // Variables to be able to display the view
-    // @StateObject private var viewModel = LoginViewModel()
-    @State private var user: String = ""
-    @State private var password: String = ""
+    @StateObject private var viewModel = LoginViewModel()
     var body: some View {
         ZStack {
             // The background gradient colors is defined
@@ -30,12 +27,24 @@ struct loginView: View {
                     .padding(.top, 30)
                 // The loginForm molecule is used
                 LoginForm(
-                    user: $user,
-                    password: $password,
-                    onLogin: { print("Se inicio sesión")}
+                    user: $viewModel.username,
+                    password: $viewModel.password,
+                    onLogin: {Task { await viewModel.login() }}
                 )
                 .frame(maxHeight: .infinity)
-            }.padding(20)
+                
+                if viewModel.isLoading {
+                    ProgressView("Iniciando sesión...")
+                        .padding(.top, 20)
+                }
+                
+                if let error = viewModel.errorMessage {
+                    Text("No se pudo iniciar sesión")
+                        .foregroundColor(.red)
+                        .padding(.top, 10)
+                }
+            }
+            .padding(20)
         }
     }
 }
