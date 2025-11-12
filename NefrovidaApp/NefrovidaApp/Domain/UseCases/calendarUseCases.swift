@@ -1,17 +1,15 @@
 import Foundation
 
-// Caso de uso encargado de obtener las citas correspondientes a un día específico.
-// Aplica reglas de negocio del dominio (por ejemplo, filtros o validaciones de horario laboral).
+// Use case to obtain the appointments and return the appointment of a specific date.
 final class GetAppointmentsForDayUseCase {
     
-    // Repositorio inyectado que provee los datos de las citas (ya sea remoto o local).
+    // Repository to get the data.
     private let repository: AppointmentRepository
     
-    // Rango de horas laborales permitido (8:00 a 18:00).
-    // Se puede usar para filtrar las citas fuera del horario de atención.
+    // Range of the hour of work.
     private let workHoursRange = 8...18
 
-    // Inicializador del caso de uso.
+    // Initial of the use case.
     // - Parameter repository: Implementación concreta del repositorio (por ejemplo, RemoteAppointmentRepository).
     init(repository: AppointmentRepository) {
         self.repository = repository
