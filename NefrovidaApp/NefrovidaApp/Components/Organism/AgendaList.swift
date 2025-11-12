@@ -5,7 +5,7 @@ struct AgendaList: View {
     //List of dates to show.
     let appointments: [Appointment]
     // The organization's working hours.
-    private let hours = Array(8...18)
+    private let hours = Array(7...17)
 
     var body: some View {
         VStack(spacing: 0) {
