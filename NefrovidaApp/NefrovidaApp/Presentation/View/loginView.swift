@@ -8,7 +8,9 @@
 import SwiftUI
 
 struct loginView: View {
+    // Connects to loginViewModel
     @StateObject private var viewModel = LoginViewModel()
+    @State private var isLoggedIn = false
     var body: some View {
         ZStack {
             // The background gradient colors is defined
@@ -33,18 +35,28 @@ struct loginView: View {
                 )
                 .frame(maxHeight: .infinity)
                 
+                // States are defined depending on the login process.
                 if viewModel.isLoading {
                     ProgressView("Iniciando sesión...")
                         .padding(.top, 20)
                 }
-                
-                if let error = viewModel.errorMessage {
+                if viewModel.errorMessage != nil {
                     Text("No se pudo iniciar sesión")
                         .foregroundColor(.red)
                         .padding(.top, 10)
                 }
             }
             .padding(20)
+        }
+        // Change to logged-in status
+        .onChange(of: viewModel.loggedUser) { oldValue, newValue in
+            if newValue != nil {
+                isLoggedIn = true
+            }
+        }
+        // Redirect to another view after logging in
+        .fullScreenCover(isPresented: $isLoggedIn) {
+            HomeView(user: viewModel.loggedUser!)
         }
     }
 }
