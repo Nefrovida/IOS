@@ -8,10 +8,12 @@
 import SwiftUI
 
 struct loginView: View {
+    // Variables to be able to display the view
     @State private var email: String = ""
     @State private var password: String = ""
     var body: some View {
         ZStack {
+            // The background gradient colors is defined
             LinearGradient(
                 gradient: Gradient(colors: [
                     Color(red: 219/255, green: 230/255, blue: 237/255),
@@ -22,8 +24,10 @@ struct loginView: View {
             )
             .ignoresSafeArea()
             VStack() {
+                // It's called the nefrovida logo
                 NefroVidaLogo()
                     .padding(.top, 30)
+                // The loginForm molecule is used
                 LoginForm(
                     email: $email,
                     password: $password,
@@ -35,6 +39,7 @@ struct loginView: View {
     }
 }
 
+// A preview to visualize the view of the loginView
 #Preview {
     loginView()
 }
