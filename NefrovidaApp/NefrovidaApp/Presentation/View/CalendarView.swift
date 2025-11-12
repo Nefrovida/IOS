@@ -10,7 +10,7 @@ struct AgendaScreen: View {
     init(idUser: String) {
         self.idUser = idUser
         // Example repository for testing (can be replaced with RemoteAppointmentRepository).
-        let repo = MockAppointmentRepository()
+        let repo = RemoteAppointmentRepository()
         // Use case responsible for retrieving appointments.
         let uc = GetAppointmentsForDayUseCase(repository: repo)
         // Initializes the ViewModel with the use case and user ID.
@@ -94,5 +94,5 @@ struct AgendaScreen: View {
 
 #Preview {
     // Preview of the agenda screen with a mock user ID.
-    AgendaScreen(idUser: "user_12345")
+    AgendaScreen(idUser: "35eb038c-3c7a-4143-9f6a-9c8c7d70de97")
 }

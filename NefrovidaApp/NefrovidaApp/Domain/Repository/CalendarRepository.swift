@@ -1,6 +1,6 @@
 import Foundation
 // Protocol that defines the contract for fetching appointment data,
-public protocol AppointmentRepository {
+protocol AppointmentRepository {
     
     // Fetches appointments for a given date and user.
     // Parameters: date: The target date for which to retrieve appointments,

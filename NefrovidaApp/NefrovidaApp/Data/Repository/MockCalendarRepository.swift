@@ -1,4 +1,5 @@
-//test 
+//test
+/*
 public final class MockAppointmentRepository: AppointmentRepository {
     public init() {}
 
@@ -34,3 +35,4 @@ public final class MockAppointmentRepository: AppointmentRepository {
         return []
     }
 }
+*/

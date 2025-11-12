@@ -5,13 +5,13 @@ struct AppointmentCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Doctor: \(appt.doctorName)")
-                .font(.nvSemibold)
             Text("Tipo de cita: \(appt.appointmentType)")
                 .font(.nvBody)
-            Text("Estudio a realizar: \(appt.studyName)")
+            Text("Lugar: \(appt.place ?? "No especificado")")
                 .font(.nvBody)
                 .foregroundStyle(.primary)
+            Text("Fecha: \(appt.dateHour.prefix(10)) \(appt.dateHour.dropFirst(11).prefix(5))")
+                .font(.nvSemibold)
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
