@@ -7,7 +7,7 @@ final class RiskFormViewModel: ObservableObject {
     @Published var telefono = ""
     @Published var generoSeleccionado: String? = nil
     @Published var edad = ""
-    @Published var estadoNacimiento = ""
+    @Published var estadoNacimientoSeleccionado : String? = nil
     @Published var fechaNacimiento = Date()
     
     // Preguntas
@@ -34,6 +34,7 @@ final class RiskFormViewModel: ObservableObject {
     
     func submit() async {
         guard let genero = generoSeleccionado,
+              let estadoNacimiento = estadoNacimientoSeleccionado,
               let edadInt = Int(edad) else { return }
         
         let form = RiskForm(

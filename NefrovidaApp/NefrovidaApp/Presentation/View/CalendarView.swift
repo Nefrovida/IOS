@@ -2,11 +2,13 @@ import SwiftUI
 // Agenda that show the user's scheduled appointments for each day and allows weekly navigation.
 struct AgendaScreen: View {
     // ViewModel that handles the state, data, and logic of the agenda.
+    var idUser : String
     @StateObject private var vm: AgendaViewModel
 
     // Initializes the agenda screen by injecting dependencies into the ViewModel.
     // Parameter idUser: The unique identifier of the authenticated user.
     init(idUser: String) {
+        self.idUser = idUser
         // Example repository for testing (can be replaced with RemoteAppointmentRepository).
         let repo = MockAppointmentRepository()
         // Use case responsible for retrieving appointments.
@@ -83,7 +85,7 @@ struct AgendaScreen: View {
             }
 
             // Bottom navigation bar (e.g., home, profile, etc.)
-            BottomBar()
+            BottomBar(idUser:idUser)
         }
         // Loads appointments when the view appears on screen.
         .onAppear { vm.onAppear() }

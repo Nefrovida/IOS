@@ -1,12 +1,48 @@
 import SwiftUI
 
 struct RiskFormView: View {
+    
+    let idUser : String
+    
     @StateObject private var vm = RiskFormViewModel(
-        useCase: SubmitRiskFormUseCase(repository: RiskFormRepository())
+        useCase: SubmitRiskFormUseCase(repository: RiskFormRepository(baseURL: "/user"))
     )
     
     let generos = ["Masculino", "Femenino", "Otro"]
-    let estados = ["CDMX", "Jalisco", "Nuevo León", "Puebla", "Yucatán"]
+    let estados = [
+        "Aguascalientes",
+        "Baja California",
+        "Baja California Sur",
+        "Campeche",
+        "Chiapas",
+        "Chihuahua",
+        "Ciudad de México",
+        "Coahuila",
+        "Colima",
+        "Durango",
+        "Estado de México",
+        "Guanajuato",
+        "Guerrero",
+        "Hidalgo",
+        "Jalisco",
+        "Michoacán",
+        "Morelos",
+        "Nayarit",
+        "Nuevo León",
+        "Oaxaca",
+        "Puebla",
+        "Querétaro",
+        "Quintana Roo",
+        "San Luis Potosí",
+        "Sinaloa",
+        "Sonora",
+        "Tabasco",
+        "Tamaulipas",
+        "Tlaxcala",
+        "Veracruz",
+        "Yucatán",
+        "Zacatecas"
+    ]
     
     var body: some View {
         VStack(spacing: 0) {
@@ -16,12 +52,12 @@ struct RiskFormView: View {
                 VStack(spacing: 20) {
                     Title(text: "Cuestionario de Factor de Riesgo")
                     
-                    // 🧩 Datos generales
-                    textField(placeholder: "Nombre", text: $vm.nombre)
-                    textField(placeholder: "Teléfono", text: $vm.telefono)
+                    //  Datos generales
+                    textField(placeholder: "Nombre", text: $vm.nombre,iconName: "xmark")
+                    textField(placeholder: "Teléfono", text: $vm.telefono,iconName: "xmark")
                     SelectField(label: "Género", options: generos, selection: $vm.generoSeleccionado)
-                    textField(placeholder: "Edad", text: $vm.edad)
-                    textField(placeholder: "Estado de Nacimiento",text: $vm.estadoNacimiento)
+                    textField(placeholder: "Edad", text: $vm.edad,iconName: "xmark")
+                    SelectField(label: "Estado de nacimiento", options: estados, selection: $vm.estadoNacimientoSeleccionado)
                     
                     DatePicker("Fecha de nacimiento", selection: $vm.fechaNacimiento, displayedComponents: .date)
                         .padding(.horizontal)
@@ -131,12 +167,12 @@ struct RiskFormView: View {
                 .padding(.top, 20)
             }
             
-            BottomBar()
+            BottomBar(idUser: idUser)
         }
         .background(Color(.systemGray6))
     }
 }
 
 #Preview {
-    RiskFormView()
+    RiskFormView(idUser: "19191")
 }

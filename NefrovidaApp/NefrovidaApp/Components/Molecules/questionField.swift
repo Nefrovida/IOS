@@ -93,7 +93,7 @@ struct questionField: View {
 }
 
 #Preview {
-    @State var respuesta = ""
+    @Previewable @State var respuesta = ""
     VStack(spacing: 16) {
         questionField(
             question: "¿Padece diabetes mellitus?",

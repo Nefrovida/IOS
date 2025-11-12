@@ -31,7 +31,7 @@ struct AnalysisTypeCard: View {
             Spacer(minLength: 12)
 
             
-            buttonBar(imageName: "gearshape.fill", text: "Editar", move: onSettings)
+            buttonBar(imageName: "gearshape.fill", text: "Editar",move: onSettings)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 18)

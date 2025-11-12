@@ -39,3 +39,12 @@ struct SelectField: View {
         .padding(.horizontal)
     }
 }
+
+
+    #Preview {
+        SelectField(
+            label: "Elige una opción",
+            options: ["Prueba", "Matriz"],
+            selection: .constant(nil) // o .constant("Prueba")
+        )
+    }
