@@ -29,6 +29,7 @@ final class GetAppointmentsForDayUseCase {
             $0.dateHour.starts(with: date)
         }
         
+        
         // Return the appointment of that selected date.
         return sameDay
     }
