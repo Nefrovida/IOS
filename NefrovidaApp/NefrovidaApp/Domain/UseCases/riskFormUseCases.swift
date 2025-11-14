@@ -10,7 +10,10 @@ final class SubmitRiskFormUseCase: SubmitRiskFormUseCaseProtocol {
     }
     
     func execute(form: RiskForm) async throws {
-        try await repository.submitForm(form)
+        
+
+            try await repository.submitForm(form)
+        
     }
 }
 

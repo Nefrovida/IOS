@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct RiskFormView: View {
+    @State private var showNext = false
     
     let idUser : String
     
@@ -154,7 +155,7 @@ struct RiskFormView: View {
                     Button {
                         Task { await vm.submit() }
                     } label: {
-                        Text("Enviar formulario")
+                        Text("Ir a la siguiente parte")
                             .fontWeight(.semibold)
                             .frame(maxWidth: .infinity)
                             .padding()

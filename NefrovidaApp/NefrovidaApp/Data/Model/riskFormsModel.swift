@@ -10,18 +10,18 @@ struct RiskForm: Identifiable, Codable {
     var fechaNacimiento: Date
     
     // Preguntas del cuestionario
-    var antecedentesFamiliares: Int?
-    var diabetes: Int?
-    var glucosaAlta: Int?
-    var presionAltaTratamiento: Int?
-    var presionAltaCifras: Int?
-    var familiarERC: Int?
-    var analgesicosFrecuentes: Int?
-    var litiasisRenal: Int?
-    var sobrepeso: Int?
-    var refrescos: Int?
-    var sal: Int?
-    var fumador: Int?
-    var alcohol: Int?
-    var depresion: Int?
+    var antecedentesFamiliares: Int
+    var diabetes: Int
+    var glucosaAlta: Int
+    var presionAltaTratamiento: Int
+    var presionAltaCifras: Int
+    var familiarERC: Int
+    var analgesicosFrecuentes: Int
+    var litiasisRenal: Int
+    var sobrepeso: Int
+    var refrescos: Int
+    var sal: Int
+    var fumador: Int
+    var alcohol: Int
+    var depresion: Int
 }
