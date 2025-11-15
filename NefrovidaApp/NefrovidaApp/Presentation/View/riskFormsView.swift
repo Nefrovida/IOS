@@ -1,11 +1,16 @@
 import SwiftUI
 
+// Main view responsible for rendering the Risk Form flow.
+// It contains two sections: general user info and dynamic risk questions.
 struct RiskFormView: View {
 
+    // User ID received from the previous screen.
     let idUser: String
 
+    // ViewModel that holds all logic and state for the form.
     @StateObject private var vm: RiskFormViewModel
 
+    // Custom initializer to inject dependencies into the ViewModel.
     init(idUser: String) {
         _vm = StateObject(wrappedValue:
             RiskFormViewModel(
@@ -18,9 +23,13 @@ struct RiskFormView: View {
         self.idUser = idUser
     }
 
-    @State private var showingQuestions = false   // ← NUEVO
+    // Controls whether the user is on the General Info screen or the Questions screen.
+    @State private var showingQuestions = false
 
+    // Static list of gender options.
     let generos = ["Masculino", "Femenino", "Otro"]
+
+    // Static list of Mexican states for the birth place dropdown.
     let estados = [
         "Aguascalientes","Baja California","Baja California Sur","Campeche",
         "Chiapas","Chihuahua","Ciudad de México","Coahuila","Colima",
@@ -31,51 +40,55 @@ struct RiskFormView: View {
         "Yucatán","Zacatecas"
     ]
 
+    // MARK: - Navigation Helper Functions
 
-    // --------------------------------------
-    // Funciones para navegar entre secciones
-    // --------------------------------------
+    // Switches to the dynamic questions section.
     func goToQuestions() {
         withAnimation { showingQuestions = true }
     }
 
+    // Returns to the general information section.
     func goToGeneralInfo() {
         withAnimation { showingQuestions = false }
     }
 
-    // --------------------------------------
+    // MARK: - Main View Body
     var body: some View {
         VStack(spacing: 0) {
-            UpBar()
+            UpBar()  // Top navigation bar
 
             ScrollView {
                 VStack(spacing: 20) {
 
                     Title(text: "Cuestionario de Factor de Riesgo")
 
-                    // ------------------------------
-                    // SECCIÓN 1 — DATOS GENERALES
-                    // ------------------------------
+                    // --------------------------------------------------
+                    // SECTION 1 — GENERAL INFORMATION
+                    // --------------------------------------------------
                     if !showingQuestions {
 
+                        // User name field.
                         textField(
                             placeholder: "Nombre",
                             text: $vm.nombre,
                             iconName: "xmark"
                         )
 
+                        // Phone number field.
                         textField(
                             placeholder: "Teléfono",
                             text: $vm.telefono,
                             iconName: "xmark"
                         )
 
+                        // Gender selection dropdown.
                         SelectField(
                             label: "Género",
                             options: generos,
                             selection: $vm.generoSeleccionado
                         )
 
+                        // Age field.
                         textField(
                             placeholder: "Edad",
                             text: $vm.edad,
@@ -83,12 +96,14 @@ struct RiskFormView: View {
                         )
                         .keyboardType(.numberPad)
 
+                        // Birth state selection dropdown.
                         SelectField(
                             label: "Estado de nacimiento",
                             options: estados,
                             selection: $vm.estadoNacimientoSeleccionado
                         )
 
+                        // Birth date picker.
                         DatePicker(
                             "Fecha de nacimiento",
                             selection: $vm.fechaNacimiento,
@@ -96,7 +111,7 @@ struct RiskFormView: View {
                         )
                         .padding(.horizontal)
 
-                        // Botón para avanzar a preguntas dinámicas
+                        // Button to navigate to the dynamic questions.
                         Button {
                             goToQuestions()
                         } label: {
@@ -110,14 +125,16 @@ struct RiskFormView: View {
                         }
                         .padding(.horizontal)
 
+                    // --------------------------------------------------
+                    // SECTION 2 — DYNAMIC QUESTIONS LOADED FROM BACKEND
+                    // --------------------------------------------------
                     } else {
-                        // ------------------------------
-                        // SECCIÓN 2 — PREGUNTAS DINÁMICAS
-                        // ------------------------------
+
                         ForEach(vm.questions) { q in
 
                             switch q.type {
 
+                            // Renders a simple text input question.
                             case "text":
                                 textField(
                                     placeholder: q.description,
@@ -128,6 +145,7 @@ struct RiskFormView: View {
                                     iconName: "square.and.pencil"
                                 )
 
+                            // Renders a number input question.
                             case "number":
                                 textField(
                                     placeholder: q.description,
@@ -139,6 +157,7 @@ struct RiskFormView: View {
                                 )
                                 .keyboardType(.numberPad)
 
+                            // Renders a date input question.
                             case "date":
                                 DatePicker(
                                     q.description,
@@ -158,6 +177,7 @@ struct RiskFormView: View {
                                 )
                                 .padding(.horizontal)
 
+                            // Renders a multiple-choice question.
                             case "choice":
                                 let ops = q.options?.map { $0.description } ?? []
                                 questionField(
@@ -173,14 +193,15 @@ struct RiskFormView: View {
                                 EmptyView()
                             }
                         }
-                        
+
+                        // Validation errors shown to the user.
                         if let error = vm.errorMessage {
                             Text(error)
                                 .foregroundColor(.red)
                                 .padding(.horizontal)
                         }
 
-                        // Regresar
+                        // Button to go back to general info.
                         Button {
                             goToGeneralInfo()
                         } label: {
@@ -193,7 +214,7 @@ struct RiskFormView: View {
                         }
                         .padding(.horizontal)
 
-                        // Enviar formulario
+                        // Button to send all data to backend.
                         Button {
                             Task { await vm.submitForm() }
                         } label: {
@@ -208,6 +229,7 @@ struct RiskFormView: View {
                         .padding(.horizontal)
                     }
 
+                    // Success message shown after submission.
                     if let ok = vm.successMessage {
                         Text(ok)
                             .foregroundColor(.green)
@@ -217,13 +239,17 @@ struct RiskFormView: View {
                 .padding(.top, 20)
             }
             .onAppear {
+                // Load questions and options when the view appears.
                 Task { await vm.loadForm() }
             }
         }
+
+        // Custom bottom navigation bar.
         BottomBar(idUser: "1212")
     }
 }
 
+// Preview for SwiftUI canvas.
 #Preview {
     RiskFormView(idUser: "35eb038c-3c7a-4143-9f6a-9c8c7d70de97")
 }

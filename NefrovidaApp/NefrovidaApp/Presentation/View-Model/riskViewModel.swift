@@ -4,152 +4,181 @@ import Combine
 @MainActor
 final class RiskFormViewModel: ObservableObject {
     
-    let idUser : String
+    // Current authenticated user ID.
+    let idUser: String
+    
+    // Contains ALL questions returned by backend, including general info.
+    @Published var allQuestions: [RiskQuestion] = []
+    
+    // Contains ONLY dynamic questions (the ones displayed in Section 2).
     @Published var questions: [RiskQuestion] = []
-    @Published var answers: [Int : String] = [:]
-
-    // Datos generales
+    
+    // Dictionary that stores the response for each question (key = question_id).
+    @Published var answers: [Int: String] = [:]
+    
+    // General Information Fields (Section 1)
     @Published var nombre = ""
     @Published var telefono = ""
     @Published var generoSeleccionado: String? = nil
     @Published var edad = ""
     @Published var estadoNacimientoSeleccionado: String? = nil
     @Published var fechaNacimiento = Date()
-
+    
+    // Error and success messages for UI feedback.
     @Published var errorMessage: String?
     @Published var successMessage: String?
-
+    
+    //Dependencies (Use Cases)
     private let submitUseCase: SubmitRiskFormUseCaseProtocol
     private let questionsUseCase: GetRiskQuestionsUseCaseProtocol
     private let optionsUseCase: GetRiskOptionsUseCaseProtocol
-
+    
+    // Dependency injection initializer.
     init(
-        idUser : String,
+        idUser: String,
         submitUseCase: SubmitRiskFormUseCaseProtocol,
         questionsUseCase: GetRiskQuestionsUseCaseProtocol,
         optionsUseCase: GetRiskOptionsUseCaseProtocol
     ) {
+        self.idUser = idUser
         self.submitUseCase = submitUseCase
         self.questionsUseCase = questionsUseCase
         self.optionsUseCase = optionsUseCase
-        self.idUser = idUser
     }
-
-    // VALIDACIÓN
     
-    func validate() -> Bool {
+    //FORM VALIDATION
 
+    func validate() -> Bool {
+        
+        // Validate general fields
         if nombre.trimmingCharacters(in: .whitespaces).isEmpty {
             errorMessage = "El nombre es obligatorio."
             return false
         }
-
         if telefono.count < 8 {
             errorMessage = "El teléfono debe tener al menos 8 dígitos."
             return false
         }
-
         if generoSeleccionado == nil {
             errorMessage = "Selecciona un género."
             return false
         }
-
-        guard let edadNum = Int(edad), edadNum > 0 && edadNum < 120 else {
-            errorMessage = "Ingresa una edad válida."
+        if Int(edad) == nil {
+            errorMessage = "Edad inválida."
             return false
         }
-
         if estadoNacimientoSeleccionado == nil {
             errorMessage = "Selecciona un estado de nacimiento."
             return false
         }
-
+        
+        // Validate dynamic questions
         for q in questions {
-            let respuesta = answers[q.id] ?? ""
-
-            if respuesta.isEmpty {
+            let r = answers[q.id] ?? ""
+            
+            if r.isEmpty {
                 errorMessage = "Contesta: \(q.description)"
                 return false
             }
-
-            if q.type == "number", Int(respuesta) == nil {
+            if q.type == "number", Int(r) == nil {
                 errorMessage = "La respuesta de \(q.description) debe ser numérica."
                 return false
             }
         }
-
+        
         errorMessage = nil
         return true
     }
-
-    //POST FINAL
-    func submitForm() async {
-
-        guard validate() else { return }
-
-        guard let genero = generoSeleccionado,
-              let estado = estadoNacimientoSeleccionado,
-              let edadInt = Int(edad)
-        else {
-            errorMessage = "Datos inválidos."
-            return
-        }
-
+    
+    // GENERAL INFO MAPPER (Using allQuestions)
+    private func mapGeneralInfo() -> [[String: Any]] {
+        
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
-
-        let forms: [String: Any] = [
-            "general_info": [
-                "nombre": nombre,
-                "telefono": telefono,
-                "genero": genero,
-                "edad": edadInt,
-                "estado_nacimiento": estado,
-                "fecha_nacimiento": formatter.string(from: fechaNacimiento)
-            ],
-            "answers": questions.map { q in
-                [
-                    "question_id": q.id,
-                    "answer": answers[q.id] ?? ""
-                ]
-            }
+        
+        // Maps question descriptions to the actual values entered by the user.
+        let fieldMap: [String: Any] = [
+            "Nombre": nombre,
+            "Teléfono": telefono,
+            "Género": generoSeleccionado ?? "",
+            "Edad": edad,
+            "Estado de nacimiento": estadoNacimientoSeleccionado ?? "",
+            "Fecha de nacimiento": formatter.string(from: fechaNacimiento)
         ]
+        
+        // Creates the final JSON array for general info fields.
+        return allQuestions.compactMap { q in
+            guard let value = fieldMap[q.description] else { return nil }
+            return [
+                "question_id": q.id,
+                "answer": value
+            ]
+        }
+    }
 
+    // SUBMIT FINAL FORM
+    func submitForm() async {
+        
+        guard validate() else { return }
+        
+        // Build JSON for general information.
+        let generalInfo = mapGeneralInfo()
+        
+        // Build JSON for dynamic questions.
+        let dynamicAnswers: [[String: Any]] = questions.map { q in
+            [
+                "question_id": q.id,
+                "answer": answers[q.id] ?? ""
+            ]
+        }
+        
+        // Final JSON payload combining both arrays.
+        let forms: [String: Any] = [
+            "answers": generalInfo + dynamicAnswers
+        ]
+        
         do {
             try await submitUseCase.execute(idUser: idUser, forms: forms)
             successMessage = "Formulario enviado correctamente"
         } catch {
+            print("Error:", error)
             errorMessage = "Error enviando formulario"
         }
     }
-
-    // GET ALL DATA
+    
+    // LOAD QUESTIONS + OPTIONS FROM BACKEND
     func loadForm() async {
         do {
-            var fetchedQuestions = try await questionsUseCase.execute()
-            let fetchedOptions = try await optionsUseCase.execute()
-
-            let grouped = Dictionary(grouping: fetchedOptions, by: { $0.questionId })
-
-            for i in 0..<fetchedQuestions.count {
-                fetchedQuestions[i].options = grouped[fetchedQuestions[i].id] ?? []
+            // Fetch all questions.
+            var fetched = try await questionsUseCase.execute()
+            
+            // Fetch options for each question.
+            let options = try await optionsUseCase.execute()
+            
+            // Group options by question_id.
+            let grouped = Dictionary(grouping: options, by: { $0.questionId })
+            
+            // Assign options to each question.
+            for i in 0..<fetched.count {
+                fetched[i].options = grouped[fetched[i].id] ?? []
             }
-
-            // ELIMINA preguntas duplicadas (Nombre, Edad, etc.)
-            fetchedQuestions.removeAll { q in
-                let camposOcultos = [
-                    "Nombre", "Teléfono", "Género",
-                    "Edad","Estado de nacimiento","Fecha de nacimiento"
-                ]
-                return camposOcultos.contains(q.description)
-            }
-
-            self.questions = fetchedQuestions
-
-            for q in fetchedQuestions {
+            
+            // Keep ALL questions for mapping general info later.
+            self.allQuestions = fetched
+            
+            // Hide general questions from UI but keep them for back-end mapping.
+            let hiddenGeneralFields = [
+                "Nombre", "Teléfono", "Género",
+                "Edad", "Estado de nacimiento", "Fecha de nacimiento"
+            ]
+            
+            self.questions = fetched.filter { !hiddenGeneralFields.contains($0.description) }
+            
+            // Initialize answer dictionary for all questions.
+            for q in fetched {
                 answers[q.id] = ""
             }
-
+            
         } catch {
             print("Error cargando formulario:", error)
         }
