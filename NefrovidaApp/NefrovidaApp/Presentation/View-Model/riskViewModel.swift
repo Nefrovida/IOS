@@ -3,7 +3,8 @@ import Combine
 
 @MainActor
 final class RiskFormViewModel: ObservableObject {
-
+    
+    let idUser : String
     @Published var questions: [RiskQuestion] = []
     @Published var answers: [Int : String] = [:]
 
@@ -23,6 +24,7 @@ final class RiskFormViewModel: ObservableObject {
     private let optionsUseCase: GetRiskOptionsUseCaseProtocol
 
     init(
+        idUser : String,
         submitUseCase: SubmitRiskFormUseCaseProtocol,
         questionsUseCase: GetRiskQuestionsUseCaseProtocol,
         optionsUseCase: GetRiskOptionsUseCaseProtocol
@@ -30,6 +32,7 @@ final class RiskFormViewModel: ObservableObject {
         self.submitUseCase = submitUseCase
         self.questionsUseCase = questionsUseCase
         self.optionsUseCase = optionsUseCase
+        self.idUser = idUser
     }
 
     // VALIDACIÓN
@@ -113,7 +116,7 @@ final class RiskFormViewModel: ObservableObject {
         ]
 
         do {
-            try await submitUseCase.execute(forms: forms)
+            try await submitUseCase.execute(idUser: idUser, forms: forms)
             successMessage = "Formulario enviado correctamente"
         } catch {
             errorMessage = "Error enviando formulario"

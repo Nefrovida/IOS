@@ -3,13 +3,13 @@ import Foundation
 final class SubmitRiskFormUseCase: SubmitRiskFormUseCaseProtocol {
     
     private let repository: RiskFormRepositoryProtocol
-    
+
     init(repository: RiskFormRepositoryProtocol) {
         self.repository = repository
     }
-    
-    func execute(forms: [String : Any]) async throws {
-        try await repository.submitForm(forms)
+
+    func execute(idUser: String, forms: [String: Any]) async throws {
+        try await repository.submitForm(idUser: idUser, forms: forms)
     }
     
     func validate(forms: [String : Any]) throws -> Bool {

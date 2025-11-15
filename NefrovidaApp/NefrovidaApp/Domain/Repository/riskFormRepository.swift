@@ -1,7 +1,7 @@
 import Foundation
 
 protocol RiskFormRepositoryProtocol {
-    func submitForm(_ forms: [String: Any]) async throws
+    func submitForm(idUser: String, forms: [String: Any]) async throws
 }
 
 protocol RiskQuestionsRepositoryProtocol {
@@ -13,7 +13,7 @@ protocol GetRiskOptionsRepositoryProtocol {
 }
 
 protocol SubmitRiskFormUseCaseProtocol {
-    func execute(forms: [String: Any]) async throws
+    func execute(idUser: String, forms: [String: Any]) async throws
 }
 
 protocol GetRiskQuestionsUseCaseProtocol {

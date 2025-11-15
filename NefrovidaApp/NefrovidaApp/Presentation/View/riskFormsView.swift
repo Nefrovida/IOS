@@ -4,17 +4,19 @@ struct RiskFormView: View {
 
     let idUser: String
 
-    @StateObject private var vm = RiskFormViewModel(
-        submitUseCase: SubmitRiskFormUseCase(
-            repository: RiskFormRepository()
-        ),
-        questionsUseCase: GetRiskQuestionsUseCase(
-            repository: RiskQuestionsRepository()
-        ),
-        optionsUseCase: GetRiskOptionsUseCases(
-            repository: RiskOptionsRepository()
+    @StateObject private var vm: RiskFormViewModel
+
+    init(idUser: String) {
+        _vm = StateObject(wrappedValue:
+            RiskFormViewModel(
+                idUser: idUser,
+                submitUseCase: SubmitRiskFormUseCase(repository: RiskFormRepository()),
+                questionsUseCase: GetRiskQuestionsUseCase(repository: RiskQuestionsRepository()),
+                optionsUseCase: GetRiskOptionsUseCases(repository: RiskOptionsRepository())
+            )
         )
-    )
+        self.idUser = idUser
+    }
 
     @State private var showingQuestions = false   // ← NUEVO
 
@@ -223,5 +225,5 @@ struct RiskFormView: View {
 }
 
 #Preview {
-    RiskFormView(idUser: "1212")
+    RiskFormView(idUser: "35eb038c-3c7a-4143-9f6a-9c8c7d70de97")
 }
