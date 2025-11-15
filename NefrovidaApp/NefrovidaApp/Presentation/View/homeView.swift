@@ -17,7 +17,7 @@ struct HomeView: View {
             UpBar()
             
             VStack {
-                Text("Bienvenido, \(user?.username ?? "")")
+                Text("Bienvenido, \(user?.name ?? "")")
                     .font(.title)
                     .padding()
             }.frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -30,6 +30,7 @@ struct HomeView: View {
     HomeView(
         user: LoginEntity(
             user_id: "12345-ABCDE",
+            name: "EmilioL",
             username: "Emilio",
             role_id: 3,
             privileges: []
