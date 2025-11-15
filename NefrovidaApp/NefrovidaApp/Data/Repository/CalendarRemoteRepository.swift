@@ -7,7 +7,7 @@ final class RemoteAppointmentRepository: AppointmentRepository {
     // Dirección base del servidor backend.
     // the first part of the endpoint. Example: "https://api"
     // To try in local you need to put your ip of the lap"
-    private let baseURL = "http://10.25.70.74:3001"
+    private let baseURL = "http://localhost:3001"
 
     // Method that make a fetch to get the appointments and the analysis depending of the IdUser.
     // Parameters: idUser: Id of the user in the sesion.
@@ -16,7 +16,7 @@ final class RemoteAppointmentRepository: AppointmentRepository {
     func fetchAppointments(idUser: String) async throws -> [Appointment] {
         
        
-        let endpoint = "\(baseURL)/api/users/appointments/\(idUser)"
+        let endpoint = "\(baseURL)/api/appointments/user/\(idUser)"
         
         // Make a get request and validate the http code is a 2xx.
         let result = await AF.request(endpoint, method: .get)
