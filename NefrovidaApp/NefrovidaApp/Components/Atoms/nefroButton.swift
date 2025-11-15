@@ -3,6 +3,7 @@ import SwiftUI
 struct nefroButton: View {
     var text : String
     var color : Color
+    var textColor : Color = .black
     var vertical : CGFloat
     var horizontal : CGFloat
     var hasStroke : Bool = false
@@ -14,6 +15,7 @@ struct nefroButton: View {
         Button(action: action) {
             Text(text)
                 .font(.system(size: textSize, weight: .bold))
+                .foregroundStyle(textColor)
                 .padding(.vertical, vertical)
                 .padding(.horizontal, horizontal)
                 .background(color)
@@ -28,7 +30,6 @@ struct nefroButton: View {
                 }
             }
         )
-        .foregroundColor(.black)
     }
 }
 
