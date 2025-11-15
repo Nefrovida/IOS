@@ -1,179 +1,227 @@
 import SwiftUI
 
 struct RiskFormView: View {
-    @State private var showNext = false
-    
-    let idUser : String
-    
+
+    let idUser: String
+
     @StateObject private var vm = RiskFormViewModel(
-        useCase: SubmitRiskFormUseCase(repository: RiskFormRepository(baseURL: "/user"))
+        submitUseCase: SubmitRiskFormUseCase(
+            repository: RiskFormRepository()
+        ),
+        questionsUseCase: GetRiskQuestionsUseCase(
+            repository: RiskQuestionsRepository()
+        ),
+        optionsUseCase: GetRiskOptionsUseCases(
+            repository: RiskOptionsRepository()
+        )
     )
-    
+
+    @State private var showingQuestions = false   // ← NUEVO
+
     let generos = ["Masculino", "Femenino", "Otro"]
     let estados = [
-        "Aguascalientes",
-        "Baja California",
-        "Baja California Sur",
-        "Campeche",
-        "Chiapas",
-        "Chihuahua",
-        "Ciudad de México",
-        "Coahuila",
-        "Colima",
-        "Durango",
-        "Estado de México",
-        "Guanajuato",
-        "Guerrero",
-        "Hidalgo",
-        "Jalisco",
-        "Michoacán",
-        "Morelos",
-        "Nayarit",
-        "Nuevo León",
-        "Oaxaca",
-        "Puebla",
-        "Querétaro",
-        "Quintana Roo",
-        "San Luis Potosí",
-        "Sinaloa",
-        "Sonora",
-        "Tabasco",
-        "Tamaulipas",
-        "Tlaxcala",
-        "Veracruz",
-        "Yucatán",
-        "Zacatecas"
+        "Aguascalientes","Baja California","Baja California Sur","Campeche",
+        "Chiapas","Chihuahua","Ciudad de México","Coahuila","Colima",
+        "Durango","Estado de México","Guanajuato","Guerrero","Hidalgo",
+        "Jalisco","Michoacán","Morelos","Nayarit","Nuevo León","Oaxaca",
+        "Puebla","Querétaro","Quintana Roo","San Luis Potosí","Sinaloa",
+        "Sonora","Tabasco","Tamaulipas","Tlaxcala","Veracruz",
+        "Yucatán","Zacatecas"
     ]
-    
+
+
+    // --------------------------------------
+    // Funciones para navegar entre secciones
+    // --------------------------------------
+    func goToQuestions() {
+        withAnimation { showingQuestions = true }
+    }
+
+    func goToGeneralInfo() {
+        withAnimation { showingQuestions = false }
+    }
+
+    // --------------------------------------
     var body: some View {
         VStack(spacing: 0) {
             UpBar()
-            
+
             ScrollView {
                 VStack(spacing: 20) {
+
                     Title(text: "Cuestionario de Factor de Riesgo")
-                    
-                    //  Datos generales
-                    textField(placeholder: "Nombre", text: $vm.nombre,iconName: "xmark")
-                    textField(placeholder: "Teléfono", text: $vm.telefono,iconName: "xmark")
-                    SelectField(label: "Género", options: generos, selection: $vm.generoSeleccionado)
-                    textField(placeholder: "Edad", text: $vm.edad,iconName: "xmark")
-                    SelectField(label: "Estado de nacimiento", options: estados, selection: $vm.estadoNacimientoSeleccionado)
-                    
-                    DatePicker("Fecha de nacimiento", selection: $vm.fechaNacimiento, displayedComponents: .date)
+
+                    // ------------------------------
+                    // SECCIÓN 1 — DATOS GENERALES
+                    // ------------------------------
+                    if !showingQuestions {
+
+                        textField(
+                            placeholder: "Nombre",
+                            text: $vm.nombre,
+                            iconName: "xmark"
+                        )
+
+                        textField(
+                            placeholder: "Teléfono",
+                            text: $vm.telefono,
+                            iconName: "xmark"
+                        )
+
+                        SelectField(
+                            label: "Género",
+                            options: generos,
+                            selection: $vm.generoSeleccionado
+                        )
+
+                        textField(
+                            placeholder: "Edad",
+                            text: $vm.edad,
+                            iconName: "xmark"
+                        )
+                        .keyboardType(.numberPad)
+
+                        SelectField(
+                            label: "Estado de nacimiento",
+                            options: estados,
+                            selection: $vm.estadoNacimientoSeleccionado
+                        )
+
+                        DatePicker(
+                            "Fecha de nacimiento",
+                            selection: $vm.fechaNacimiento,
+                            displayedComponents: .date
+                        )
                         .padding(.horizontal)
-                    
-                    Divider().padding(.vertical)
-                    
-                    // 🩺 Preguntas
-                    Group {
-                        questionField(
-                            question: "¿Sus padres o hermanos padecen enfermedades crónicas?",
-                            type: .choice(options: ["Sí", "No", "Lo desconoce"]),
-                            answer: $vm.antecedentesFamiliares
-                        )
+
+                        // Botón para avanzar a preguntas dinámicas
+                        Button {
+                            goToQuestions()
+                        } label: {
+                            Text("Continuar con preguntas")
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(12)
+                        }
+                        .padding(.horizontal)
+
+                    } else {
+                        // ------------------------------
+                        // SECCIÓN 2 — PREGUNTAS DINÁMICAS
+                        // ------------------------------
+                        ForEach(vm.questions) { q in
+
+                            switch q.type {
+
+                            case "text":
+                                textField(
+                                    placeholder: q.description,
+                                    text: Binding(
+                                        get: { vm.answers[q.id] ?? "" },
+                                        set: { vm.answers[q.id] = $0 }
+                                    ),
+                                    iconName: "square.and.pencil"
+                                )
+
+                            case "number":
+                                textField(
+                                    placeholder: q.description,
+                                    text: Binding(
+                                        get: { vm.answers[q.id] ?? "" },
+                                        set: { vm.answers[q.id] = $0 }
+                                    ),
+                                    iconName: "number"
+                                )
+                                .keyboardType(.numberPad)
+
+                            case "date":
+                                DatePicker(
+                                    q.description,
+                                    selection: Binding(
+                                        get: {
+                                            let f = DateFormatter()
+                                            f.dateFormat = "yyyy-MM-dd"
+                                            return f.date(from: vm.answers[q.id] ?? "") ?? Date()
+                                        },
+                                        set: { newDate in
+                                            let f = DateFormatter()
+                                            f.dateFormat = "yyyy-MM-dd"
+                                            vm.answers[q.id] = f.string(from: newDate)
+                                        }
+                                    ),
+                                    displayedComponents: .date
+                                )
+                                .padding(.horizontal)
+
+                            case "choice":
+                                let ops = q.options?.map { $0.description } ?? []
+                                questionField(
+                                    question: q.description,
+                                    type: .choice(options: ops),
+                                    answer: Binding(
+                                        get: { vm.answers[q.id] ?? "" },
+                                        set: { vm.answers[q.id] = $0 }
+                                    )
+                                )
+
+                            default:
+                                EmptyView()
+                            }
+                        }
                         
-                        questionField(
-                            question: "¿Padece diabetes mellitus?",
-                            type: .choice(options: ["Sí", "No", "Lo desconoce"]),
-                            answer: $vm.diabetes
-                        )
-                        
-                        questionField(
-                            question: "¿Ha tenido cifras de glucosa > 140 en ayunas?",
-                            type: .choice(options: ["Sí", "No", "Lo desconoce"]),
-                            answer: $vm.glucosaAlta
-                        )
-                        
-                        questionField(
-                            question: "¿Está en tratamiento por presión alta?",
-                            type: .choice(options: ["Sí", "No", "Lo desconoce"]),
-                            answer: $vm.presionAltaTratamiento
-                        )
-                        
-                        questionField(
-                            question: "¿Cifras de presión arterial > 130/80?",
-                            type: .choice(options: ["Sí", "No", "Lo desconoce"]),
-                            answer: $vm.presionAltaCifras
-                        )
-                        
-                        questionField(
-                            question: "¿Familiar con enfermedad renal crónica (ERC)?",
-                            type: .choice(options: ["Sí", "No", "Lo desconoce"]),
-                            answer: $vm.familiarERC
-                        )
-                        
-                        questionField(
-                            question: "¿Usa analgésicos con frecuencia?",
-                            type: .choice(options: ["Sí", "No", "Lo desconoce"]),
-                            answer: $vm.analgesicosFrecuentes
-                        )
-                        
-                        questionField(
-                            question: "¿Ha tenido piedras en los riñones?",
-                            type: .choice(options: ["Sí", "No", "Lo desconoce"]),
-                            answer: $vm.litiasisRenal
-                        )
-                        
-                        questionField(
-                            question: "¿Tiene sobrepeso u obesidad?",
-                            type: .choice(options: ["Sí", "No", "Lo desconoce"]),
-                            answer: $vm.sobrepeso
-                        )
-                        
-                        questionField(
-                            question: "¿Consume refrescos?",
-                            type: .choice(options: ["Sí", "No", "Lo desconoce"]),
-                            answer: $vm.refrescos
-                        )
-                        
-                        questionField(
-                            question: "¿Agrega sal a sus alimentos?",
-                            type: .choice(options: ["Sí", "No", "Lo desconoce"]),
-                            answer: $vm.sal
-                        )
-                        
-                        questionField(
-                            question: "¿Fuma o ha fumado más de 10 años?",
-                            type: .choice(options: ["Sí", "No", "Lo desconoce"]),
-                            answer: $vm.fumador
-                        )
-                        
-                        questionField(
-                            question: "¿Ingiere bebidas alcohólicas con frecuencia?",
-                            type: .choice(options: ["Sí", "No", "Lo desconoce"]),
-                            answer: $vm.alcohol
-                        )
-                        
-                        questionField(
-                            question: "¿Ha tenido episodios de depresión?",
-                            type: .choice(options: ["Sí", "No", "Lo desconoce"]),
-                            answer: $vm.depresion
-                        )
+                        if let error = vm.errorMessage {
+                            Text(error)
+                                .foregroundColor(.red)
+                                .padding(.horizontal)
+                        }
+
+                        // Regresar
+                        Button {
+                            goToGeneralInfo()
+                        } label: {
+                            Text("Regresar")
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.gray.opacity(0.3))
+                                .cornerRadius(12)
+                        }
+                        .padding(.horizontal)
+
+                        // Enviar formulario
+                        Button {
+                            Task { await vm.submitForm() }
+                        } label: {
+                            Text("Enviar formulario")
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.cyan)
+                                .foregroundColor(.white)
+                                .cornerRadius(12)
+                        }
+                        .padding(.horizontal)
                     }
-                    
-                    Button {
-                        Task { await vm.submit() }
-                    } label: {
-                        Text("Ir a la siguiente parte")
-                            .fontWeight(.semibold)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.cyan)
-                            .foregroundColor(.white)
-                            .cornerRadius(12)
+
+                    if let ok = vm.successMessage {
+                        Text(ok)
+                            .foregroundColor(.green)
+                            .padding(.bottom)
                     }
-                    .padding(.horizontal)
                 }
                 .padding(.top, 20)
             }
-            
-            BottomBar(idUser: idUser)
+            .onAppear {
+                Task { await vm.loadForm() }
+            }
         }
-        .background(Color(.systemGray6))
+        BottomBar(idUser: "1212")
     }
 }
 
 #Preview {
-    RiskFormView(idUser: "19191")
+    RiskFormView(idUser: "1212")
 }

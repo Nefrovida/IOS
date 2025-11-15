@@ -34,22 +34,9 @@
 		A4C88D1C2EB1ABFE007C8050 /* NefrovidaAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NefrovidaAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		A44F56432EC4D4BE000956DD /* Exceptions for "NefrovidaApp" folder in "NefrovidaApp" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = A4C88D042EB1ABFD007C8050 /* NefrovidaApp */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A4C88D072EB1ABFD007C8050 /* NefrovidaApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				A44F56432EC4D4BE000956DD /* Exceptions for "NefrovidaApp" folder in "NefrovidaApp" target */,
-			);
 			path = NefrovidaApp;
 			sourceTree = "<group>";
 		};

@@ -1,46 +1,85 @@
-import Alamofire
 import Foundation
+import Alamofire
 
 final class RiskFormRepository: RiskFormRepositoryProtocol {
+    
+    private let baseURL = "http://192.168.1.163:3001"
+    
+    func submitForm(_ forms: [String : Any]) async throws {
+        let endpoint = "\(baseURL)/api/report/risk-form"
 
-
-private let baseURL: String
-
-// Repository initializer, allows dependency injection of the baseURL.
-public init(baseURL: String) {
-    self.baseURL = baseURL
-}
-
-// Fetches appointments for a specific date from the remote API.
-// Parameter date: String representing the date (format "yyyy-MM-dd").
-// idUser: The identifier of the user whose appointments will be fetched.
-// Returns: An array of Appointment objects (domain models).
-// Throws: Any network or decoding error that occurs during the request.
-    func submitForm(_ form: RiskForm) async throws {
-        let endpoint = "\(baseURL)/riskForm"
+        let request = AF.request(
+            endpoint,
+            method: .post,
+            parameters: forms,
+            encoding: JSONEncoding.default
+        ).validate()
         
-        let params: Parameters = [
-            "riskForm": form
-        ]
-        
-        let request = AF.request(endpoint, method: .post, parameters: params).validate()
         let result = await request.serializingData().response
         
-        // 🔹 Obtener el código HTTP
-        if let statusCode = result.response?.statusCode {
-            print("Código HTTP recibido: \(statusCode)")
+        if let status = result.response?.statusCode {
+            print("HTTP Status:", status)
         }
+        
+        switch result.result {
+        case .success:
+            print("Formulario enviado correctamente")
+        case .failure(let error):
+            print("Error POST:", error)
+            throw error
+        }
+    }
+}
+
+final class RiskQuestionsRepository: RiskQuestionsRepositoryProtocol {
+
+    private let baseURL = "http://192.168.1.163:3001"
+
+    func fetchQuestions() async throws -> [RiskQuestion] {
+
+        let endpoint = "\(baseURL)/api/report/risk-questions"
+
+        // Hacemos la petición EXACTAMENTE como tu repositorio base
+        let result = await AF.request(endpoint, method: .get)
+            .validate()
+            .serializingData()
+            .response
 
         switch result.result {
-        case .success(_):
-            do {
-                let decoder = JSONDecoder()
-                decoder.keyDecodingStrategy = .convertFromSnakeCase
-                print("Formulario enviado correctamente")
-                // Si quieres, también podrías decodificar la respuesta aquí
-            }
+        case .success(let data):
+            // Decodificamos igual que en base
+            let response = try JSONDecoder().decode([RiskQuestion].self, from: data)
+            return response
+
         case .failure(let error):
-            print("Error de red o validación: \(error)")
+            print("Error al obtener preguntas:", error)
+            throw error
+        }
+    }
+}
+
+final class RiskOptionsRepository: GetRiskOptionsRepositoryProtocol {
+
+    private let baseURL = "http://192.168.1.163:3001"
+
+    func fetchOptions() async throws -> [RiskOption] {
+
+        let endpoint = "\(baseURL)/api/report/risk-options"
+
+        // Hacemos la petición EXACTAMENTE como tu repositorio base
+        let result = await AF.request(endpoint, method: .get)
+            .validate()
+            .serializingData()
+            .response
+
+        switch result.result {
+        case .success(let data):
+            // Decodificamos igual que en base
+            let response = try JSONDecoder().decode([RiskOption].self, from: data)
+            return response
+
+        case .failure(let error):
+            print("Error al obtener preguntas:", error)
             throw error
         }
     }

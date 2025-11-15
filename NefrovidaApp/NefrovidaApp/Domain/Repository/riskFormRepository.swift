@@ -1,11 +1,25 @@
-//
-//  riskFormRepository.swift
-//  NefrovidaApp
-//
-//  Created by Manuel Bajos Rivera on 11/11/25.
-//
 import Foundation
 
 protocol RiskFormRepositoryProtocol {
-    func submitForm(_ form: RiskForm) async throws
+    func submitForm(_ forms: [String: Any]) async throws
+}
+
+protocol RiskQuestionsRepositoryProtocol {
+    func fetchQuestions() async throws -> [RiskQuestion]
+}
+
+protocol GetRiskOptionsRepositoryProtocol {
+    func fetchOptions() async throws -> [RiskOption]
+}
+
+protocol SubmitRiskFormUseCaseProtocol {
+    func execute(forms: [String: Any]) async throws
+}
+
+protocol GetRiskQuestionsUseCaseProtocol {
+    func execute() async throws -> [RiskQuestion]
+}
+
+protocol GetRiskOptionsUseCaseProtocol {
+    func execute() async throws -> [RiskOption]
 }
