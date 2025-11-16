@@ -1,4 +1,6 @@
 import SwiftUI
+import Combine
+import Observation
 
 struct FilterableReportList: View {
     
@@ -7,18 +9,17 @@ struct FilterableReportList: View {
     var body: some View {
         VStack(spacing: 16) {
             
-            // ───── Segmented Filter (Consultas / Análisis / Todos)
-            HStack(spacing: 10) {
+            // Segmented Filter
+            HStack {
                 ForEach(ReportsViewModel.Filter.allCases, id: \.self) { filter in
-                    let isSelected = viewModel.selectedFilter == filter
-                    
+                    let isActive = viewModel.selectedFilter == filter
                     nefroButton(
                         text: filter.rawValue,
-                        color: isSelected ? Color.nvBrand : .white,
-                        textColor: isSelected ? .white : Color.nvBrand,
+                        color: isActive ? .nvBrand : .white,
+                        textColor: isActive ? .white : .nvBrand,
                         vertical: 6,
                         horizontal: 14,
-                        hasStroke: !isSelected,
+                        hasStroke: !isActive,
                         textSize: 14
                     ) {
                         viewModel.selectFilter(filter)
@@ -27,63 +28,42 @@ struct FilterableReportList: View {
             }
             .padding(.horizontal)
             
-            // ───── Loader, error message, or report list
             if viewModel.isLoading {
-                ProgressView("Cargando reportes...")
-                    .padding(.top, 40)
+                ProgressView("Cargando reportes…")
+                    .padding(.top, 20)
             } else if let error = viewModel.errorMessage {
                 Text(error)
                     .foregroundColor(.red)
                     .padding()
-            } else if viewModel.filteredReports.isEmpty {
-                Text("Aún no tienes reportes registrados.")
-                    .font(.nvBody)
-                    .foregroundStyle(.secondary)
-                    .padding(.top, 40)
             } else {
                 ScrollView {
-                    VStack(spacing: 18) {
+                    VStack(spacing: 20) {
                         ForEach(viewModel.filteredReports) { report in
                             ReportCard(
-                                title: report.title ?? "Sin título",
-                                specialty: report.specialty ?? "Sin especialidad",
-                                doctor: report.doctor ?? "Médico desconocido",
-                                date: format(dateString: report.date),
-                                recommendations: report.recommendations ?? "Sin recomendaciones",
-                                treatment: report.treatment ?? "Sin tratamiento",
-                                onViewReport: {
-                                    print("👀 Ver: \(report.path)")
-                                },
-                                onDownloadReport: {
-                                    print("⬇️ Descargar: \(report.path)")
-                                }
+                                title: report.patient_analysis.analysis.name.trimmingCharacters(in: .whitespaces),
+                                specialty: "Laboratorio Clínico",
+                                doctor: "Especialista Nefrólogo",
+                                date: formatDate(report.date),
+                                recommendations: report.patient_analysis.analysis.previous_requirements ?? "Sin recomendaciones",
+                                treatment: report.interpretation ?? "Sin tratamiento",
+                                onViewReport: { print("🔍 Ver reporte:", report.path) },
+                                onDownloadReport: { print("⬇️ Descargar:", report.path) }
                             )
                         }
                     }
-                    .padding(.vertical, 8)
+                    .padding(.vertical)
                 }
             }
         }
     }
     
-    private func format(dateString: String) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"     // input desde backend
-        if let date = formatter.date(from: dateString) {
-            formatter.dateFormat = "dd/MM/yyyy"
-            return formatter.string(from: date)
+    private func formatDate(_ raw: String) -> String {
+        let formatter = ISO8601DateFormatter()
+        if let date = formatter.date(from: raw) {
+            let out = DateFormatter()
+            out.dateFormat = "dd/MM/yyyy"
+            return out.string(from: date)
         }
-        return dateString
+        return raw
     }
-}
-
-#Preview {
-    let vm = ReportsViewModel(
-        idUser: "demo",
-        getReportsUseCase: GetReportsUseCase(
-            repository: ReportsRemoteRepository()
-        )
-    )
-
-    return FilterableReportList(viewModel: vm)
 }

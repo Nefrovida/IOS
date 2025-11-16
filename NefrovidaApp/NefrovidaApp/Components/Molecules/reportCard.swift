@@ -125,7 +125,7 @@ struct ReportCard: View {
         date: "12/10/2025",
         recommendations: "Tomar 2L de agua al día",
         treatment: "Control cada 3 meses",
-        onViewReport: { print("👀 Ver PDF") },
-        onDownloadReport: { print("⬇️ Descargar PDF") },
+        onViewReport: { print("Ver PDF") },
+        onDownloadReport: { print("Descargar PDF") },
     )
 }

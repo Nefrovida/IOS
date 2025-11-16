@@ -2,18 +2,18 @@ import Foundation
 import Combine
 
 @MainActor
-final class ReportsViewModel: ObservableObject {
+final class ReportsViewModel: ObservableObject {   // <-- IMPORTANTE
 
     enum Filter: String, CaseIterable {
-        case all         = "Todos"
-        case consultation = "Consultas"
-        case analysis     = "Análisis"
+        case all = "Todos"
+        case consultation = "Consulta"
+        case analysis = "Análisis"
     }
 
-    @Published private(set) var reports: [Report] = []
+    @Published var reports: [Report] = []
     @Published var selectedFilter: Filter = .all
-    @Published private(set) var isLoading = false
-    @Published var errorMessage: String?
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String? = nil
 
     let idUser: String
     private let getReportsUseCase: GetReportsUseCaseProtocol
@@ -28,9 +28,9 @@ final class ReportsViewModel: ObservableObject {
         case .all:
             return reports
         case .consultation:
-            return reports.filter { $0.type == "consultation" }
+            return reports.filter { $0.patient_analysis.analysis_status == "CONSULTATION" }
         case .analysis:
-            return reports.filter { $0.type == "analysis" }
+            return reports.filter { $0.patient_analysis.analysis_status == "LAB" }
         }
     }
 
@@ -38,17 +38,18 @@ final class ReportsViewModel: ObservableObject {
         Task { await loadReports() }
     }
 
-    func loadReports() async {
+    private func loadReports() async {
         isLoading = true
         errorMessage = nil
 
         do {
-            reports = try await getReportsUseCase.execute(userId: idUser)
+            let result = try await getReportsUseCase.execute(userId: idUser)
+            self.reports = result
         } catch {
             errorMessage = "No se pudieron cargar los reportes."
             print("Error:", error)
         }
-
+        
         isLoading = false
     }
 

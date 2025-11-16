@@ -1,26 +1,30 @@
 import Foundation
 
-// Main model representing a report fetched from the backend.
-struct Report: Codable, Identifiable, Sendable {
-    let id: Int
-    let title: String?
-    let specialty: String?
-    let doctor: String?
+struct Report: Codable, Identifiable {
+    var id: Int { result_id }
+    
+    let result_id: Int
+    let patient_analysis_id: Int
     let date: String
-    let recommendations: String?
-    let treatment: String?
     let path: String
-    let type: String?
+    let interpretation: String?
+    let patient_analysis: PatientAnalysis
+}
 
-    enum CodingKeys: String, CodingKey {
-        case id
-        case title
-        case specialty
-        case doctor
-        case date
-        case recommendations
-        case treatment
-        case path
-        case type
-    }
+struct PatientAnalysis: Codable {
+    let analysis_id: Int
+    let place: String?
+    let analysis_status: String?
+    let analysis_date: String?
+    let results_date: String?
+    let analysis: AnalysisDetail
+}
+
+struct AnalysisDetail: Codable {
+    let name: String
+    let description: String?
+    let previous_requirements: String?
+    let general_cost: Double?
+    let community_cost: Double?
+    let image_url: String?
 }
