@@ -1,7 +1,7 @@
 import Foundation
 
 struct ForumRemoteRepository {
-    private let baseURL = "http://localhost:3000/api/forums" // cambia según tu entorno
+    private let baseURL = "http://localhost:3000/api/forums"
 
     func getMessages(forumId: Int) async throws -> [ForumMessageEntity] {
         guard let url = URL(string: "\(baseURL)/\(forumId)/messages") else {

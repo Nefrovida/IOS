@@ -21,17 +21,17 @@ struct ForumView: View {
         VStack(spacing: 0) {
             UpBar()
 
-            // Lista jerárquica de mensajes
+            // Message heriarchy
             List {
                 ForEach(vm.messages.filter { $0.parentMessageId == nil }) { parent in
                     VStack(alignment: .leading, spacing: 8) {
                         Text(parent.content)
                             .font(.body)
 
-                        // Respuestas anidadas (un nivel)
+                        // nested responses
                         ForEach(vm.messages.filter { $0.parentMessageId == parent.id }) { reply in
                             HStack {
-                                Spacer().frame(width: 20) // indentación
+                                Spacer().frame(width: 20) // indentation
                                 VStack(alignment: .leading) {
                                     Text(reply.content)
                                         .font(.subheadline)
@@ -49,7 +49,7 @@ struct ForumView: View {
                 }
             }
 
-            // Campo para nuevo mensaje raíz
+            // Field for new root message
             HStack {
                 TextField("Escribe un mensaje...", text: $vm.newMessageContent)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -60,7 +60,7 @@ struct ForumView: View {
             }
             .padding()
 
-            // Campo para respuesta a mensaje seleccionado
+            // Field for reply to selected message
             if vm.selectedParentMessageId != nil {
                 HStack {
                     TextField("Escribe una respuesta...", text: $vm.replyContent)

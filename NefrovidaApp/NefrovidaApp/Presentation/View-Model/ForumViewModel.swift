@@ -3,7 +3,7 @@ import Combine
 
 @MainActor
 class ForumViewModel: ObservableObject {
-    // Estado observable para la vista
+    // Observable state for the viewField
     @Published var messages: [ForumMessageEntity] = []
     @Published var newMessageContent: String = ""
     @Published var replyContent: String = ""
@@ -14,7 +14,7 @@ class ForumViewModel: ObservableObject {
     private let postMessageUC: PostMessageUseCase
     private let replyToMessageUC: ReplyToMessageUseCase
 
-    // Inicializador con inyección de dependencias
+    // Dependencies (use cases)
     init(getMessagesUC: GetMessagesUseCase,
          postMessageUC: PostMessageUseCase,
          replyToMessageUC: ReplyToMessageUseCase) {
@@ -25,7 +25,7 @@ class ForumViewModel: ObservableObject {
 
     // MARK: - Funciones de negocio
 
-    /// Cargar todos los mensajes de un foro
+    // Load all messages from a forum
     func loadMessages(forumId: Int) async {
         do {
             messages = try await getMessagesUC.execute(forumId: forumId)
@@ -34,7 +34,7 @@ class ForumViewModel: ObservableObject {
         }
     }
 
-    /// Enviar un nuevo mensaje raíz
+    // Send a new root message
     func sendMessage(forumId: Int) async {
         guard !newMessageContent.isEmpty else { return }
         do {
@@ -46,7 +46,7 @@ class ForumViewModel: ObservableObject {
         }
     }
 
-    /// Responder a un mensaje existente
+    // Reply to an existing message
     func sendReply(forumId: Int) async {
         guard let parentId = selectedParentMessageId, !replyContent.isEmpty else { return }
         do {
