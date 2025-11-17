@@ -6,6 +6,12 @@ struct AnalysisResponse: Codable, Sendable {
     let data: [Analysis]
 }
 
+struct ConsultationResponse: Codable, Sendable{
+    let success: Bool
+    let message: String
+    let data: [Consultation]
+}
+
 struct Consultation: Codable, Sendable {
     let appointmentId: Int
     let doctorId: String
@@ -22,6 +28,10 @@ struct Consultation: Codable, Sendable {
         case communityCost = "community_cost"
         case img = "image_url"
     }
+}
+
+extension Consultation: Identifiable {
+    var id: Int { appointmentId }
 }
 
 struct Analysis: Codable, Identifiable, Sendable {

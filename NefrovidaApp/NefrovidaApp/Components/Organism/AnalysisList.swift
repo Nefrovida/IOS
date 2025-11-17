@@ -21,10 +21,12 @@ struct AnalysisList: View {
                     VStack(spacing: 18) {
                         ForEach(viewModel.analyses) { item in
                             AnalysisTypeCard(
-                                title: item.name.trimmingCharacters(in: .whitespaces),
-                                description: item.description ?? "Sin descripción",
+                                title: item.name,
+                                description: item.description,
+                                costoComunidad: item.communityCost,
+                                costoGeneral: item.generalCost,
                                 onSettings: {
-                                    print("➡️ Seleccionado:", item.name)
+                                    print("➡️ Análisis seleccionado:", item.name)
                                 }
                             )
                         }
@@ -35,14 +37,4 @@ struct AnalysisList: View {
             }
         }
     }
-}
-
-#Preview {
-    AnalysisList(
-        viewModel: AnalysisViewModel(
-            getAnalysisUseCase: GetAnalysisUseCase(
-                repository: AnalysisRemoteRepository()
-            )
-        )
-    )
 }

@@ -3,44 +3,95 @@ import SwiftUI
 struct HomeAnalysisView: View {
 
     @StateObject private var vm = AnalysisViewModel(
-        getAnalysisUseCase: GetAnalysisUseCase(
-            repository: AnalysisRemoteRepository()
-        )
+        getAnalysisUseCase: GetAnalysisUseCase(repository: AnalysisRemoteRepository()),
+        getConsultationUseCase: GetConsultationUseCases(repository: ConsultationRemoteRepository())
     )
 
     var body: some View {
         ZStack(alignment: .bottom) {
 
             ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 20) {
 
-                    // 🔹 TOP BAR
                     UpBar()
 
-                    // 🔹 TITLE + SUBTITLE
                     VStack(alignment: .leading, spacing: 6) {
-                        Title(text: "Análisis disponibles")
+                        Title(text: vm.selectedAnalysis ? "Análisis disponibles" : "Consultas disponibles")
 
-                        Text("Selecciona el estudio que deseas consultar.")
+                        Text("Selecciona el servicio que deseas consultar.")
                             .font(.nvBody)
                             .foregroundColor(.secondary)
                     }
                     .padding(.horizontal)
 
-                    // 🔹 LIST ORGANISM
-                    AnalysisList(viewModel: vm)
-                        .padding(.bottom, 90)   // ⬅️ Leaves space for BottomBar
-                        .onAppear { vm.onAppear() }
+                    // 🔹 SELECTOR
+                    HStack(spacing: 12) {
+                        nefroButton(
+                            text: "Análisis",
+                            color: vm.selectedAnalysis ? .nvBrand : .white,
+                            textColor: vm.selectedAnalysis ? .white : .nvBrand,
+                            vertical: 10,
+                            horizontal: 22,
+                            hasStroke: !vm.selectedAnalysis,
+                            textSize: 14
+                        ) {
+                            withAnimation { vm.selectedAnalysis = true }
+                        }
+
+                        nefroButton(
+                            text: "Consultas",
+                            color: !vm.selectedAnalysis ? .nvBrand : .white,
+                            textColor: !vm.selectedAnalysis ? .white : .nvBrand,
+                            vertical: 10,
+                            horizontal: 22,
+                            hasStroke: vm.selectedAnalysis,
+                            textSize: 14
+                        ) {
+                            withAnimation { vm.selectedAnalysis = false }
+                        }
+                    }
+                    .padding(.horizontal)
+
+                    // 🔹 CONTENT
+                    if vm.isLoading {
+                        ProgressView("Cargando...")
+                    } else if let error = vm.errorMessage {
+                        Text(error).foregroundColor(.red)
+                    } else {
+                        VStack(spacing: 16) {
+
+                            if vm.selectedAnalysis {
+                                ForEach(vm.analyses) { a in
+                                    AnalysisTypeCard(
+                                        title: a.name,
+                                        description: a.description,
+                                        costoComunidad: a.communityCost,
+                                        costoGeneral: a.generalCost,
+                                        onSettings: { print("🧪 Abrir detalles:", a.name) }
+                                    )
+                                }
+                            } else {
+                                ForEach(vm.consultation) { c in
+                                    AnalysisTypeCard(
+                                        title: c.nameConsultation,
+                                        description: "Consulta con especialista",
+                                        costoComunidad: "\(c.communityCost)",
+                                        costoGeneral: "\(c.generalCost)",
+                                        onSettings: { print("🩺 Abrir detalles:", c.nameConsultation) }
+                                    )
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                        .padding(.bottom, 90)
+                    }
                 }
-                .frame(maxWidth: .infinity, alignment: .top)
             }
 
-            // 🔹 FIXED BOTTOM BAR
-            BottomBar()
-                .background(.white)
+            BottomBar().background(.white)
         }
         .background(Color(.systemGroupedBackground))
-        .ignoresSafeArea(.keyboard)
+        .onAppear { vm.onAppear() }
     }
 }
 

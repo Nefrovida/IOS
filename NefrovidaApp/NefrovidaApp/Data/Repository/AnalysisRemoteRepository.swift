@@ -23,3 +23,26 @@ final class AnalysisRemoteRepository: AnalysisRepositoryProtocol {
         }
     }
 }
+
+final class ConsultationRemoteRepository: ConsultationRepositoryProtocol {
+
+    private let baseURL = "http://localhost:3001"
+
+    func fetchConsultationList() async throws -> [Consultation] {
+
+        let endpoint = "\(baseURL)/api/appointments/getAllAppointments"
+
+        let request = AF.request(endpoint, method: .get).validate()
+        let result = await request.serializingData().response
+
+        switch result.result {
+        case .success(let data):
+            let decoded = try JSONDecoder().decode([Consultation].self, from: data)
+            return decoded
+
+        case .failure(let error):
+            print("❌ ERROR FETCHING CONSULTATION:", error)
+            throw error
+        }
+    }
+}
