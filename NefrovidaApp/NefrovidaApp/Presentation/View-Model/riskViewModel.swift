@@ -116,7 +116,7 @@ final class RiskFormViewModel: ObservableObject {
         }
     }
 
-    // SUBMIT FINAL FORM
+    // SUBMIT FORM
     func submitForm() async {
         
         guard validate() else { return }

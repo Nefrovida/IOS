@@ -4,42 +4,42 @@ import Alamofire
 // Repository to send forms to the api.
 final class RiskFormRepository: RiskFormRepositoryProtocol {
 
-    // endpoint to connect to the api and send data.
+    // Endpoint to connect to the api and send data.
     // if you want to try it, put your ip.
     private let baseURL = "http://localhost:3001"
 
-    //Envía el formulario completo al backend usando el ID del usuario.
     // Send the forms to the api, using the id to identify.
     // Parameters: idUser: Id of the user in the sesion.
-    ///   - forms: Diccionario con todos los datos del formulario (general_info + answers).
-    ///
-    /// - Throws: Lanza error si la petición HTTP falla.
+    // forms: Dictionary with the question and answer.
+    // Throws: Error if the http request fail.
     func submitForm(idUser: String, forms: [String: Any]) async throws {
         
-        // Endpoint final para el POST: /risk-form/submit/:idUser
+        // Final endpoint.
         let endpoint = "\(baseURL)/api/clinical-history/risk-form/submit/\(idUser)"
 
-        // Configuración y ejecución del request HTTP
+        // Ejecution of the http request.
         let request = AF.request(
             endpoint,
             method: .post,
-            parameters: forms,             // Se envía el diccionario completo
-            encoding: JSONEncoding.default // Se codifica como JSON en el body
+            parameters: forms,             // Send the forms.
+            encoding: JSONEncoding.default // Make the forms in JSON format.
         )
-        .validate() // Valida códigos HTTP 200...299
+        .validate() // Validate the petition. (200-299).
 
         // Esperamos la respuesta en formato Data
+        // Await of the http request.
         let result = await request.serializingData().response
 
         // Imprime el estatus HTTP para debugging
+        // Print the status of http request.
         if let status = result.response?.statusCode {
             print("HTTP Status:", status)
         }
 
-        // Revisamos si la petición fue exitosa o falló
+        // Check if the petition is success or fail.
         switch result.result {
         case .success:
-            print("Formulario enviado correctamente")
+            print("Form send successfully.")
         case .failure(let error):
             print("Error POST:", error)
             throw error
@@ -48,22 +48,19 @@ final class RiskFormRepository: RiskFormRepositoryProtocol {
 }
 
 
-// =======================================================
-// Repositorio encargado de OBTENER todas las preguntas
-// =======================================================
+// Repository to get the risk questions.
 final class RiskQuestionsRepository: RiskQuestionsRepositoryProtocol {
 
     private let baseURL = "http://localhost:3001"
 
-    /// Obtiene todas las preguntas disponibles del formulario dinámico.
-    ///
-    /// - Returns: Arreglo de objetos `RiskQuestion`
-    /// - Throws: Error si falla la petición o el parseo de JSON.
+    // Get all the risk questions.
+    // Returns: Array of RiskQuestion.
+    // Throws: Error if the http request fail or the JSON parse fail.
     func fetchQuestions() async throws -> [RiskQuestion] {
 
         let endpoint = "\(baseURL)/api/clinical-history/risk-options"
 
-        // Realizamos el GET y validamos la respuesta
+
         let result = await AF.request(endpoint, method: .get)
             .validate()
             .serializingData()
@@ -71,34 +68,31 @@ final class RiskQuestionsRepository: RiskQuestionsRepositoryProtocol {
 
         switch result.result {
         case .success(let data):
-            // Decodificamos el JSON recibido hacia nuestro modelo Swift
+            // Decode JSON to our model.
             let response = try JSONDecoder().decode([RiskQuestion].self, from: data)
             return response
 
         case .failure(let error):
-            print("Error al obtener preguntas:", error)
+            print("Fail to get the questions:", error)
             throw error
         }
     }
 }
 
 
-// =======================================================
-// Repositorio encargado de OBTENER las opciones (choice)
-// =======================================================
+// Repository to get the options of choice questions.
 final class RiskOptionsRepository: GetRiskOptionsRepositoryProtocol {
 
     private let baseURL = "http://localhost:3001"
 
-    /// Obtiene todas las opciones asociadas a preguntas tipo choice.
-    ///
-    /// - Returns: Arreglo de objetos `RiskOption`
-    /// - Throws: Error si falla la petición HTTP.
+    // Get all the options.
+    // Returns: Array of RiskOption.
+    // Throws: Error if the http request fail.
     func fetchOptions() async throws -> [RiskOption] {
 
         let endpoint = "\(baseURL)/api/clinical-history/risk-options"
 
-        // Hacemos GET y validamos
+        // Make a GET and validate.
         let result = await AF.request(endpoint, method: .get)
             .validate()
             .serializingData()
@@ -106,12 +100,12 @@ final class RiskOptionsRepository: GetRiskOptionsRepositoryProtocol {
 
         switch result.result {
         case .success(let data):
-            // Decodificación estándar
+            // Decode JSON into our model.
             let response = try JSONDecoder().decode([RiskOption].self, from: data)
             return response
 
         case .failure(let error):
-            print("Error al obtener preguntas:", error)
+            print("Fail to get the questions:", error)
             throw error
         }
     }
