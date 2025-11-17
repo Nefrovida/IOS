@@ -15,16 +15,8 @@ struct HomeAnalysisView: View {
 
                     UpBar()
 
-                    VStack(alignment: .leading, spacing: 6) {
-                        Title(text: vm.selectedAnalysis ? "Análisis disponibles" : "Consultas disponibles")
 
-                        Text("Selecciona el servicio que deseas consultar.")
-                            .font(.nvBody)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding(.horizontal)
-
-                    // 🔹 SELECTOR
+                    // SELECTOR
                     HStack(spacing: 12) {
                         nefroButton(
                             text: "Análisis",
@@ -52,7 +44,7 @@ struct HomeAnalysisView: View {
                     }
                     .padding(.horizontal)
 
-                    // 🔹 CONTENT
+                    // CONTENT
                     if vm.isLoading {
                         ProgressView("Cargando...")
                     } else if let error = vm.errorMessage {
@@ -67,6 +59,7 @@ struct HomeAnalysisView: View {
                                         description: a.description,
                                         costoComunidad: a.communityCost,
                                         costoGeneral: a.generalCost,
+                                        isAnalysis:true,
                                         onSettings: { print("🧪 Abrir detalles:", a.name) }
                                     )
                                 }

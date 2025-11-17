@@ -14,7 +14,7 @@ struct AnalysisTypeCard: View {
     let costoComunidad: String?
     let costoGeneral: String?
     
-    var isAnalysis: Bool = true
+    var isAnalysis: Bool = false
     var onSettings: () -> Void  // Callback cuando se selecciona servicio
 
     var body: some View {
