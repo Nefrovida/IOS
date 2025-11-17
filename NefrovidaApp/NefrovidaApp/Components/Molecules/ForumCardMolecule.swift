@@ -1,15 +1,15 @@
 //
-//  forumCard.swift
+//  ForumCardMolecule.swift
 //  NefrovidaApp
 //
 //  Created by Iván FV on 10/11/25.
 //
-// Components/Molecules/forumCard.swift
+//  Moved file to avoid filename collision
 
 import Foundation
 import SwiftUI
 
-struct forumCard: View {
+struct ForumCardMolecule: View {
     let title: String
     let description: String
     var onTap: () -> Void
@@ -57,7 +57,7 @@ struct forumCard: View {
 }
 
 #Preview {
-    forumCard(
+    ForumCardMolecule(
         title: "Foro 1",
         description: "Foro para los pacientes de Nefrovida.",
         onTap: { print("waaaaa") }

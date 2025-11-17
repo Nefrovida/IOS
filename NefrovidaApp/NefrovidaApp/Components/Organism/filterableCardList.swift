@@ -119,12 +119,12 @@ private struct AnalysisItem: Identifiable {
         .init(title: "Comunidad", description: "Anuncios generales.")
     ]
 
-    return filterableCardList<ForumItem, forumCard>(
+    return filterableCardList<ForumItem, ForumCardMolecule>(
         title: "Foros",
         items: forums,
         searchableText: { "\($0.title) \($0.description)" },
         content: { item in
-            forumCard(
+            ForumCardMolecule(
                 title: item.title,
                 description: item.description,
                 onTap: { print("Abrir \(item.title)") }
