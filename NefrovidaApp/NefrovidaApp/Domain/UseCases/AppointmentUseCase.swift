@@ -14,3 +14,17 @@ struct GetAppointmentsUseCase {
         try await repository.getAppointments(for: date, appointmentId: appointmentId)
     }
 }
+
+import Foundation
+
+struct CreateAppointmentUseCase {
+    let repository: appointmentRepository
+
+    func execute(
+        userId: String,
+        appointmentId: Int,
+        dateHour: Date
+    ) async throws -> AppointmentEntity {
+        try await repository.createAppointment(userId: userId, appointmentId: appointmentId, dateHour: dateHour)
+    }
+}
