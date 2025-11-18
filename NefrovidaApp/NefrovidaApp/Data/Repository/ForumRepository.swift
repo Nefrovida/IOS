@@ -20,6 +20,10 @@ class ForumRepository {
     private let baseURL = "http://localhost:3001/api"
     private var authToken: String?
     
+    // MARK: - Configuración para testing
+    // Cambiar a false para usar autenticación
+    private let bypassAuth = true
+    
     func setAuthToken(_ token: String) {
         self.authToken = token
     }
@@ -30,13 +34,20 @@ class ForumRepository {
             throw NetworkError.invalidURL
         }
         
-        guard let token = authToken else {
-            throw NetworkError.unauthorized
+        // Solo verificar token si no estamos en modo bypass
+        if !bypassAuth {
+            guard let token = authToken else {
+                throw NetworkError.unauthorized
+            }
         }
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        // Solo agregar header de autorización si tenemos token
+        if let token = authToken {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
         
         let (data, response) = try await URLSession.shared.data(for: request)
         
@@ -53,11 +64,17 @@ class ForumRepository {
                 return feedResponse
             } catch {
                 print("Decoding error: \(error)")
+                print("Response data: \(String(data: data, encoding: .utf8) ?? "Unable to decode")")
                 throw NetworkError.decodingError
             }
         case 401, 403:
+            if bypassAuth {
+                print("Warning: Received 401/403 but bypassAuth is enabled. Check if backend requires auth.")
+            }
             throw NetworkError.unauthorized
         default:
+            let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
+            print("Error response: \(errorMessage)")
             throw NetworkError.unknown
         }
     }
@@ -68,14 +85,21 @@ class ForumRepository {
             throw NetworkError.invalidURL
         }
         
-        guard let token = authToken else {
-            throw NetworkError.unauthorized
+        // Solo verificar token si no estamos en modo bypass
+        if !bypassAuth {
+            guard let token = authToken else {
+                throw NetworkError.unauthorized
+            }
         }
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        // Solo agregar header de autorización si tenemos token
+        if let token = authToken {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
         
         let body = CreateMessageRequest(message: content)
         request.httpBody = try JSONEncoder().encode(body)
@@ -92,14 +116,22 @@ class ForumRepository {
                 let messageResponse = try JSONDecoder().decode(MessageResponse.self, from: data)
                 return messageResponse
             } catch {
+                print("Decoding error: \(error)")
+                print("Response data: \(String(data: data, encoding: .utf8) ?? "Unable to decode")")
                 throw NetworkError.decodingError
             }
         case 401, 403:
+            if bypassAuth {
+                print("Warning: Received 401/403 but bypassAuth is enabled. Check if backend requires auth.")
+            }
             throw NetworkError.unauthorized
         case 500...599:
             let errorMessage = String(data: data, encoding: .utf8) ?? "Server error"
+            print("Server error: \(errorMessage)")
             throw NetworkError.serverError(errorMessage)
         default:
+            let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
+            print("Error response: \(errorMessage)")
             throw NetworkError.unknown
         }
     }

@@ -13,76 +13,60 @@ struct ForumFeedView: View {
     @State private var showSearchView = false
     
     var body: some View {
-        NavigationView {
-            ZStack(alignment: .bottomTrailing) {
-                VStack(spacing: 0) {
-                    // Header con filtro y búsqueda
-                    FeedHeader(
-                        selectedFilter: $viewModel.selectedFilter,
-                        onSearchTapped: {
-                            showSearchView = true
-                        }
-                    )
-                    
-                    // Feed de mensajes
-                    feedContent
-                }
+        ZStack(alignment: .top) {
+            VStack(spacing: 0) {
+                // UpBar personalizado en lugar de NavigationBar
+                UpBar()
                 
-                // Botones flotantes
-                FloatingActionButtons(
-                    onNewPostTapped: {
-                        showNewMessageSheet = true
-                    },
-                    onEditTapped: {
-                        // TODO: Acción de editar/drafts
+                // Header con filtro y búsqueda
+                FeedHeader(
+                    selectedFilter: $viewModel.selectedFilter,
+                    onSearchTapped: {
+                        showSearchView = true
                     }
                 )
-                .padding(.trailing, 16)
-                .padding(.bottom, 80) // Espacio para el tab bar
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {
-                        // TODO: Abrir perfil
-                    }) {
-                        Image(systemName: "person.circle")
-                            .font(.system(size: 24))
-                            .foregroundColor(.primary)
-                    }
-                }
                 
-                ToolbarItem(placement: .principal) {
-                    Image("nefrovida-logo") // Asume que tienes el logo en assets
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 32)
-                }
+                // Feed de mensajes
+                feedContent
                 
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        // TODO: Abrir notificaciones
-                    }) {
-                        Image(systemName: "bell")
-                            .font(.system(size: 24))
-                            .foregroundColor(.primary)
-                    }
+                Spacer(minLength: 0)
+                
+                // BottomBar personalizado
+                BottomBar()
+            }
+            
+            // Botones flotantes
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    FloatingActionButtons(
+                        onNewPostTapped: {
+                            showNewMessageSheet = true
+                        },
+                        onEditTapped: {
+                            // TODO: Acción de editar/drafts
+                        }
+                    )
+                    .padding(.trailing, 16)
+                    .padding(.bottom, 90) // Espacio para el BottomBar (ajusta según necesites)
                 }
             }
-            .sheet(isPresented: $showNewMessageSheet) {
-                NewMessageView(onMessageSent: {
-                    showNewMessageSheet = false
-                    Task {
-                        await viewModel.refreshFeed()
-                    }
-                })
-            }
-            .alert("Error", isPresented: $viewModel.showError) {
-                Button("OK", role: .cancel) { }
-            } message: {
-                if let error = viewModel.errorMessage {
-                    Text(error)
+        }
+        .edgesIgnoringSafeArea(.top) // Para que UpBar llegue hasta arriba
+        .sheet(isPresented: $showNewMessageSheet) {
+            NewMessageView(onMessageSent: {
+                showNewMessageSheet = false
+                Task {
+                    await viewModel.refreshFeed()
                 }
+            })
+        }
+        .alert("Error", isPresented: $viewModel.showError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            if let error = viewModel.errorMessage {
+                Text(error)
             }
         }
     }
