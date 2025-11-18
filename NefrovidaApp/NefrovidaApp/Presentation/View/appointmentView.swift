@@ -154,11 +154,11 @@ struct appointmentView: View {
         
         .navigationTitle("Agendar cita")
         // Success appointment alert
-        .alert("¡Cita confirmada!", isPresented: $showSuccessAlert) {
+        .alert("¡Cita Solicitada!", isPresented: $showSuccessAlert) {
             Button("Aceptar", role: .cancel) { }
         } message: {
             if let confirmed = vm.lastConfirmedSlot {
-                Text("Tu cita ha sido agendada para el \(formatFull(date: confirmed))")
+                Text("Tu cita ha sido solicitada para el \(formatFull(date: confirmed))")
             } else {
                 Text("Tu cita ha sido agendada exitosamente")
             }
