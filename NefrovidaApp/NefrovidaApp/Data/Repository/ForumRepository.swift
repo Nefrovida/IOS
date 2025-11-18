@@ -17,7 +17,7 @@ enum NetworkError: Error {
 }
 
 class ForumRepository {
-    private let baseURL = "http://localhost:3001/api"
+    private let baseURL = "http://localhost:3001"
     private var authToken: String?
     
     // MARK: - Configuración para testing

@@ -15,10 +15,7 @@ struct ForumFeedView: View {
     var body: some View {
         ZStack(alignment: .top) {
             VStack(spacing: 0) {
-                // UpBar personalizado en lugar de NavigationBar
                 UpBar()
-                
-                // Header con filtro y búsqueda
                 FeedHeader(
                     selectedFilter: $viewModel.selectedFilter,
                     onSearchTapped: {
@@ -30,8 +27,6 @@ struct ForumFeedView: View {
                 feedContent
                 
                 Spacer(minLength: 0)
-                
-                // BottomBar personalizado
                 BottomBar()
             }
             
@@ -49,7 +44,7 @@ struct ForumFeedView: View {
                         }
                     )
                     .padding(.trailing, 16)
-                    .padding(.bottom, 90) // Espacio para el BottomBar (ajusta según necesites)
+                    .padding(.bottom, 90)
                 }
             }
         }
