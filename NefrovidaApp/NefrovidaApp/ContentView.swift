@@ -19,17 +19,13 @@ struct ContentView: View {
     }
 
     private var mainAppView: some View {
-        ZStack {
-            VStack(spacing: 0) {
-                currentView
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-            VStack {
-                Spacer()
-                BottomNavigationBar(selectedTab: $viewModel.selectedTab, onSelect: { tab in
-                    viewModel.selectedTab = tab
-                })
-            }
+        VStack(spacing: 0) {
+            currentView
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            
+            BottomNavigationBar(selectedTab: $viewModel.selectedTab, onSelect: { tab in
+                viewModel.selectedTab = tab
+            })
         }
         .edgesIgnoringSafeArea(.bottom)
     }
