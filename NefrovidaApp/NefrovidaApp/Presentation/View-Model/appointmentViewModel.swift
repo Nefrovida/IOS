@@ -16,7 +16,7 @@ struct SlotEntity: Identifiable, Equatable {
 }
 
 @MainActor
-final class agendaViewModel: ObservableObject {
+final class appointmentViewModel: ObservableObject {
 
     @Published var selectedDate: Date
     @Published var slots: [SlotEntity] = []

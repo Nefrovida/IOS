@@ -4,7 +4,7 @@ struct appointmentView: View {
     let appointmentId: Int
     let userId: String
     
-    @StateObject private var vm: agendaViewModel
+    @StateObject private var vm: appointmentViewModel
     @State private var showSuccessAlert = false
 
     init(appointmentId: Int, userId: String) {
@@ -13,7 +13,7 @@ struct appointmentView: View {
         let repo = AppointmentRepositoryD()
         let getUC = GetAppointmentsUseCase(repository: repo)
         let createUC = CreateAppointmentUseCase(repository: repo)
-        _vm = StateObject(wrappedValue: agendaViewModel(
+        _vm = StateObject(wrappedValue: appointmentViewModel(
             getAppointmentsUC: getUC,
             createAppointmentUC: createUC,
             appointmentId: appointmentId
