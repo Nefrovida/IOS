@@ -12,7 +12,9 @@ struct HomeView: View {
     
     var body: some View {
         VStack {
-            Text("Bienvenido, \(user?.username ?? "")")
+            NavigationLink(destination: RiskFormView(idUser: user?.user_id ?? "")) {
+                Text("Link Papu")
+            }
         }
     }
 }

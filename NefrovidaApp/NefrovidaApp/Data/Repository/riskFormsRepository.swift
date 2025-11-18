@@ -58,8 +58,7 @@ final class RiskQuestionsRepository: RiskQuestionsRepositoryProtocol {
     // Throws: Error if the http request fail or the JSON parse fail.
     func fetchQuestions() async throws -> [RiskQuestion] {
 
-        let endpoint = "\(baseURL)/api/clinical-history/risk-options"
-
+        let endpoint = "\(baseURL)/api/clinical-history/risk-questions"
 
         let result = await AF.request(endpoint, method: .get)
             .validate()
@@ -70,6 +69,9 @@ final class RiskQuestionsRepository: RiskQuestionsRepositoryProtocol {
         case .success(let data):
             // Decode JSON to our model.
             let response = try JSONDecoder().decode([RiskQuestion].self, from: data)
+            print("se obtuvo los datos")
+            print("📌 RAW JSON:")
+            print(String(data: data, encoding: .utf8)!)
             return response
 
         case .failure(let error):
@@ -102,6 +104,7 @@ final class RiskOptionsRepository: GetRiskOptionsRepositoryProtocol {
         case .success(let data):
             // Decode JSON into our model.
             let response = try JSONDecoder().decode([RiskOption].self, from: data)
+            print("se obtuvo las opciones")
             return response
 
         case .failure(let error):

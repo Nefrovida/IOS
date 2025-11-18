@@ -155,6 +155,7 @@ final class RiskFormViewModel: ObservableObject {
             // Fetch options for each question.
             let options = try await optionsUseCase.execute()
             
+            
             // Group options by question_id.
             let grouped = Dictionary(grouping: options, by: { $0.questionId })
             
