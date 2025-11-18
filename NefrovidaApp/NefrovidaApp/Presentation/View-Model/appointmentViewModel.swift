@@ -138,7 +138,7 @@ final class appointmentViewModel: ObservableObject {
                 // - it’s already taken
                 // - the selected day is in the past
                 // - the slot time already passed today
-                let isPastTime = isToday && date < now
+                let isPastTime = isToday && now < date
                 let finalOccupied = occupied || isPastDay || isPastTime
                 
                 print("   Estado: \(finalOccupied ? "🔴 OCUPADO" : "🟢 DISPONIBLE")")
