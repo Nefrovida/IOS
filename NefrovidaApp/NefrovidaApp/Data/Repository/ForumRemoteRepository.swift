@@ -33,7 +33,7 @@ private struct AuthorDTO: Codable {
     let id: Int
 }
 
-public final class RemoteForumRepository: ForumRepository {
+public final class ForumRemoteRepository: ForumRepository {
 
     private let baseURL: String
     private let tokenProvider: () -> String?
@@ -70,7 +70,7 @@ public final class RemoteForumRepository: ForumRepository {
                 // Otherwise, attempt to decode a wrapper with key "data" or throw
                 if let wrapper = try? decoder.decode([String: [String: [ForumDTO]]].self, from: data) {
                     // Attempt to find the first array of forums in nested wrapper
-                    for (key, value) in wrapper {
+                    for (_, value) in wrapper {
                         if let list = value["forums"] ?? value["data"] {
                             return list.map { $0.toDomain() }
                         }
@@ -149,12 +149,6 @@ public final class RemoteForumRepository: ForumRepository {
         }
     }
 
-    // Helper DTO for responses shaped as { "forum": {...}, "posts": [...] }
-    private struct ForumWithPostsDTO: Codable {
-        let forum: ForumDTO?
-        let posts: [PostDTO]?
-    }
-
     public func joinForum(id: Int) async throws -> Bool {
         let endpoint = "\(baseURL)/forums/\(id)/join"
         let headers = makeHeaders()
@@ -168,6 +162,52 @@ public final class RemoteForumRepository: ForumRepository {
         }
     }
 
+    // MARK: - Messages (Merged from develop)
+
+    public func getMessages(forumId: Int) async throws -> [ForumMessageEntity] {
+        let endpoint = "\(baseURL)/forums/\(forumId)/messages"
+        let headers = makeHeaders()
+        let request = AF.request(endpoint, method: .get, headers: HTTPHeaders(headers)).validate()
+        let result = await request.serializingData().response
+        switch result.result {
+        case .success(let data):
+            return try JSONDecoder().decode([ForumMessageEntity].self, from: data)
+        case .failure(let error):
+            throw error
+        }
+    }
+
+    public func postMessage(forumId: Int, content: String) async throws -> ForumMessageEntity {
+        let endpoint = "\(baseURL)/forums/\(forumId)/messages"
+        let headers = makeHeaders()
+        let params: [String: Any] = ["content": content]
+        let request = AF.request(endpoint, method: .post, parameters: params, encoding: JSONEncoding.default, headers: HTTPHeaders(headers)).validate()
+        let result = await request.serializingData().response
+        switch result.result {
+        case .success(let data):
+            return try JSONDecoder().decode(ForumMessageEntity.self, from: data)
+        case .failure(let error):
+            throw error
+        }
+    }
+
+    public func replyToMessage(forumId: Int, parentMessageId: Int, content: String) async throws -> ForumMessageEntity {
+        let endpoint = "\(baseURL)/forums/\(forumId)/replies"
+        let headers = makeHeaders()
+        let params: [String: Any] = [
+            "parentMessageId": parentMessageId,
+            "content": content
+        ]
+        let request = AF.request(endpoint, method: .post, parameters: params, encoding: JSONEncoding.default, headers: HTTPHeaders(headers)).validate()
+        let result = await request.serializingData().response
+        switch result.result {
+        case .success(let data):
+            return try JSONDecoder().decode(ForumMessageEntity.self, from: data)
+        case .failure(let error):
+            throw error
+        }
+    }
+
     private func makeHeaders() -> [String: String] {
         var headers: [String: String] = ["Content-Type": "application/json"]
         if let token = tokenProvider() {
@@ -175,7 +215,10 @@ public final class RemoteForumRepository: ForumRepository {
         }
         return headers
     }
-}
 
-// Small helper to decode unknown objects in dictionary if required
-// No AnyDecodable helper required anymore
+    // Helper DTO for responses shaped as { "forum": {...}, "posts": [...] }
+    private struct ForumWithPostsDTO: Codable {
+        let forum: ForumDTO?
+        let posts: [PostDTO]?
+    }
+}
