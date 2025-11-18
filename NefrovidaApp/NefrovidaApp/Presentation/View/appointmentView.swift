@@ -1,3 +1,10 @@
+//
+//  appointmentViewModel.swift
+//  NefrovidaApp
+//
+//  Created by Emilio Santiago López Quiñonez on 15/11/25.
+//
+
 import SwiftUI
 
 struct appointmentView: View {
