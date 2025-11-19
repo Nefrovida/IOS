@@ -1,6 +1,6 @@
 import SwiftUI
 // Agenda that show the user's scheduled appointments for each day and allows weekly navigation.
-struct AgendaScreen: View {
+struct CalendarView: View {
     // ViewModel that handles the state, data, and logic of the agenda.
     var idUser : String
     @StateObject private var vm: AgendaViewModel
@@ -26,8 +26,6 @@ struct AgendaScreen: View {
 
             // Header section with tabs and current month title.
             HStack(spacing: 12) {
-                ChipTab(title: "Citas", isSelected: true) { print("hola") }
-                ChipTab(title: "Solicitudes", isSelected: false) { print("hola") }
                 Spacer()
                 // Displays the current month title (e.g., “November”)
                 Text(vm.monthTitle())
@@ -84,8 +82,6 @@ struct AgendaScreen: View {
                 }
             }
 
-            // Bottom navigation bar (e.g., home, profile, etc.)
-            BottomBar(idUser:idUser)
         }
         // Loads appointments when the view appears on screen.
         .onAppear { vm.onAppear() }
@@ -94,5 +90,6 @@ struct AgendaScreen: View {
 
 #Preview {
     // Preview of the agenda screen with a mock user ID.
-    AgendaScreen(idUser: "4b74425f-6c7a-4cf6-ac19-18372ac9854a")
+    CalendarView(idUser: "4b74425f-6c7a-4cf6-ac19-18372ac9854a")
+
 }
