@@ -245,5 +245,5 @@ struct RiskFormView: View {
 
 // Preview for SwiftUI canvas.
 #Preview {
-    RiskFormView(idUser: "35eb038c-3c7a-4143-9f6a-9c8c7d70de97")
+    RiskFormView(idUser: "06276f33-a1ca-4c71-a400-8e4fa0ce9ece")
 }
