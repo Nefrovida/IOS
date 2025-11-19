@@ -25,13 +25,20 @@ final class ForumsViewModel: ObservableObject {
         isLoading = true
         defer { isLoading = false }
         do {
-            async let forumsList = try getForumsUC.execute(isPublic: true)
-            async let myList = try getMyForumsUC.execute()
-            let (forumsResult, myResult) = try await (forumsList, myList)
+            // Fetch public forums
+            let forumsResult = try await getForumsUC.execute(isPublic: true)
             self.forums = forumsResult
-            self.myForums = myResult
+            
+            // Try to fetch user's forums, but don't fail if this endpoint doesn't work
+            do {
+                let myResult = try await getMyForumsUC.execute()
+                self.myForums = myResult
+            } catch {
+                print("DEBUG: Could not fetch user's forums (endpoint may not be implemented): \(error)")
+                self.myForums = []
+            }
         } catch {
-            self.errorMessage = "No se pudieron cargar los foros." 
+            self.errorMessage = "No se pudieron cargar los foros: \(error.localizedDescription)"
         }
     }
 

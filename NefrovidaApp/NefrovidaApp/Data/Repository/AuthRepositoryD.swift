@@ -10,11 +10,11 @@ import Alamofire
 
 final class AuthRepositoryD: AuthRepository {
     // The base URL of the server is defined
-    private let baseURL = "http://localhost:3001"
+    private let baseURL = AppConfig.apiBaseURL
     
     // The path to log in is defined and the parameters to be sent are defined.
     func login(username: String, password: String) async throws -> LoginEntity {
-        let url = "\(baseURL)/api/auth/login"
+        let url = "\(baseURL)/auth/login"
         let parameters: [String: String] = [
             "username": username,
             "password": password
@@ -41,8 +41,32 @@ final class AuthRepositoryD: AuthRepository {
         .serializingDecodable(LoginResponse.self)
         .response
         
+        if let data = response.data, let jsonString = String(data: data, encoding: .utf8) {
+            print("DEBUG: Login raw response: \(jsonString)")
+        }
+        if let headers = response.response?.allHeaderFields {
+            print("DEBUG: Login response headers: \(headers)")
+        }
+        
         switch response.result {
         case .success(let loginResponse):
+            // Extract token from cookies and save to UserDefaults for ForumRepository to use
+            if let cookies = HTTPCookieStorage.shared.cookies {
+                for cookie in cookies {
+                    print("Cookie found: \(cookie.name)")
+                    // Adjust cookie name matching as needed based on backend
+                    if ["token", "access_token", "accessToken", "jwt", "connect.sid"].contains(cookie.name) {
+                        // Note: connect.sid is usually a session ID, not a JWT, but if the backend uses sessions, 
+                        // we might need to handle that. However, NEFROVIDA_FORUMS.md says "JWT en header".
+                        // So we specifically look for a JWT.
+                        if cookie.name != "connect.sid" {
+                             UserDefaults.standard.set(cookie.value, forKey: "jwt_token")
+                             print("Saved token to UserDefaults from cookie: \(cookie.name)")
+                        }
+                    }
+                }
+            }
+            
             let user = loginResponse.user
             // Return the users data
             return LoginEntity(

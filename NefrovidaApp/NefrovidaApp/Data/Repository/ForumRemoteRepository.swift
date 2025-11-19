@@ -2,17 +2,17 @@ import Foundation
 import Alamofire
 
 private struct ForumDTO: Codable {
-    let id: Int
+    let forum_id: Int
     let name: String
     let description: String
     let public_status: Bool
     let active: Bool
-    let created_at: String?
+    let creation_date: String?
     let posts: [PostDTO]?
 
     func toDomain() -> Forum {
-        let date = ISO8601DateFormatter().date(from: created_at ?? "")
-        return Forum(id: id, name: name, description: description, publicStatus: public_status, active: active, createdAt: date)
+        let date = ISO8601DateFormatter().date(from: creation_date ?? "")
+        return Forum(id: forum_id, name: name, description: description, publicStatus: public_status, active: active, createdAt: date)
     }
 }
 
@@ -57,6 +57,9 @@ public final class ForumRemoteRepository: ForumRepository {
         let result = await request.serializingData().response
         switch result.result {
         case .success(let data):
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print("DEBUG: fetchForums raw response: \(jsonString)")
+            }
             do {
                 let decoder = JSONDecoder()
                 // Try to decode a plain array first: [ForumDTO]
@@ -76,12 +79,18 @@ public final class ForumRemoteRepository: ForumRepository {
                         }
                     }
                 }
+                
+                // Try one more attempt to catch the specific decoding error for [ForumDTO] to print it
+                _ = try decoder.decode([ForumDTO].self, from: data)
+                
                 // No recognized format found
                 throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "Unexpected forums response shape"))
             } catch {
+                print("DEBUG: fetchForums decoding error: \(error)")
                 throw error
             }
         case .failure(let error):
+            print("DEBUG: fetchForums network error: \(error)")
             throw error
         }
     }
@@ -93,6 +102,9 @@ public final class ForumRemoteRepository: ForumRepository {
         let result = await request.serializingData().response
         switch result.result {
         case .success(let data):
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print("DEBUG: fetchMyForums raw response: \(jsonString)")
+            }
             do {
                 let decoder = JSONDecoder()
                 // Same flexible decoding as fetchForums
@@ -102,11 +114,20 @@ public final class ForumRemoteRepository: ForumRepository {
                 if let container = try? decoder.decode([String: [ForumDTO]].self, from: data), let list = container["forums"] {
                     return list.map { $0.toDomain() }
                 }
+                
+                // Try to decode [ForumDTO] again to get the specific error
+                 _ = try decoder.decode([ForumDTO].self, from: data)
+
                 throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "Unexpected my forums response shape"))
             } catch {
+                print("DEBUG: fetchMyForums decoding error: \(error)")
                 throw error
             }
         case .failure(let error):
+            if let data = result.data, let errorString = String(data: data, encoding: .utf8) {
+                print("DEBUG: fetchMyForums error response body: \(errorString)")
+            }
+            print("DEBUG: fetchMyForums network error: \(error)")
             throw error
         }
     }
@@ -211,7 +232,10 @@ public final class ForumRemoteRepository: ForumRepository {
     private func makeHeaders() -> [String: String] {
         var headers: [String: String] = ["Content-Type": "application/json"]
         if let token = tokenProvider() {
+            print("DEBUG: Token found in makeHeaders: \(token.prefix(10))...")
             headers["Authorization"] = "Bearer \(token)"
+        } else {
+            print("DEBUG: No token found in makeHeaders")
         }
         return headers
     }
