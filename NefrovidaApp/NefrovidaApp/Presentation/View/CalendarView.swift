@@ -94,5 +94,5 @@ struct AgendaScreen: View {
 
 #Preview {
     // Preview of the agenda screen with a mock user ID.
-    AgendaScreen(idUser: "35eb038c-3c7a-4143-9f6a-9c8c7d70de97")
+    AgendaScreen(idUser: "4b74425f-6c7a-4cf6-ac19-18372ac9854a")
 }
