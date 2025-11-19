@@ -56,7 +56,7 @@ struct loginView: View {
         }
         // Redirect to another view after logging in
         .fullScreenCover(isPresented: $isLoggedIn) {
-            HomeView()
+            HomeView(user: viewModel.loggedUser)
         }
     }
 }

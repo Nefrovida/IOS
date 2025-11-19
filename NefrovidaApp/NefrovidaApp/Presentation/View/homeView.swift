@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct HomeView: View {
-
+    let user: LoginEntity?
     // ViewModel for the view, initialized with use cases for both analysis and consultation
     @StateObject private var vm = AnalysisViewModel(
         getAnalysisUseCase: GetAnalysisUseCase(repository: AnalysisRemoteRepository()),
@@ -99,5 +99,5 @@ struct HomeView: View {
 }
 
 #Preview {
-    HomeView()
+    HomeView(user: nil)
 }
