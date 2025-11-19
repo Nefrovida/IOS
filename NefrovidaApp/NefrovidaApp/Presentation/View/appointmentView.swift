@@ -150,7 +150,6 @@ struct appointmentView: View {
             Task { await vm.loadSlots() }
         }
         
-        .navigationTitle("Agendar cita")
         // Success appointment alert
         .alert("¡Cita Solicitada!", isPresented: $showSuccessAlert) {
             Button("Aceptar", role: .cancel) { }
