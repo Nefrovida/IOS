@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct loginView: View {
+    @Binding var isLoggedIn: Bool
+    @Binding var loggedUser: LoginEntity?
     // Connects to loginViewModel
     @StateObject private var viewModel = LoginViewModel()
-    @State private var isLoggedIn = false
     var body: some View {
         ZStack {
             // The background gradient colors is defined
@@ -50,18 +51,15 @@ struct loginView: View {
         }
         // Change to logged-in status
         .onChange(of: viewModel.loggedUser) { oldValue, newValue in
-            if newValue != nil {
+            if let user = newValue {
+                loggedUser = user
                 isLoggedIn = true
             }
-        }
-        // Redirect to another view after logging in
-        .fullScreenCover(isPresented: $isLoggedIn) {
-            HomeView()
         }
     }
 }
 
 // A preview to visualize the view of the loginView
 #Preview {
-    loginView()
+    loginView(isLoggedIn: .constant(false), loggedUser: .constant(nil))
 }

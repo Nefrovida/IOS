@@ -23,10 +23,15 @@ enum DateFormats {
         f.dateFormat = "EEE"
         return f
     }()
-    static let monthTitle: DateFormatter = {
-        let f = DateFormatter()
-        f.locale = Locale(identifier: "es_MX")
-        f.dateFormat = "LLLL"
-        return f
+    public static let shortTime: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter
+    }()
+
+    public static let monthTitle: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM"
+        return formatter
     }()
 }
