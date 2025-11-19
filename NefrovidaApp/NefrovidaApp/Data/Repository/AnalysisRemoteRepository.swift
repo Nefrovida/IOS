@@ -53,6 +53,7 @@ final class ConsultationRemoteRepository: ConsultationRepositoryProtocol {
         case .success(let data):
             // Since the API directly returns an array, we decode `[Consultation]`
             let decoded = try JSONDecoder().decode([Consultation].self, from: data)
+            print("se obtuvo las consultas")
             return decoded  // Returns the list of consultations
 
         case .failure(let error):

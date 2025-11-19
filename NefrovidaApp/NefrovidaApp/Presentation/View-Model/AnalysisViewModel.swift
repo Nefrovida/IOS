@@ -37,7 +37,6 @@ final class AnalysisViewModel: ObservableObject {
     func onAppear() {
         if !selectedAnalysis {
             Task { await loadAnalysis() }      // Load analysis data only if the default is analysis
-        }else{
             Task { await loadConsultation() }      // Always load consultations (could also be conditional)
         }
     }

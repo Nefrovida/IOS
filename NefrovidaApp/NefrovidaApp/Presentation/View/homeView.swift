@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct HomeAnalysisView: View {
+struct HomeView: View {
 
     // ViewModel for the view, initialized with use cases for both analysis and consultation
     @StateObject private var vm = AnalysisViewModel(
@@ -99,5 +99,5 @@ struct HomeAnalysisView: View {
 }
 
 #Preview {
-    HomeAnalysisView()
+    HomeView()
 }
