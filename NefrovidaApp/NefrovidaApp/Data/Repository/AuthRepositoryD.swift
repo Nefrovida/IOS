@@ -47,6 +47,7 @@ final class AuthRepositoryD: AuthRepository {
             // Return the users data
             return LoginEntity(
                 user_id: user.user_id,
+                name: user.name,
                 username: user.username,
                 role_id: user.role_id,
                 privileges: []
