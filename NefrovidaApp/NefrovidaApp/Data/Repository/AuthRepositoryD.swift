@@ -41,19 +41,11 @@ final class AuthRepositoryD: AuthRepository {
         .serializingDecodable(LoginResponse.self)
         .response
         
-        if let data = response.data, let jsonString = String(data: data, encoding: .utf8) {
-            print("DEBUG: Login raw response: \(jsonString)")
-        }
-        if let headers = response.response?.allHeaderFields {
-            print("DEBUG: Login response headers: \(headers)")
-        }
-        
         switch response.result {
         case .success(let loginResponse):
             // Extract token from cookies and save to UserDefaults for ForumRepository to use
             if let cookies = HTTPCookieStorage.shared.cookies {
                 for cookie in cookies {
-                    print("Cookie found: \(cookie.name)")
                     // Adjust cookie name matching as needed based on backend
                     if ["token", "access_token", "accessToken", "jwt", "connect.sid"].contains(cookie.name) {
                         // Note: connect.sid is usually a session ID, not a JWT, but if the backend uses sessions, 
@@ -61,7 +53,6 @@ final class AuthRepositoryD: AuthRepository {
                         // So we specifically look for a JWT.
                         if cookie.name != "connect.sid" {
                              UserDefaults.standard.set(cookie.value, forKey: "jwt_token")
-                             print("Saved token to UserDefaults from cookie: \(cookie.name)")
                         }
                     }
                 }

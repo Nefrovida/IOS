@@ -63,9 +63,6 @@ public final class ForumRemoteRepository: ForumRepository {
         let result = await request.serializingData().response
         switch result.result {
         case .success(let data):
-            if let jsonString = String(data: data, encoding: .utf8) {
-                print("DEBUG: fetchForums raw response: \(jsonString)")
-            }
             do {
                 let decoder = JSONDecoder()
                 // Try to decode a plain array first: [ForumDTO]
@@ -92,11 +89,9 @@ public final class ForumRemoteRepository: ForumRepository {
                 // No recognized format found
                 throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "Unexpected forums response shape"))
             } catch {
-                print("DEBUG: fetchForums decoding error: \(error)")
                 throw error
             }
         case .failure(let error):
-            print("DEBUG: fetchForums network error: \(error)")
             throw error
         }
     }
@@ -108,9 +103,6 @@ public final class ForumRemoteRepository: ForumRepository {
         let result = await request.serializingData().response
         switch result.result {
         case .success(let data):
-            if let jsonString = String(data: data, encoding: .utf8) {
-                print("DEBUG: fetchMyForums raw response: \(jsonString)")
-            }
             do {
                 let decoder = JSONDecoder()
                 // The API returns [{ forumId, name }] not full forum objects
@@ -120,14 +112,9 @@ public final class ForumRemoteRepository: ForumRepository {
                     Forum(id: dto.forumId, name: dto.name, description: "", publicStatus: true, active: true, createdAt: nil)
                 }
             } catch {
-                print("DEBUG: fetchMyForums decoding error: \(error)")
                 throw error
             }
         case .failure(let error):
-            if let data = result.data, let errorString = String(data: data, encoding: .utf8) {
-                print("DEBUG: fetchMyForums error response body: \(errorString)")
-            }
-            print("DEBUG: fetchMyForums network error: \(error)")
             throw error
         }
     }
@@ -172,19 +159,13 @@ public final class ForumRemoteRepository: ForumRepository {
 
     public func joinForum(id: Int) async throws -> Bool {
         let endpoint = "\(baseURL)/forums/\(id)/join"
-        print("DEBUG: Attempting to join forum at URL: \(endpoint)")
         let headers = makeHeaders()
         let request = AF.request(endpoint, method: .post, headers: HTTPHeaders(headers)).validate()
         let result = await request.serializingData().response
         switch result.result {
         case .success:
-            print("DEBUG: Successfully joined forum \(id)")
             return true
         case .failure(let error):
-            if let data = result.data, let errorString = String(data: data, encoding: .utf8) {
-                print("DEBUG: joinForum error response body: \(errorString)")
-            }
-            print("DEBUG: joinForum error: \(error)")
             throw error
         }
     }
@@ -238,10 +219,7 @@ public final class ForumRemoteRepository: ForumRepository {
     private func makeHeaders() -> [String: String] {
         var headers: [String: String] = ["Content-Type": "application/json"]
         if let token = tokenProvider() {
-            print("DEBUG: Token found in makeHeaders: \(token.prefix(10))...")
             headers["Authorization"] = "Bearer \(token)"
-        } else {
-            print("DEBUG: No token found in makeHeaders")
         }
         return headers
     }

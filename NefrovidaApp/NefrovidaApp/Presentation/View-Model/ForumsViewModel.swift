@@ -36,7 +36,6 @@ final class ForumsViewModel: ObservableObject {
                 let myResult = try await getMyForumsUC.execute()
                 self.myForums = myResult
             } catch {
-                print("DEBUG: Could not fetch user's forums (endpoint may not be implemented): \(error)")
                 self.myForums = []
             }
         } catch {
@@ -46,8 +45,6 @@ final class ForumsViewModel: ObservableObject {
 
     func isMember(of forum: Forum) -> Bool {
         let result = myForums.contains(where: { $0.id == forum.id })
-        print("DEBUG: isMember check for forum \(forum.id) '\(forum.name)': \(result)")
-        print("DEBUG: myForums IDs: \(myForums.map { $0.id })")
         return result
     }
     
@@ -60,7 +57,6 @@ final class ForumsViewModel: ObservableObject {
             }
             return success
         } catch {
-            print("DEBUG: Failed to join forum \(forumId): \(error)")
             errorMessage = "No se pudo unir al foro: \(error.localizedDescription)"
             return false
         }
