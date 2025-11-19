@@ -8,6 +8,9 @@ struct HomeView: View {
         getConsultationUseCase: GetConsultationUseCases(repository: ConsultationRemoteRepository())
     )
 
+    // Status to control navigation
+    @State private var selectedConsultation: Consultation?
+    
     var body: some View {
         ZStack(alignment: .bottom) {  // Container that lets us overlay views
 
@@ -79,8 +82,16 @@ struct HomeView: View {
                                         costoComunidad: "\(c.communityCost)",
                                         costoGeneral: "\(c.generalCost)",
                                         isAnalysis: false,
-                                        onSettings: { print("Open details:", c.nameConsultation) }
+                                        onSettings: { selectedConsultation = c }
                                     )
+                                }
+                                // Programmatic navigation: activated when selectedConsultation is not nil
+                                .navigationDestination(item: $selectedConsultation) { consultation in
+                                    appointmentView(
+                                        appointmentId: consultation.appointmentId,
+                                        userId: user?.user_id ?? ""
+                                    )
+                                    .navigationTitle(consultation.nameConsultation)
                                 }
                             }
                         }
@@ -98,5 +109,7 @@ struct HomeView: View {
 }
 
 #Preview {
-    HomeView(user: nil)
+    NavigationStack {
+        HomeView(user: nil)
+    }
 }
