@@ -39,7 +39,7 @@ struct Consultation: Codable, Sendable {
 
 // Adds `Identifiable` conformance to `Consultation` so it can be easily used in SwiftUI lists.
 // The `appointmentId` is used as the unique identifier.
-extension Consultation: Identifiable {
+extension Consultation: Identifiable, Hashable {
     var id: Int { appointmentId }
 }
 
