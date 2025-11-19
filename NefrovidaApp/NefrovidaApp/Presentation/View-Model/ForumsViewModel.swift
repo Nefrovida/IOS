@@ -10,10 +10,12 @@ final class ForumsViewModel: ObservableObject {
 
     private let getForumsUC: GetForumsUseCase
     private let getMyForumsUC: GetMyForumsUseCase
+    private let joinForumUC: JoinForumUseCase
 
-    init(getForumsUC: GetForumsUseCase, getMyForumsUC: GetMyForumsUseCase) {
+    init(getForumsUC: GetForumsUseCase, getMyForumsUC: GetMyForumsUseCase, joinForumUC: JoinForumUseCase) {
         self.getForumsUC = getForumsUC
         self.getMyForumsUC = getMyForumsUC
+        self.joinForumUC = joinForumUC
     }
 
     func onAppear() {
@@ -43,6 +45,24 @@ final class ForumsViewModel: ObservableObject {
     }
 
     func isMember(of forum: Forum) -> Bool {
-        return myForums.contains(where: { $0.id == forum.id })
+        let result = myForums.contains(where: { $0.id == forum.id })
+        print("DEBUG: isMember check for forum \(forum.id) '\(forum.name)': \(result)")
+        print("DEBUG: myForums IDs: \(myForums.map { $0.id })")
+        return result
+    }
+    
+    func joinForum(_ forumId: Int) async -> Bool {
+        do {
+            let success = try await joinForumUC.execute(forumId: forumId)
+            if success {
+                // Reload myForums to update the badge
+                await load()
+            }
+            return success
+        } catch {
+            print("DEBUG: Failed to join forum \(forumId): \(error)")
+            errorMessage = "No se pudo unir al foro: \(error.localizedDescription)"
+            return false
+        }
     }
 }

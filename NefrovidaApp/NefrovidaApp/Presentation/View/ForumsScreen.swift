@@ -13,7 +13,8 @@ struct ForumsScreen: View {
         }
         let getForumsUC = GetForumsUseCase(repository: repo)
         let getMyForumsUC = GetMyForumsUseCase(repository: repo)
-        _vm = StateObject(wrappedValue: ForumsViewModel(getForumsUC: getForumsUC, getMyForumsUC: getMyForumsUC))
+        let joinForumUC = JoinForumUseCase(repository: repo)
+        _vm = StateObject(wrappedValue: ForumsViewModel(getForumsUC: getForumsUC, getMyForumsUC: getMyForumsUC, joinForumUC: joinForumUC))
     }
 
     var body: some View {
@@ -42,8 +43,17 @@ struct ForumsScreen: View {
                         VStack(spacing: 12) {
                             ForEach(vm.forums) { forum in
                                 ForumCard(forum: forum, isMember: vm.isMember(of: forum)) {
-                                    // Navigate to forum detail
-                                    path.append(forum.id)
+                                    Task {
+                                        // If not a member, join first
+                                        if !vm.isMember(of: forum) {
+                                            let success = await vm.joinForum(forum.id)
+                                            if !success {
+                                                return // Don't navigate if join failed
+                                            }
+                                        }
+                                        // Navigate to forum detail
+                                        path.append(forum.id)
+                                    }
                                 }
                                 .padding(.horizontal)
                             }

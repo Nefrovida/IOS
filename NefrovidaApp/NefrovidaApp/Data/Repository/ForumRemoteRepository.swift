@@ -33,6 +33,12 @@ private struct AuthorDTO: Codable {
     let id: Int
 }
 
+// DTO for /forums/myForums endpoint which returns { forumId, name }
+private struct MyForumDTO: Codable {
+    let forumId: Int
+    let name: String
+}
+
 public final class ForumRemoteRepository: ForumRepository {
 
     private let baseURL: String
@@ -96,7 +102,7 @@ public final class ForumRemoteRepository: ForumRepository {
     }
 
     public func fetchMyForums() async throws -> [Forum] {
-        let endpoint = "\(baseURL)/forums/me"
+        let endpoint = "\(baseURL)/forums/myForums"
         let headers = makeHeaders()
         let request = AF.request(endpoint, method: .get, headers: HTTPHeaders(headers)).validate()
         let result = await request.serializingData().response
@@ -107,18 +113,12 @@ public final class ForumRemoteRepository: ForumRepository {
             }
             do {
                 let decoder = JSONDecoder()
-                // Same flexible decoding as fetchForums
-                if let dtoList = try? decoder.decode([ForumDTO].self, from: data) {
-                    return dtoList.map { $0.toDomain() }
+                // The API returns [{ forumId, name }] not full forum objects
+                let myForumsList = try decoder.decode([MyForumDTO].self, from: data)
+                // Convert to Forum objects (with minimal data)
+                return myForumsList.map { dto in
+                    Forum(id: dto.forumId, name: dto.name, description: "", publicStatus: true, active: true, createdAt: nil)
                 }
-                if let container = try? decoder.decode([String: [ForumDTO]].self, from: data), let list = container["forums"] {
-                    return list.map { $0.toDomain() }
-                }
-                
-                // Try to decode [ForumDTO] again to get the specific error
-                 _ = try decoder.decode([ForumDTO].self, from: data)
-
-                throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "Unexpected my forums response shape"))
             } catch {
                 print("DEBUG: fetchMyForums decoding error: \(error)")
                 throw error
@@ -172,13 +172,19 @@ public final class ForumRemoteRepository: ForumRepository {
 
     public func joinForum(id: Int) async throws -> Bool {
         let endpoint = "\(baseURL)/forums/\(id)/join"
+        print("DEBUG: Attempting to join forum at URL: \(endpoint)")
         let headers = makeHeaders()
         let request = AF.request(endpoint, method: .post, headers: HTTPHeaders(headers)).validate()
         let result = await request.serializingData().response
         switch result.result {
         case .success:
+            print("DEBUG: Successfully joined forum \(id)")
             return true
         case .failure(let error):
+            if let data = result.data, let errorString = String(data: data, encoding: .utf8) {
+                print("DEBUG: joinForum error response body: \(errorString)")
+            }
+            print("DEBUG: joinForum error: \(error)")
             throw error
         }
     }
