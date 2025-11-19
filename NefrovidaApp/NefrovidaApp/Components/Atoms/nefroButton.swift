@@ -4,8 +4,8 @@ struct nefroButton: View {
     var text : String
     var color : Color
     var textColor : Color = .black
-    var vertical : CGFloat
-    var horizontal : CGFloat
+    var vertical : CGFloat = 10
+    var horizontal : CGFloat = 10
     var hasStroke : Bool = false
     var textSize : CGFloat
     var action : () -> Void
