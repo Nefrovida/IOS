@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct AgendaScreen: View {
+struct CalendarView: View {
     @StateObject private var vm: AgendaViewModel
 
     init() {
@@ -60,13 +60,11 @@ struct AgendaScreen: View {
                 }
             }
 
-            BottomBar()
-
         }
         .onAppear { vm.onAppear() }
     }
 }
 
 #Preview {
-    AgendaScreen()
+    CalendarView()
 }
