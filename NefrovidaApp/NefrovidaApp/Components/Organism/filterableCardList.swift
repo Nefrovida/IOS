@@ -112,7 +112,7 @@ private struct AnalysisItem: Identifiable {
     let desc: String
 }
 
-#Preview("Con forumCard") {
+#Preview("Con ForumCard") {
     let forums: [ForumItem] = [
         .init(title: "Foro 1", description: "Pacientes Nefrovida."),
         .init(title: "Foro de Nutrición", description: "Recetas y consejos."),
@@ -142,7 +142,7 @@ private struct AnalysisItem: Identifiable {
         .init(name: "EGO", desc: "Examen general de orina.")
     ]
 
-    return filterableCardList<AnalysisItem, AnalysisTypeCard>(
+    filterableCardList(
         title: "Tipos de análisis",
         items: analyses,
         searchableText: { "\($0.name) \($0.desc)" },
@@ -150,6 +150,8 @@ private struct AnalysisItem: Identifiable {
             AnalysisTypeCard(
                 title: a.name,
                 description: a.desc,
+                costoComunidad: "$150",
+                costoGeneral: "$250",
                 onSettings: { print("Editar \(a.name)") }
             )
         },

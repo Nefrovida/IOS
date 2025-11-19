@@ -28,4 +28,24 @@ public final class MockForumRepository: ForumRepository {
         // Simulate join success
         return true
     }
+
+    // MARK: - Messages
+    public func getMessages(forumId: Int) async throws -> [ForumMessageEntity] {
+        // Return some mock messages
+        return [
+            ForumMessageEntity(id: 1, forumId: forumId, parentMessageId: nil, content: "Welcome to the mock forum!", createdBy: "Admin", createdAt: "2023-01-01T12:00:00Z"),
+            ForumMessageEntity(id: 2, forumId: forumId, parentMessageId: 1, content: "Thanks for having me!", createdBy: "MockUser1", createdAt: "2023-01-01T12:05:00Z"),
+            ForumMessageEntity(id: 3, forumId: forumId, parentMessageId: nil, content: "Any interesting topics today?", createdBy: "MockUser2", createdAt: "2023-01-01T13:00:00Z")
+        ]
+    }
+
+    public func postMessage(forumId: Int, content: String) async throws -> ForumMessageEntity {
+        // Simulate creating a new message
+        return ForumMessageEntity(id: Int.random(in: 100...999), forumId: forumId, parentMessageId: nil, content: content, createdBy: "CurrentUser", createdAt: Date().ISO8601Format())
+    }
+
+    public func replyToMessage(forumId: Int, parentMessageId: Int, content: String) async throws -> ForumMessageEntity {
+        // Simulate creating a new reply
+        return ForumMessageEntity(id: Int.random(in: 100...999), forumId: forumId, parentMessageId: parentMessageId, content: content, createdBy: "CurrentUser", createdAt: Date().ISO8601Format())
+    }
 }
