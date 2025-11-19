@@ -11,19 +11,21 @@ import Combine
 
 @MainActor
 class ForumFeedViewModel: ObservableObject {
-    @Published var messages: [ForumMessage] = []
+    @Published var messages: [ForumMessageEntity] = []
     @Published var isLoading: Bool = false
     @Published var isRefreshing: Bool = false
     @Published var errorMessage: String?
     @Published var showError: Bool = false
     @Published var selectedFilter: String = "Popular"
-    @Published var hasMore: Bool = true
+    @Published var hasMore: Bool = false
     
-    private let repository: ForumRepository
-    private var currentPage: Int = 1
+    private let repository = ForumRemoteRepository()
+    private let forumId = 1
     
-    init(repository: ForumRepository = ForumRepository()) {
-        self.repository = repository
+    init() {
+        Task {
+            await loadFeed()
+        }
     }
     
     // MARK: - Load Initial Feed
@@ -32,16 +34,11 @@ class ForumFeedViewModel: ObservableObject {
         
         isLoading = true
         errorMessage = nil
-        currentPage = 1
         
         do {
-            let response = try await repository.getMessagesFeed(page: currentPage, limit: 20)
-            messages = response.messages
-            hasMore = response.hasMore
-        } catch let error as NetworkError {
-            setError(getNetworkErrorMessage(error))
+            messages = try await repository.getMessages(forumId: forumId)
         } catch {
-            setError("Error inesperado al cargar los mensajes")
+            setError("Error al cargar los mensajes: \(error.localizedDescription)")
         }
         
         isLoading = false
@@ -53,53 +50,31 @@ class ForumFeedViewModel: ObservableObject {
         
         isRefreshing = true
         errorMessage = nil
-        currentPage = 1
         
         do {
-            let response = try await repository.getMessagesFeed(page: currentPage, limit: 20)
-            messages = response.messages
-            hasMore = response.hasMore
-        } catch let error as NetworkError {
-            setError(getNetworkErrorMessage(error))
+            messages = try await repository.getMessages(forumId: forumId)
         } catch {
-            setError("Error al refrescar los mensajes")
+            setError("Error al refrescar los mensajes: \(error.localizedDescription)")
         }
         
         isRefreshing = false
     }
     
-    // MARK: - Load More (Pagination)
+    // MARK: - Load More (no implementado - el backend no tiene paginación aún)
     func loadMore() async {
-        guard hasMore && !isLoading else { return }
-        
-        isLoading = true
-        currentPage += 1
-        
-        do {
-            let response = try await repository.getMessagesFeed(page: currentPage, limit: 20)
-            messages.append(contentsOf: response.messages)
-            hasMore = response.hasMore
-        } catch {
-            // Si falla, revertimos el incremento de página
-            currentPage -= 1
-        }
-        
-        isLoading = false
+        // Por ahora no hace nada, no hay paginación en el backend
     }
     
-    // MARK: - Actions (Placeholder - no hacen nada por ahora)
-    func toggleLike(for message: ForumMessage) {
-        // TODO: Implementar like/unlike
+    // MARK: - Actions (Placeholder)
+    func toggleLike(for message: ForumMessageEntity) {
         print("Like toggled for message: \(message.id)")
     }
     
-    func openComments(for message: ForumMessage) {
-        // TODO: Navegar a comentarios
+    func openComments(for message: ForumMessageEntity) {
         print("Open comments for message: \(message.id)")
     }
     
-    func showMoreOptions(for message: ForumMessage) {
-        // TODO: Mostrar menú de opciones
+    func showMoreOptions(for message: ForumMessageEntity) {
         print("Show options for message: \(message.id)")
     }
     
@@ -107,22 +82,5 @@ class ForumFeedViewModel: ObservableObject {
     private func setError(_ message: String) {
         errorMessage = message
         showError = true
-    }
-    
-    private func getNetworkErrorMessage(_ error: NetworkError) -> String {
-        switch error {
-        case .invalidURL:
-            return "URL inválida"
-        case .invalidResponse:
-            return "Respuesta inválida del servidor"
-        case .unauthorized:
-            return "No autorizado. Por favor inicia sesión nuevamente"
-        case .serverError(let message):
-            return "Error del servidor: \(message)"
-        case .decodingError:
-            return "Error al procesar la respuesta"
-        case .unknown:
-            return "Error desconocido"
-        }
     }
 }

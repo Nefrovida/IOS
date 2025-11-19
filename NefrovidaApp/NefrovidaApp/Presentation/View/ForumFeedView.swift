@@ -51,7 +51,6 @@ struct ForumFeedView: View {
         .edgesIgnoringSafeArea(.top) // Para que UpBar llegue hasta arriba
         .sheet(isPresented: $showNewMessageSheet) {
             NewMessageView(onMessageSent: {
-                showNewMessageSheet = false
                 Task {
                     await viewModel.refreshFeed()
                 }

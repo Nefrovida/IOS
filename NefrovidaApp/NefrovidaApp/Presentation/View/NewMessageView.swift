@@ -22,7 +22,6 @@ struct NewMessageView: View {
                 
                 Divider()
                 
-                // Editor de mensaje
                 messageEditor
                 
                 Spacer()
@@ -41,6 +40,7 @@ struct NewMessageView: View {
                         Task {
                             await viewModel.sendMessage()
                             if viewModel.isSuccess {
+                                dismiss()
                                 onMessageSent()
                             }
                         }
@@ -127,10 +127,10 @@ class NewMessageViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var showError: Bool = false
     
-    private let repository = ForumRepository()
+    private let repository = ForumRemoteRepository()
     
     init() {
-        // TODO: Cargar foros del usuario
+        // TODO: Cargar foros del usuario desde el backend
         // Por ahora, datos de ejemplo
         availableForums = [
             ForumInfo(id: 1, name: "Foro de Salud"),
@@ -166,15 +166,13 @@ class NewMessageViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            _ = try await repository.sendMessage(
+            _ = try await repository.postMessage(
                 forumId: selectedForumId,
                 content: messageText
             )
             isSuccess = true
-        } catch let error as NetworkError {
-            setError(getNetworkErrorMessage(error))
         } catch {
-            setError("Error inesperado al enviar el mensaje")
+            setError("Error al enviar el mensaje: \(error.localizedDescription)")
         }
         
         isLoading = false
@@ -183,23 +181,6 @@ class NewMessageViewModel: ObservableObject {
     private func setError(_ message: String) {
         errorMessage = message
         showError = true
-    }
-    
-    private func getNetworkErrorMessage(_ error: NetworkError) -> String {
-        switch error {
-        case .invalidURL:
-            return "URL inválida"
-        case .invalidResponse:
-            return "Respuesta inválida del servidor"
-        case .unauthorized:
-            return "No autorizado. Por favor inicia sesión nuevamente"
-        case .serverError(let message):
-            return "Error del servidor: \(message)"
-        case .decodingError:
-            return "Error al procesar la respuesta"
-        case .unknown:
-            return "Error desconocido"
-        }
     }
 }
 

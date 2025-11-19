@@ -1,4 +1,4 @@
-//
+///
 //  ForumFeedMolecules.swift
 //  NefrovidaApp
 //
@@ -27,13 +27,13 @@ struct MessageCardHeader: View {
 
 // MARK: - Message Card Content
 struct MessageCardContent: View {
-    let message: ForumMessage
+    let message: ForumMessageEntity
     let isExpanded: Bool
     let onToggle: () -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(isExpanded ? message.content : message.truncatedContent)
+            Text(isExpanded ? message.content : truncatedContent)
                 .font(.system(size: 15))
                 .foregroundColor(.primary)
                 .lineLimit(isExpanded ? nil : 4)
@@ -44,6 +44,13 @@ struct MessageCardContent: View {
                 }
             }
         }
+    }
+    
+    private var truncatedContent: String {
+        if message.content.count > 200 {
+            return String(message.content.prefix(200)) + "..."
+        }
+        return message.content
     }
 }
 

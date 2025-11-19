@@ -9,7 +9,7 @@ import SwiftUI
 
 // MARK: - Message Card
 struct MessageCard: View {
-    let message: ForumMessage
+    let message: ForumMessageEntity
     @State private var isExpanded: Bool = false
     let onMoreTapped: () -> Void
     let onLikeTapped: () -> Void
@@ -18,7 +18,7 @@ struct MessageCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             MessageCardHeader(
-                forumName: message.forumName,
+                forumName: "Foro \(message.forumId)", // Placeholder
                 onMoreTapped: onMoreTapped
             )
             
@@ -29,8 +29,8 @@ struct MessageCard: View {
             )
             
             MessageCardFooter(
-                likesCount: message.likesCount,
-                commentsCount: message.commentsCount,
+                likesCount: 0, // Placeholder
+                commentsCount: 0, // Placeholder
                 onLikeTapped: onLikeTapped,
                 onCommentTapped: onCommentTapped
             )
