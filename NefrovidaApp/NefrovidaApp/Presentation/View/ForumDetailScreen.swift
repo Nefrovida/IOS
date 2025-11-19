@@ -51,8 +51,6 @@ struct ForumDetailScreen: View {
                     }
                 }
             }
-
-            BottomBar()
         }
         .onAppear { vm.onAppear() }
     }

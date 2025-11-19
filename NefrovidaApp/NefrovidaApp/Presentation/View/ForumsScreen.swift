@@ -64,8 +64,6 @@ struct ForumsScreen: View {
                         ForumDetailScreen(forumId: id)
                     }
                 }
-
-                BottomBar()
             }
             .onAppear { vm.onAppear() }
         }
