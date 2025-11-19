@@ -62,7 +62,7 @@ struct textField: View {
         .padding()
         .background(Color.white)
         .cornerRadius(22) // Corner radius: 22 for keeping consistency
-        .overlay(
+        .overlay( 
             RoundedRectangle(cornerRadius: 22)
                 .stroke(Color.cyan.opacity(0.7), lineWidth: 2))
                 .shadow(color: Color.cyan.opacity(0.3), radius: 6, x: 0, y: 3)
