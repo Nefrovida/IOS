@@ -73,7 +73,6 @@ struct ForumView: View {
                 .padding()
             }
 
-            BottomBar()
         }
         .onAppear {
             Task { await vm.loadMessages(forumId: forumId) }

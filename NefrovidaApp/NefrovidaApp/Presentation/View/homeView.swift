@@ -91,7 +91,6 @@ struct HomeView: View {
             }
 
             // Fixed bottom navigation/action bar
-            BottomBar().background(.white)
         }
         .background(Color(.systemGroupedBackground)) // System-like grouped background
         .onAppear { vm.onAppear() } // Trigger ViewModel load when view appears
