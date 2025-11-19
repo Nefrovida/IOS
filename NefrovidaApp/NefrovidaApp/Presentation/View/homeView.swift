@@ -10,6 +10,7 @@ struct HomeView: View {
 
     // Status to control navigation
     @State private var selectedConsultation: Consultation?
+    @State private var selectedAnalysis: Analysis?
     
     var body: some View {
         ZStack(alignment: .bottom) {  // Container that lets us overlay views
@@ -70,8 +71,15 @@ struct HomeView: View {
                                         costoComunidad: a.communityCost,
                                         costoGeneral: a.generalCost,
                                         isAnalysis: true,
-                                        onSettings: { print("Open details:", a.name) }
+                                        onSettings: { selectedAnalysis = a }
                                     )
+                                }
+                                .navigationDestination(item: $selectedAnalysis) { analysis in
+                                    appointmentView( // Cambiar a la vista de analysis cuando ya este hecha
+                                        appointmentId: analysis.id,
+                                        userId: user?.user_id ?? ""
+                                    )
+                                    .navigationTitle(analysis.name)
                                 }
                             } else {
                                 // Show list of consultation cards when in consultation mode

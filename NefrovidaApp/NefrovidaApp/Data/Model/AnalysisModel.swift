@@ -45,7 +45,7 @@ extension Consultation: Identifiable, Hashable {
 
 // Represents a lab test or analysis.
 // Conforms to `Codable` for decoding and `Identifiable` for SwiftUI.
-struct Analysis: Codable, Identifiable, Sendable {
+struct Analysis: Codable, Identifiable, Sendable, Hashable {
     let id: Int                     // Unique ID of the analysis
     let name: String                // Name of the analysis
     let description: String         // A short description of the test
