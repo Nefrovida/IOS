@@ -135,6 +135,29 @@ private struct AnalysisItem: Identifiable {
     .padding(.top, 16)
 }
 
+#Preview("Con forumCard") {
+    let forums: [ForumItem] = [
+        .init(title: "Foro 1", description: "Pacientes Nefrovida."),
+        .init(title: "Foro de Nutrición", description: "Recetas y consejos."),
+        .init(title: "Comunidad", description: "Anuncios generales.")
+    ]
+
+    filterableCardList<ForumItem, forumCard>(
+        title: "Foros",
+        items: forums,
+        searchableText: { "\($0.title) \($0.description)" },
+        content: { item in
+            forumCard(
+                title: item.title,
+                description: item.description,
+                onTap: { print("Abrir \(item.title)") }
+            )
+        },
+        onFilterTap: { print("Filtrar foros…") }
+    )
+    .padding(.top, 16)
+}
+
 #Preview("Con AnalysisTypeCard") {
     let analyses: [AnalysisItem] = [
         .init(name: "Biometría Hemática (BM)", desc: "Descripción corta del estudio."),
@@ -142,7 +165,7 @@ private struct AnalysisItem: Identifiable {
         .init(name: "EGO", desc: "Examen general de orina.")
     ]
 
-    return filterableCardList<AnalysisItem, AnalysisTypeCard>(
+    filterableCardList(
         title: "Tipos de análisis",
         items: analyses,
         searchableText: { "\($0.name) \($0.desc)" },
@@ -150,6 +173,8 @@ private struct AnalysisItem: Identifiable {
             AnalysisTypeCard(
                 title: a.name,
                 description: a.desc,
+                costoComunidad: "$150",
+                costoGeneral: "$250",
                 onSettings: { print("Editar \(a.name)") }
             )
         },
