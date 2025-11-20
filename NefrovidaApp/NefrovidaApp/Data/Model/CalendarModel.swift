@@ -70,3 +70,30 @@ struct AnalysisDTO: Codable {
         case analysisStatus = "analysis_status"
     }
 }
+
+extension Appointment {
+    /// Devuelve la fecha convertida a hora local (CDMX)
+    var localDate: Date {
+        let iso = ISO8601DateFormatter()
+        iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        iso.timeZone = TimeZone(secondsFromGMT: 0) // Backend envía UTC
+
+        guard let date = iso.date(from: dateHour) else { return Date() }
+
+        return date
+    }
+
+    // Devuelve la hora en formato HH:mm ya convertida a México
+    var localHourString: String {
+        let formatter = DateFormatter()
+        formatter.timeZone = TimeZone(identifier: "America/Mexico_City")
+        formatter.locale = Locale(identifier: "es_MX")
+        formatter.dateFormat = "HH:mm"
+        return formatter.string(from: localDate)
+    }
+
+    //Devuelve la hora como Int para filtrar en AgendaList
+    var localHourInt: Int {
+        Int(localHourString.prefix(2)) ?? 0
+    }
+}
