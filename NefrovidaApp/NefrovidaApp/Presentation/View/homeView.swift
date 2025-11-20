@@ -1,4 +1,4 @@
-import SwiftUI
+    import SwiftUI
 
 struct HomeView: View {
 
@@ -7,6 +7,41 @@ struct HomeView: View {
         getAnalysisUseCase: GetAnalysisUseCase(repository: AnalysisRemoteRepository()),
         getConsultationUseCase: GetConsultationUseCases(repository: ConsultationRemoteRepository())
     )
+    
+    // State variables for popup management
+    @State private var showNefroPop = false
+    @State private var selectedItem: Any?
+    @State private var popupTitle = ""
+    @State private var popupDescription = ""
+    @State private var popupIndication = ""
+    
+    // Function to handle analysis selection
+    private func selectAnalysis(_ analysis: Any) {
+        selectedItem = analysis
+        if let a = analysis as? Analysis {
+            popupTitle = "¡Importante!"
+            popupDescription = a.description
+            popupIndication = "Sigue las indicaciones médicas para este análisis."
+        } else if let c = analysis as? Consultation {
+            popupTitle = "¡Confirmar Consulta!"
+            popupDescription = "Consulta con un especialista: \(c.nameConsultation)"
+            popupIndication = "Asegúrate de tener toda la documentación necesaria."
+        }
+        showNefroPop = true
+    }
+    
+    // Function to handle continue action from popup
+    private func continueAction() {
+        showNefroPop = false
+        // Here you can add the original redirection logic
+        if let analysis = selectedItem as? Analysis {
+            print("Redirecting to analysis details:", analysis.name)
+            // Add your navigation logic here
+        } else if let consultation = selectedItem as? Consultation {
+            print("Redirecting to consultation booking:", consultation.nameConsultation)
+            // Add your navigation logic here
+        }
+    }
 
     var body: some View {
         ZStack(alignment: .bottom) {  // Container that lets us overlay views
@@ -67,7 +102,7 @@ struct HomeView: View {
                                         costoComunidad: a.communityCost,
                                         costoGeneral: a.generalCost,
                                         isAnalysis: true,
-                                        onSettings: { print("Open details:", a.name) }
+                                        onSettings: { selectAnalysis(a) }
                                     )
                                 }
                             } else {
@@ -79,7 +114,7 @@ struct HomeView: View {
                                         costoComunidad: "\(c.communityCost)",
                                         costoGeneral: "\(c.generalCost)",
                                         isAnalysis: false,
-                                        onSettings: { print("Open details:", c.nameConsultation) }
+                                        onSettings: { selectAnalysis(c) }
                                     )
                                 }
                             }
@@ -94,6 +129,26 @@ struct HomeView: View {
         }
         .background(Color(.systemGroupedBackground)) // System-like grouped background
         .onAppear { vm.onAppear() } // Trigger ViewModel load when view appears
+        .overlay(
+            // NefroPop overlay
+            showNefroPop ? 
+            ZStack {
+                Color.black.opacity(0.4)
+                    .edgesIgnoringSafeArea(.all)
+                    .onTapGesture { showNefroPop = false }
+                
+                nefroPop(
+                    title: popupTitle,
+                    description: popupDescription,
+                    subtitle: "Indicaciones para el examen",
+                    indication: popupIndication,
+                    buttonText: "Continuar",
+                    buttonAction: continueAction,
+                    closeAction: { showNefroPop = false }
+                )
+            }
+            : nil
+        )
     }
 }
 

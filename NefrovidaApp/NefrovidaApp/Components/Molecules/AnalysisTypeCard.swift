@@ -47,6 +47,18 @@ struct AnalysisTypeCard: View {
             }
 
             Spacer()
+            
+            // ---- SELECT BUTTON ----
+            nefroButton(
+                text: "Seleccionar",
+                color: .nvBrand,
+                textColor: .white,
+                vertical: 8,
+                horizontal: 16,
+                hasStroke: false,
+                textSize: 14,
+                action: onSettings
+            )
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 18)
