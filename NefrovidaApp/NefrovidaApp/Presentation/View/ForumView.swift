@@ -5,7 +5,7 @@ struct ForumView: View {
     let forumId: Int
 
     init(forumId: Int) {
-        let repo = ForumRemoteRepository()
+        let repo = ForumRemoteRepository(baseURL: AppConfig.apiBaseURL, tokenProvider: AppConfig.tokenProvider)
         let getUC = GetMessagesUseCase(repository: repo)
         let postUC = PostMessageUseCase(repository: repo)
         let replyUC = ReplyToMessageUseCase(repository: repo)
@@ -73,7 +73,6 @@ struct ForumView: View {
                 .padding()
             }
 
-            BottomBar(idUser:"121212")
         }
         .onAppear {
             Task { await vm.loadMessages(forumId: forumId) }
