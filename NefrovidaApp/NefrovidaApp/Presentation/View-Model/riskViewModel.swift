@@ -46,25 +46,31 @@ final class RiskFormViewModel: ObservableObject {
         self.optionsUseCase = optionsUseCase
     }
     
+    func getAge() -> Int {
+        let birthYear = Calendar.current.component(.year, from: fechaNacimiento)
+        let currentYear = Calendar.current.component(.year, from: Date())
+        return currentYear - birthYear
+    }
+
     //FORM VALIDATION
 
     func validate() -> Bool {
         
         // Validate general fields
-        if nombre.trimmingCharacters(in: .whitespaces).isEmpty {
-            errorMessage = "El nombre es obligatorio."
+        if nombre.trimmingCharacters(in: .whitespaces).isEmpty || nombre.contains(where: { $0.isNumber }) {
+            errorMessage = "El nombre es obligatorio y no debe contener digítos"
             return false
         }
-        if telefono.count < 8 {
-            errorMessage = "El teléfono debe tener al menos 8 dígitos."
+        if telefono.count < 8 || telefono.contains(where: { $0.isLetter }) {
+            errorMessage = "El teléfono debe tener al menos 8 dígitos y no contener letras."
             return false
         }
         if generoSeleccionado == nil {
             errorMessage = "Selecciona un género."
             return false
         }
-        if Int(edad) == nil {
-            errorMessage = "Edad inválida."
+        if Int(edad) == nil || Int(edad) != getAge() {
+            errorMessage = "La edad tiene que coincidir con el año de nacimiento."
             return false
         }
         if estadoNacimientoSeleccionado == nil {
@@ -116,7 +122,7 @@ final class RiskFormViewModel: ObservableObject {
         }
     }
 
-    // SUBMIT FINAL FORM
+    // SUBMIT FORM
     func submitForm() async {
         
         guard validate() else { return }
@@ -155,6 +161,7 @@ final class RiskFormViewModel: ObservableObject {
             // Fetch options for each question.
             let options = try await optionsUseCase.execute()
             
+            
             // Group options by question_id.
             let grouped = Dictionary(grouping: options, by: { $0.questionId })
             
@@ -168,7 +175,7 @@ final class RiskFormViewModel: ObservableObject {
             
             // Hide general questions from UI but keep them for back-end mapping.
             let hiddenGeneralFields = [
-                "Nombre", "Teléfono", "Género",
+                "Nombre", "Teléfono", "Género", "Fecha del cuestionario",
                 "Edad", "Estado de nacimiento", "Fecha de nacimiento"
             ]
             

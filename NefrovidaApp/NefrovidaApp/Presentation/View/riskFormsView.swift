@@ -40,8 +40,6 @@ struct RiskFormView: View {
         "Yucatán","Zacatecas"
     ]
 
-    // MARK: - Navigation Helper Functions
-
     // Switches to the dynamic questions section.
     func goToQuestions() {
         withAnimation { showingQuestions = true }
@@ -52,7 +50,6 @@ struct RiskFormView: View {
         withAnimation { showingQuestions = false }
     }
 
-    // MARK: - Main View Body
     var body: some View {
         VStack(spacing: 0) {
             UpBar()  // Top navigation bar
@@ -62,9 +59,7 @@ struct RiskFormView: View {
 
                     Title(text: "Cuestionario de Factor de Riesgo")
 
-                    // --------------------------------------------------
-                    // SECTION 1 — GENERAL INFORMATION
-                    // --------------------------------------------------
+                    // General info question
                     if !showingQuestions {
 
                         // User name field.
@@ -125,9 +120,7 @@ struct RiskFormView: View {
                         }
                         .padding(.horizontal)
 
-                    // --------------------------------------------------
-                    // SECTION 2 — DYNAMIC QUESTIONS LOADED FROM BACKEND
-                    // --------------------------------------------------
+                        //Risk Question part.
                     } else {
 
                         ForEach(vm.questions) { q in
@@ -200,6 +193,13 @@ struct RiskFormView: View {
                                 .foregroundColor(.red)
                                 .padding(.horizontal)
                         }
+                        
+                        // Success message shown after submission.
+                        if let ok = vm.successMessage {
+                            Text(ok)
+                                .foregroundColor(.green)
+                                .padding(.bottom)
+                        }
 
                         // Button to go back to general info.
                         Button {
@@ -229,12 +229,6 @@ struct RiskFormView: View {
                         .padding(.horizontal)
                     }
 
-                    // Success message shown after submission.
-                    if let ok = vm.successMessage {
-                        Text(ok)
-                            .foregroundColor(.green)
-                            .padding(.bottom)
-                    }
                 }
                 .padding(.top, 20)
             }
@@ -251,5 +245,5 @@ struct RiskFormView: View {
 
 // Preview for SwiftUI canvas.
 #Preview {
-    RiskFormView(idUser: "35eb038c-3c7a-4143-9f6a-9c8c7d70de97")
+    RiskFormView(idUser: "06276f33-a1ca-4c71-a400-8e4fa0ce9ece")
 }
