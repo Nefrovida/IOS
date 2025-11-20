@@ -203,7 +203,7 @@ public final class ForumRemoteRepository: ForumRepository {
         let endpoint = "\(baseURL)/forums/\(forumId)/replies"
         let headers = makeHeaders()
         let params: [String: Any] = [
-            "parentMessageId": parentMessageId,
+            "parent_message_id": parentMessageId,
             "content": content
         ]
         let request = AF.request(endpoint, method: .post, parameters: params, encoding: JSONEncoding.default, headers: HTTPHeaders(headers)).validate()

@@ -28,12 +28,45 @@ class ForumViewModel: ObservableObject {
     // Load all messages from a forum
     func loadMessages(forumId: Int) async {
         do {
-            messages = try await getMessagesUC.execute(forumId: forumId)
+            // messages = try await getMessagesUC.execute(forumId: forumId)
+            messages = getMockData()
+
         } catch {
             print("Error al cargar mensajes: \(error)")
         }
     }
 
+    func getMockData() -> [ForumMessageEntity] {
+        return [ForumMessageEntity(
+            id: 1,
+            forumId: 1,
+            parentMessageId: nil,
+            content: "hola q hace",
+            createdBy: "Pao",
+            createdAt: "2025-11-12",),
+                ForumMessageEntity(
+                    id: 2,
+                    forumId: 1,
+                    parentMessageId: nil,
+                    content: "hola q hace",
+                    createdBy: "Pao",
+                    createdAt: "2025-11-12",),
+                ForumMessageEntity(
+                        id: 3,
+                        forumId: 1,
+                        parentMessageId: nil,
+                        content: "hola q hace",
+                        createdBy: "Pao",
+                        createdAt: "2025-11-12",),
+        ForumMessageEntity(
+                id: 4,
+                forumId: 1,
+                parentMessageId: 3,
+                content: "hola q hace",
+                createdBy: "Pao",
+                createdAt: "2025-11-12",)]
+    }
+    
     // Send a new root message
     func sendMessage(forumId: Int) async {
         guard !newMessageContent.isEmpty else { return }

@@ -30,7 +30,7 @@ struct ForumView: View {
 
                         // nested responses
                         ForEach(vm.messages.filter { $0.parentMessageId == parent.id }) { reply in
-                            HStack {
+                            VStack {
                                 Spacer().frame(width: 20) // indentation
                                 VStack(alignment: .leading) {
                                     Text(reply.content)
@@ -49,19 +49,19 @@ struct ForumView: View {
                 }
             }
 
-            // Field for new root message
-            HStack {
-                TextField("Escribe un mensaje...", text: $vm.newMessageContent)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                Button("Enviar") {
-                    Task { await vm.sendMessage(forumId: forumId) }
-                }
-                .buttonStyle(.borderedProminent)
-            }
-            .padding()
-
             // Field for reply to selected message
-            if vm.selectedParentMessageId != nil {
+            if vm.selectedParentMessageId == nil {
+                // Field for new root message
+                HStack {
+                    TextField("Escribe un mensaje...", text: $vm.newMessageContent)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                    Button("Enviar") {
+                        Task { await vm.sendMessage(forumId: forumId) }
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+                .padding()
+            } else {
                 HStack {
                     TextField("Escribe una respuesta...", text: $vm.replyContent)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
