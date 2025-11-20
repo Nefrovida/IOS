@@ -8,9 +8,9 @@ final class ReportsRemoteRepository: ReportsRepositoryProtocol {
     private let baseURL = "http://localhost:3001"
 
     // Fetch a list of reports associated with a given user ID
-    func fetchReports(for userId: String) async throws -> Report {
+    func fetchReports(for patientId: String) async throws -> Report {
         // Construct the endpoint URL using string interpolation
-        let endpoint = "\(baseURL)/api/report/get-result/\(userId)"
+        let endpoint = "\(baseURL)/api/report/get-result-android/\(patientId)"
         
         // Create and validate the GET request using Alamofire
         let request = AF.request(endpoint, method: .get).validate()
@@ -22,9 +22,9 @@ final class ReportsRemoteRepository: ReportsRepositoryProtocol {
             do {
                 // Decode the response into an array of Report models
                 // Assuming the API returns a JSON array, adjust if needed
-                let decoded = try JSONDecoder().decode(Report.self, from: data)
+                let decoded = try JSONDecoder().decode(ReportResponse.self, from: data)
                 print("se decodifico el reporte")
-                return decoded
+                return decoded.data
             } catch {
                 print("Decoding error:", error)
                 throw error

@@ -4,21 +4,21 @@ import SwiftUI
 struct ReportsView: View {
     
     // Unique identifier of the logged-in user (passed from previous screen)
-    let idUser: String
+    let patientId: String
     
     // ViewModel that handles fetching and managing report data
     @StateObject private var vm: ReportsViewModel
 
     // Custom initializer to inject the idUser and initialize the ViewModel
-    init(idUser: String) {
+    init(patientId: String) {
         // Initialize the ViewModel with dependency injection:
         // - userId to fetch their reports
         // - GetReportsUseCase that contains the business logic
         _vm = StateObject(wrappedValue: ReportsViewModel(
-            idUser: idUser,
+            patientId: patientId,
             getReportsUseCase: GetReportsUseCase(repository: ReportsRemoteRepository())
         ))
-        self.idUser = idUser
+        self.patientId = patientId
     }
 
     var body: some View {
@@ -44,5 +44,5 @@ struct ReportsView: View {
 
 // Preview for SwiftUI canvas
 #Preview {
-    ReportsView(idUser: "1")
+    ReportsView(patientId: "1")
 }

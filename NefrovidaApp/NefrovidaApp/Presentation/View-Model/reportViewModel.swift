@@ -15,11 +15,11 @@ final class ReportsViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String? = nil
 
-    let idUser: String
+    let patientId: String
     private let getReportsUseCase: GetReportsUseCaseProtocol
 
-    init(idUser: String, getReportsUseCase: GetReportsUseCaseProtocol) {
-        self.idUser = idUser
+    init(patientId: String, getReportsUseCase: GetReportsUseCaseProtocol) {
+        self.patientId = patientId
         self.getReportsUseCase = getReportsUseCase
     }
 
@@ -28,9 +28,9 @@ final class ReportsViewModel: ObservableObject {
         case .all:
             return reports
         case .consultation:
-            return reports.filter { $0.patient_analysis.analysis_status == "CONSULTATION" }
+            return reports.filter { $0.patientAnalysis.analysisStatus == "CONSULTATION" }
         case .analysis:
-            return reports.filter { $0.patient_analysis.analysis_status == "LAB" }
+            return reports.filter { $0.patientAnalysis.analysisStatus == "LAB" }
         }
     }
 
@@ -43,9 +43,9 @@ final class ReportsViewModel: ObservableObject {
         errorMessage = nil
 
         do {
-            let single = try await getReportsUseCase.execute(userId: idUser)
+            let single = try await getReportsUseCase.execute(patientId: patientId)
             self.reports = [single]
-            print("hola")
+            print("")
         } catch {
             errorMessage = "No se pudieron cargar los reportes."
             print("Error:", error)

@@ -36,7 +36,7 @@ struct ContentView: View {
         case .inicio:
             HomeView()
         case .analisis:
-            ReportsView(idUser: "1")
+            ReportsView(patientId: "1")
         case .foros:
             ForumsScreen()
         case .agenda:

@@ -40,11 +40,11 @@ struct FilterableReportList: View {
                     VStack(spacing: 20) {
                         ForEach(viewModel.filteredReports) { report in
                             ReportCard(
-                                title: report.patient_analysis.analysis.name.trimmingCharacters(in: .whitespaces),
+                                title: report.patientAnalysis.analysis.name.trimmingCharacters(in: .whitespaces),
                                 specialty: "Laboratorio Clínico",
                                 doctor: "Especialista Nefrólogo",
                                 date: formatDate(report.date),
-                                recommendations: report.patient_analysis.analysis.previous_requirements ?? "Sin recomendaciones",
+                                recommendations: report.patientAnalysis.analysis.previous_requirements ?? "Sin recomendaciones",
                                 treatment: report.interpretation ?? "Sin tratamiento",
                                 onViewReport: { print("🔍 Ver reporte:", report.path) },
                                 onDownloadReport: { print("⬇️ Descargar:", report.path) }
