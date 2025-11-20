@@ -20,12 +20,19 @@ struct HomeView: View {
         selectedItem = analysis
         if let a = analysis as? Analysis {
             popupTitle = "¡Importante!"
-            popupDescription = a.description
-            popupIndication = "Sigue las indicaciones médicas para este análisis."
+            popupDescription = """
+            ¿Para qué sirve este estudio?
+            \(a.description)
+            """
+            popupIndication = a.previousRequirements.isEmpty ? "No se requieren preparaciones especiales." : a.previousRequirements
         } else if let c = analysis as? Consultation {
             popupTitle = "¡Confirmar Consulta!"
-            popupDescription = "Consulta con un especialista: \(c.nameConsultation)"
-            popupIndication = "Asegúrate de tener toda la documentación necesaria."
+            popupDescription = """
+            Tipo de consulta: \(c.nameConsultation)
+            
+            Esta consulta te permitirá recibir atención médica especializada para tu condición.
+            """
+            popupIndication = "Asegúrate de tener toda la documentación médica necesaria y llegar 15 minutos antes de tu cita."
         }
         showNefroPop = true
     }
@@ -140,7 +147,7 @@ struct HomeView: View {
                 nefroPop(
                     title: popupTitle,
                     description: popupDescription,
-                    subtitle: "Indicaciones para el examen",
+                    subtitle: "Indicaciones",
                     indication: popupIndication,
                     buttonText: "Continuar",
                     buttonAction: continueAction,

@@ -18,7 +18,7 @@ struct nefroPop: View {
     var closeAction: () -> Void
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 16) {
             ZStack {
                 // Main title of the pop up
                 Text(title)
@@ -39,6 +39,7 @@ struct nefroPop: View {
                     }
                 }
             }
+            
             // Main descripcion
             Text(description)
                 .font(.body)
@@ -47,14 +48,16 @@ struct nefroPop: View {
                 .padding(.horizontal, 8)
             
             // Subtitle and medical indication
-            VStack(spacing: 4) {
+            VStack(spacing: 6) {
                 Text(subtitle)
                     .font(.headline)
                     .foregroundColor(.black)
+                    .multilineTextAlignment(.center)
                 
                 Text(indication)
                     .font(.body)
                     .foregroundColor(.gray)
+                    .multilineTextAlignment(.center)
             }
             
             // The nefroButton is used
