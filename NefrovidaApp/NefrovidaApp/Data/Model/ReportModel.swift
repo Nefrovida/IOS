@@ -1,32 +1,17 @@
 import Foundation
 
-// ------------------------------------------------------------
-// MARK: - Report
-// ------------------------------------------------------------
-
-// Main Report model conforming to Codable and Identifiable for use in SwiftUI lists
+// Report model
 struct Report: Codable, Identifiable {
-    // Computed property to satisfy Identifiable protocol, using `resultId` as the unique ID
-    var id: Int { resultId }
-    
-    // Unique identifier for the report result in the database
-    let resultId: Int
-    
-    // Foreign key referencing a specific patient-analysis relation
-    let patientAnalysisId: Int
-    
-    // Date when the report was generated or completed
-    let date: String
-    
-    // Path or URL where the report file is stored
-    let path: String
-    
-    // Optional interpretation or notes added by a doctor or specialist
-    let interpretation: String?
-    
-    // Nested object containing details about the patient’s analysis
-    let patientAnalysis: PatientAnalysis
+    var id: Int { resultId }                      // Identifiable: use resultId to identify to use for loops.
 
+    let resultId: Int                            // ID of the result of the analysis.
+    let patientAnalysisId: Int                   // Id of the relation of the analysis and patient.
+    let date: String                             // Date with the ISO format.
+    let path: String                             // Path of the PDF.
+    let interpretation: String?                  // Interpretation of the doctor.
+    let patientAnalysis: PatientAnalysis         // Object with the analysis info.
+
+    // Map the json with the model.
     enum CodingKeys: String, CodingKey {
         case resultId
         case patientAnalysisId
@@ -37,80 +22,66 @@ struct Report: Codable, Identifiable {
     }
 }
 
-// ------------------------------------------------------------
-// MARK: - PatientAnalysis
-// ------------------------------------------------------------
-
-// Model representing the relationship between a patient and an analysis
+// Patient Analysis model
 struct PatientAnalysis: Codable {
-    // ID of the analysis that was assigned to this patient
-    let patientAnalysisId: Int
-    
-    // Optional place where the analysis was performed (e.g., lab, clinic)
-    let place: String?
-    
-    // Status of the analysis (e.g., pending, completed, reviewed)
-    let analysisStatus: String?
-    
-    // Date when the analysis was requested
-    let analysisDate: String?
-    
-    // Date when the analysis results were made available
-    let resultsDate: String?
-    
-    // Nested object with detailed information about the specific analysis
-    let analysis: AnalysisDetail
-
-    enum CodingKeys: String, CodingKey {
-        case patientAnalysisId
-        case place
-        case analysisStatus
-        case analysisDate
-        case resultsDate
-        case analysis
-    }
+    let patientAnalysisId: Int                   // ID of the patient's analysis record.
+    let place: String?                           // Location where the analysis was performed.
+    let analysisStatus: String?                  // Current status of the analysis (REQUESTED, COMPLETED, etc.)
+    let analysisDate: String?                    // Date when the analysis was requested or performed.
+    let resultsDate: String?                     // Date when laboratory results became available.
+    let analysis: AnalysisDetail                 // Detailed information about the specific type of analysis.
 }
 
-// ------------------------------------------------------------
-// MARK: - AnalysisDetail
-// ------------------------------------------------------------
-
-// Model containing detailed information about a specific type of analysis
+// Analysis Detail model
 struct AnalysisDetail: Codable {
-    // Name of the analysis (e.g., "Biometría Hemática")
-    let name: String
-    
-    // Optional description explaining what the analysis consists of
-    let description: String?
-    
-    // Optional requirements that the patient needs to fulfill before taking the analysis
-    let previous_requirements: String?
-    
-    // Cost of the analysis for external (general) patients
-    let general_cost: Double?
-    
-    // Cost of the analysis for community (registered) patients
-    let community_cost: Double?
-    
-    // Optional URL or path to an image related to the analysis type
-    let image_url: String?
-
-    enum CodingKeys: String, CodingKey {
-        case name
-        case description
-        case previous_requirements
-        case general_cost
-        case community_cost
-        case image_url
-    }
+    let name: String                             // Name of the analysis (e.g., "Biometría Hemática")
+    let description: String?                     // Description of what the analysis consists of
+    let previous_requirements: String?           // Requirements the patient must follow before the analysis
+    let general_cost: Double?                    // General public cost of the analysis
+    let community_cost: Double?                  // Discounted cost for community/registered members
+    let image_url: String?                       // Optional illustrative image for the analysis
 }
 
-// ------------------------------------------------------------
-// MARK: - API Response Wrapper
-// ------------------------------------------------------------
+// Flexible Response
+struct ReportResponse: Decodable {
+    let success: Bool                            // Indicates whether the request was successful
+    let message: String                          // Message returned by the backend
+    let data: ReportData                         // Can hold either one report or an array of reports
 
-struct ReportResponse: Codable {
-    let success: Bool
-    let message: String
-    let data: Report
+    // Custom decoding to support object OR array
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)   // Root-level JSON container
+        success = try container.decode(Bool.self, forKey: .success)       // Decode "success" flag
+        message = try container.decode(String.self, forKey: .message)     // Decode backend message
+
+        // FIRST attempt to decode the data as an array of reports
+        if let array = try? container.decode([Report].self, forKey: .data) {
+            data = .list(array)                                           // Store as list
+            return
+        }
+
+        // IF NOT an array, attempt decoding as a single report object
+        if let single = try? container.decode(Report.self, forKey: .data) {
+            data = .single(single)                                        // Store as single object
+            return
+        }
+
+        // IF neither array nor object → throw decoding error
+        throw DecodingError.dataCorruptedError(
+            forKey: .data,
+            in: container,
+            debugDescription: "Data was neither a Report nor [Report]"     // Debugging description
+        )
+    }
+
+    // JSON key mapping
+    enum CodingKeys: String, CodingKey {
+        case success, message, data
+    }
+
+    // Enum representing both response possibilities: one report OR many
+    enum ReportData {
+        case single(Report)         // One report object
+        case list([Report])         // Multiple reports
+    }
 }

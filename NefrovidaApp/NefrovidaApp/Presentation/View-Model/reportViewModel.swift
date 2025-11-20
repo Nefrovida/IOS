@@ -4,57 +4,42 @@ import Combine
 @MainActor
 final class ReportsViewModel: ObservableObject {
 
-    enum Filter: String, CaseIterable {
-        case all = "Todos"
-        case consultation = "Consulta"
-        case analysis = "Análisis"
-    }
+    // Published UI State
+    @Published var reports: [Report] = []          // Array of fetched reports to be shown in the UI
+    @Published var isLoading: Bool = false         // Indicates whether data is being loaded
+    @Published var errorMessage: String? = nil     // Stores an error message to display in the UI if needed
 
-    @Published var reports: [Report] = [] // CAMBIO: array
-    @Published var selectedFilter: Filter = .all
-    @Published var isLoading: Bool = false
-    @Published var errorMessage: String? = nil
+    // Dependencies
+    let patientId: String                          // ID of the patient whose reports need to be loaded
+    private let getReportsUseCase: GetReportsUseCaseProtocol // Use case responsible for fetching reports
 
-    let patientId: String
-    private let getReportsUseCase: GetReportsUseCaseProtocol
-
+    // Initialization
     init(patientId: String, getReportsUseCase: GetReportsUseCaseProtocol) {
-        self.patientId = patientId
-        self.getReportsUseCase = getReportsUseCase
+        self.patientId = patientId                 // Assign the patient ID passed by the previous screen
+        self.getReportsUseCase = getReportsUseCase // Inject the use case that fetches the data
     }
 
-    var filteredReports: [Report] {
-        switch selectedFilter {
-        case .all:
-            return reports
-        case .consultation:
-            return reports.filter { $0.patientAnalysis.analysisStatus == "CONSULTATION" }
-        case .analysis:
-            return reports.filter { $0.patientAnalysis.analysisStatus == "LAB" }
-        }
-    }
-
+    // Lifecycle
     func onAppear() {
+        // Called when the view appears — starts the asynchronous loading
         Task { await loadReports() }
     }
 
+    // Data Loading
     private func loadReports() async {
-        isLoading = true
-        errorMessage = nil
+        isLoading = true                           // Show loading indicator in UI
+        errorMessage = nil                         // Reset previous error
 
         do {
-            let single = try await getReportsUseCase.execute(patientId: patientId)
-            self.reports = [single]
-            print("")
+            let result = try await getReportsUseCase.execute(patientId: patientId)
+            self.reports = result                  // Save the list of reports returned by the repository
+            print("Reports loaded:", result)
         } catch {
+            // If something goes wrong, save a generic error message for the UI
             errorMessage = "No se pudieron cargar los reportes."
-            print("Error:", error)
+            print("Error loading reports:", error)
         }
 
-        isLoading = false
-    }
-
-    func selectFilter(_ filter: Filter) {
-        selectedFilter = filter
+        isLoading = false                          // Hide loading indicator
     }
 }

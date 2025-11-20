@@ -1,34 +1,55 @@
 import Foundation
 import Alamofire
 
-// Repository class that fetches reports from the server
+// Repository class responsible for fetching reports from the backend API.
+// Implements the ReportsRepositoryProtocol required by the domain layer.
 final class ReportsRemoteRepository: ReportsRepositoryProtocol {
 
-    // Base URL for API endpoints
+    // Base URL of the backend server.
+    // In production, this would come from configuration or environment variables.
     private let baseURL = "http://localhost:3001"
 
-    // Fetch a list of reports associated with a given user ID
-    func fetchReports(for patientId: String) async throws -> Report {
-        // Construct the endpoint URL using string interpolation
+    // Fetches one or multiple reports for a given patient ID.
+    // Returns an array because the API may return a single report or a list.
+    func fetchReports(for patientId: String) async throws -> [Report] {
+
+        // Builds the full API endpoint.
         let endpoint = "\(baseURL)/api/report/get-result-android/\(patientId)"
-        
-        // Create and validate the GET request using Alamofire
+
+        // Sends a GET request to the server using Alamofire.
         let request = AF.request(endpoint, method: .get).validate()
+
+        // Awaits the network response as raw Data.
         let response = await request.serializingData().response
-        
-        // Handle the result of the request
+
+        // Handles success or error from the HTTP request.
         switch response.result {
+
+        // ✔ Successful HTTP response
         case .success(let data):
             do {
-                // Decode the response into an array of Report models
-                // Assuming the API returns a JSON array, adjust if needed
+                // Attempts to decode the response into the flexible ReportResponse model.
                 let decoded = try JSONDecoder().decode(ReportResponse.self, from: data)
-                print("se decodifico el reporte")
-                return decoded.data
+
+                // Handles both supported formats: single report OR array.
+                switch decoded.data {
+
+                case .single(let report):
+                    // Wraps a single report into an array to maintain consistency.
+                    return [report]
+
+                case .list(let reports):
+                    // Returns the full list when the API sends multiple reports.
+                    return reports
+                }
+
             } catch {
+                // Prints decoding issues for debugging.
                 print("Decoding error:", error)
                 throw error
             }
+
+        // Request failed (network, 4xx, 5xx, etc.)
         case .failure(let error):
             print("Error fetching reports:", error)
             throw error
