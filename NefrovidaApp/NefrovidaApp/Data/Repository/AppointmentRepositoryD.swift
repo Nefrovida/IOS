@@ -11,9 +11,6 @@ import Foundation
 // Implements the 'appointmentRepository' protocol.
 final class AppointmentRepositoryD: appointmentRepository {
 
-    // Base URL for the backend API
-    private let base = "http://localhost:3001/api/agenda"
-
     // Fetch all appointments for a specific date and appointment type
     func getAppointments(for date: Date, appointmentId: Int) async throws -> [AppointmentEntity] {
 
@@ -24,7 +21,7 @@ final class AppointmentRepositoryD: appointmentRepository {
         let dateFormatted = formatter.string(from: date)
 
         // Build the URL for the GET request
-        guard let url = URL(string: "\(base)/appointments-per-day/by-appointment?date=\(dateFormatted)&appointmentId=\(appointmentId)") else {
+        guard let url = URL(string: "\(AppConfig.apiBaseURL)/agenda/appointments-per-day/by-appointment?date=\(dateFormatted)&appointmentId=\(appointmentId)") else {
             throw URLError(.badURL)
         }
 
@@ -84,7 +81,7 @@ final class AppointmentRepositoryD: appointmentRepository {
     ) async throws -> AppointmentEntity {
 
         // Build POST request URL
-        guard let url = URL(string: "\(base)/appointment") else {
+        guard let url = URL(string: "\(AppConfig.apiBaseURL)/agenda/appointment") else {
             throw URLError(.badURL)
         }
 

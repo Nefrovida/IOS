@@ -5,16 +5,12 @@ import Alamofire
 // Implements the ReportsRepositoryProtocol required by the domain layer.
 final class ReportsRemoteRepository: ReportsRepositoryProtocol {
 
-    // Base URL of the backend server.
-    // In production, this would come from configuration or environment variables.
-    private let baseURL = "http://localhost:3001"
-
     // Fetches one or multiple reports for a given patient ID.
     // Returns an array because the API may return a single report or a list.
     func fetchReports(for patientId: String) async throws -> [Report] {
 
         // Builds the full API endpoint.
-        let endpoint = "\(baseURL)/api/report/get-result-android/\(patientId)"
+        let endpoint = "\(AppConfig.apiBaseURL)/report/get-result-android/\(patientId)"
 
         // Sends a GET request to the server using Alamofire.
         let request = AF.request(endpoint, method: .get).validate()

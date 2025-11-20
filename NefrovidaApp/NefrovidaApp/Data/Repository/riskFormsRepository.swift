@@ -4,10 +4,6 @@ import Alamofire
 // Repository to send forms to the api.
 final class RiskFormRepository: RiskFormRepositoryProtocol {
 
-    // Endpoint to connect to the api and send data.
-    // if you want to try it, put your ip.
-    private let baseURL = "http://localhost:3001"
-
     // Send the forms to the api, using the id to identify.
     // Parameters: idUser: Id of the user in the sesion.
     // forms: Dictionary with the question and answer.
@@ -15,7 +11,7 @@ final class RiskFormRepository: RiskFormRepositoryProtocol {
     func submitForm(idUser: String, forms: [String: Any]) async throws {
         
         // Final endpoint.
-        let endpoint = "\(baseURL)/api/clinical-history/risk-form/submit/\(idUser)"
+        let endpoint = "\(AppConfig.apiBaseURL)/clinical-history/risk-form/submit/\(idUser)"
 
         // Ejecution of the http request.
         let request = AF.request(
@@ -51,14 +47,12 @@ final class RiskFormRepository: RiskFormRepositoryProtocol {
 // Repository to get the risk questions.
 final class RiskQuestionsRepository: RiskQuestionsRepositoryProtocol {
 
-    private let baseURL = "http://localhost:3001"
-
     // Get all the risk questions.
     // Returns: Array of RiskQuestion.
     // Throws: Error if the http request fail or the JSON parse fail.
     func fetchQuestions() async throws -> [RiskQuestion] {
 
-        let endpoint = "\(baseURL)/api/clinical-history/risk-questions"
+        let endpoint = "\(AppConfig.apiBaseURL)/clinical-history/risk-questions"
 
         let result = await AF.request(endpoint, method: .get)
             .validate()
@@ -85,14 +79,12 @@ final class RiskQuestionsRepository: RiskQuestionsRepositoryProtocol {
 // Repository to get the options of choice questions.
 final class RiskOptionsRepository: GetRiskOptionsRepositoryProtocol {
 
-    private let baseURL = "http://localhost:3001"
-
     // Get all the options.
     // Returns: Array of RiskOption.
     // Throws: Error if the http request fail.
     func fetchOptions() async throws -> [RiskOption] {
 
-        let endpoint = "\(baseURL)/api/clinical-history/risk-options"
+        let endpoint = "\(AppConfig.apiBaseURL)/clinical-history/risk-options"
 
         // Make a GET and validate.
         let result = await AF.request(endpoint, method: .get)
