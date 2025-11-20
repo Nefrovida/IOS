@@ -112,42 +112,19 @@ private struct AnalysisItem: Identifiable {
     let desc: String
 }
 
-#Preview("Con forumCard") {
+#Preview("Con ForumCard") {
     let forums: [ForumItem] = [
         .init(title: "Foro 1", description: "Pacientes Nefrovida."),
         .init(title: "Foro de Nutrición", description: "Recetas y consejos."),
         .init(title: "Comunidad", description: "Anuncios generales.")
     ]
 
-    return filterableCardList<ForumItem, forumCard>(
+    return filterableCardList<ForumItem, ForumCardMolecule>(
         title: "Foros",
         items: forums,
         searchableText: { "\($0.title) \($0.description)" },
         content: { item in
-            forumCard(
-                title: item.title,
-                description: item.description,
-                onTap: { print("Abrir \(item.title)") }
-            )
-        },
-        onFilterTap: { print("Filtrar foros…") }
-    )
-    .padding(.top, 16)
-}
-
-#Preview("Con forumCard") {
-    let forums: [ForumItem] = [
-        .init(title: "Foro 1", description: "Pacientes Nefrovida."),
-        .init(title: "Foro de Nutrición", description: "Recetas y consejos."),
-        .init(title: "Comunidad", description: "Anuncios generales.")
-    ]
-
-    filterableCardList<ForumItem, forumCard>(
-        title: "Foros",
-        items: forums,
-        searchableText: { "\($0.title) \($0.description)" },
-        content: { item in
-            forumCard(
+            ForumCardMolecule(
                 title: item.title,
                 description: item.description,
                 onTap: { print("Abrir \(item.title)") }

@@ -38,11 +38,11 @@ struct ContentView: View {
                 HomeView(user: viewModel.loggedUser)
             }
         case .analisis:
-            AnalysisView()
+            ReportsView(patientId: "1")
         case .foros:
-            ForumView(forumId: 1)
+            ForumsScreen()
         case .agenda:
-            CalendarView()
+            CalendarView(idUser: "4b74425f-6c7a-4cf6-ac19-18372ac9854a")
         }
     }
 }
