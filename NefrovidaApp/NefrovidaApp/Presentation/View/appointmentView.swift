@@ -145,7 +145,6 @@ struct appointmentView: View {
             .padding(.bottom)
 
             // Custom bottom bar UI component
-            BottomBar()
         }
         // Loads slots when view appears
         .onAppear {

@@ -35,8 +35,7 @@ struct ReportsView: View {
                 FilterableReportList(viewModel: vm)
             }
             
-            // Bottom bar with app navigation, passing userId for routing context
-            BottomBar(idUser: idUser)
+
         }
         .background(Color(.systemGroupedBackground)) // Use grouped background style
         .onAppear { vm.onAppear() } // Trigger initial data loading on first display

@@ -36,11 +36,11 @@ struct ContentView: View {
         case .inicio:
             HomeView()
         case .analisis:
-            AnalysisView()
+            ReportsView(idUser: "1")
         case .foros:
             ForumsScreen()
         case .agenda:
-            CalendarView()
+            CalendarView(idUser: "4b74425f-6c7a-4cf6-ac19-18372ac9854a")
         }
     }
 }

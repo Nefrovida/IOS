@@ -14,7 +14,7 @@ final class GetReportsUseCase: GetReportsUseCaseProtocol {
 
     // Executes the use case: fetches reports for the given userId
     // Delegates the actual data fetching to the repository
-    func execute(userId: String) async throws -> [Report] {
+    func execute(userId: String) async throws -> Report {
         try await repository.fetchReports(for: userId)
     }
 }

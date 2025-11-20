@@ -48,7 +48,6 @@ struct AnalysisTypeCard: View {
 
             Spacer()
 
-
             // ---- ACTION BUTTON ----
             buttonBar(
                 imageName: isAnalysis ? "testtube.2" : "stethoscope",
