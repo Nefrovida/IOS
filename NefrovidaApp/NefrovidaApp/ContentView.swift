@@ -34,7 +34,9 @@ struct ContentView: View {
     private var currentView: some View {
         switch viewModel.selectedTab {
         case .inicio:
-            HomeView()
+            NavigationStack {
+                HomeView(user: viewModel.loggedUser)
+            }
         case .analisis:
             ReportsView(patientId: "1")
         case .foros:
