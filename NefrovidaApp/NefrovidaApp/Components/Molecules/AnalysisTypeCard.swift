@@ -47,6 +47,13 @@ struct AnalysisTypeCard: View {
             }
 
             Spacer()
+
+            // ---- ACTION BUTTON ----
+            buttonBar(
+                imageName: isAnalysis ? "testtube.2" : "stethoscope",
+                text: "Seleccionar",
+                move: onSettings
+            )
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 18)
