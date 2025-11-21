@@ -9,12 +9,9 @@ import Foundation
 import Alamofire
 
 final class AuthRepositoryD: AuthRepository {
-    // The base URL of the server is defined
-    private let baseURL = AppConfig.apiBaseURL
-    
     // The path to log in is defined and the parameters to be sent are defined.
     func login(username: String, password: String) async throws -> LoginEntity {
-        let url = "\(baseURL)/auth/login"
+        let url = "\(AppConfig.apiBaseURL)/auth/login"
         let parameters: [String: String] = [
             "username": username,
             "password": password

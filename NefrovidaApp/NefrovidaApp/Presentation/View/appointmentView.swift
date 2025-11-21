@@ -39,13 +39,10 @@ struct appointmentView: View {
             Spacer()
             
             // Top tab-like buttons (Citas / Solicitudes)
-            HStack(spacing: 12) {
-                ChipTab(title: "Citas", isSelected: true) { print("Citas") }
-                ChipTab(title: "Solicitudes", isSelected: false) { print("Solicitudes") }
-                Spacer()
+            HStack(spacing: 0) {
                 // Displays current month title based on selected date
                 Text(vm.monthTitle())
-                    .font(.title3).fontWeight(.bold)
+                    .font(.title).fontWeight(.bold)
             }
             .padding(.horizontal)
             
@@ -144,15 +141,12 @@ struct appointmentView: View {
             }
             .padding(.bottom)
 
-            // Custom bottom bar UI component
-            BottomBar()
         }
         // Loads slots when view appears
         .onAppear {
             Task { await vm.loadSlots() }
         }
         
-        .navigationTitle("Agendar cita")
         // Success appointment alert
         .alert("¡Cita Solicitada!", isPresented: $showSuccessAlert) {
             Button("Aceptar", role: .cancel) { }
