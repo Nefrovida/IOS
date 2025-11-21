@@ -8,23 +8,50 @@
 import SwiftUI
 
 struct ForumFeedView: View {
-    @StateObject private var viewModel = ForumFeedViewModel()
     @State private var showNewMessageSheet = false
     @State private var showSearchView = false
+    @State private var showSuccessMessage = false
     
     var body: some View {
         ZStack(alignment: .top) {
             VStack(spacing: 0) {
                 UpBar()
-                FeedHeader(
-                    selectedFilter: $viewModel.selectedFilter,
-                    onSearchTapped: {
-                        showSearchView = true
-                    }
-                )
                 
-                // Feed de mensajes
-                feedContent
+                // Contenido principal - placeholder hasta que se implemente GET de mensajes
+                VStack(spacing: 20) {
+                    Spacer()
+                    
+                    Image(systemName: "bubble.left.and.bubble.right")
+                        .font(.system(size: 60))
+                        .foregroundColor(.gray.opacity(0.5))
+                    
+                    Text("Foro de Mensajes")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                    
+                    Text("Pulsa el botón + para crear un nuevo mensaje")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
+                    
+                    if showSuccessMessage {
+                        HStack {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                            Text("¡Mensaje enviado correctamente!")
+                                .foregroundColor(.green)
+                        }
+                        .padding()
+                        .background(Color.green.opacity(0.1))
+                        .cornerRadius(10)
+                        .transition(.opacity.combined(with: .scale))
+                    }
+                    
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
                 Spacer(minLength: 0)
                 BottomBar()
@@ -48,67 +75,20 @@ struct ForumFeedView: View {
                 }
             }
         }
-        .edgesIgnoringSafeArea(.top) // Para que UpBar llegue hasta arriba
+        .edgesIgnoringSafeArea(.top)
         .sheet(isPresented: $showNewMessageSheet) {
             NewMessageView(onMessageSent: {
-                Task {
-                    await viewModel.refreshFeed()
+                // Mostrar mensaje de éxito temporalmente
+                withAnimation {
+                    showSuccessMessage = true
+                }
+                // Ocultar después de 3 segundos
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    withAnimation {
+                        showSuccessMessage = false
+                    }
                 }
             })
-        }
-        .alert("Error", isPresented: $viewModel.showError) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            if let error = viewModel.errorMessage {
-                Text(error)
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private var feedContent: some View {
-        if viewModel.isLoading && viewModel.messages.isEmpty {
-            LoadingFeedState()
-        } else if viewModel.messages.isEmpty {
-            EmptyFeedState()
-        } else {
-            ScrollView {
-                LazyVStack(spacing: 12) {
-                    ForEach(viewModel.messages) { message in
-                        MessageCard(
-                            message: message,
-                            onMoreTapped: {
-                                viewModel.showMoreOptions(for: message)
-                            },
-                            onLikeTapped: {
-                                viewModel.toggleLike(for: message)
-                            },
-                            onCommentTapped: {
-                                viewModel.openComments(for: message)
-                            }
-                        )
-                        .padding(.horizontal, 12)
-                        .onAppear {
-                            // Infinite scroll - cargar más cuando llega al último
-                            if message.id == viewModel.messages.last?.id {
-                                Task {
-                                    await viewModel.loadMore()
-                                }
-                            }
-                        }
-                    }
-                    
-                    // Indicador de carga al final
-                    if viewModel.hasMore && !viewModel.messages.isEmpty {
-                        ProgressView()
-                            .padding()
-                    }
-                }
-                .padding(.vertical, 12)
-            }
-            .refreshable {
-                await viewModel.refreshFeed()
-            }
         }
     }
 }

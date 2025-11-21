@@ -8,6 +8,6 @@ public protocol ForumRepository {
 
     // MARK: - Messages
     func getMessages(forumId: Int) async throws -> [ForumMessageEntity]
-    func postMessage(forumId: Int, content: String) async throws -> ForumMessageEntity
+    func postMessage(forumId: Int, content: String) async throws -> Bool
     func replyToMessage(forumId: Int, parentMessageId: Int, content: String) async throws -> ForumMessageEntity
 }

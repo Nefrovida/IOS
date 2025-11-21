@@ -19,7 +19,7 @@ class ForumFeedViewModel: ObservableObject {
     @Published var selectedFilter: String = "Popular"
     @Published var hasMore: Bool = false
     
-    private let repository = ForumRemoteRepository()
+    private let repository = ForumRemoteRepository(baseURL: AppConfig.apiBaseURL, tokenProvider: AppConfig.tokenProvider)
     private let forumId = 1
     
     init() {

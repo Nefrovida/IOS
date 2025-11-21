@@ -38,9 +38,10 @@ class ForumViewModel: ObservableObject {
     func sendMessage(forumId: Int) async {
         guard !newMessageContent.isEmpty else { return }
         do {
-            let message = try await postMessageUC.execute(forumId: forumId, content: newMessageContent)
-            messages.append(message)
-            newMessageContent = ""
+            let success = try await postMessageUC.execute(forumId: forumId, content: newMessageContent)
+            if success {
+                newMessageContent = ""
+            }
         } catch {
             print("Error al enviar mensaje: \(error)")
         }

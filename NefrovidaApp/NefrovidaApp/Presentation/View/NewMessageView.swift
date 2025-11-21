@@ -56,6 +56,19 @@ struct NewMessageView: View {
                     Text(error)
                 }
             }
+            .alert("Éxito", isPresented: $viewModel.showSuccess) {
+                Button("OK", role: .cancel) {
+                    dismiss()
+                    onMessageSent()
+                }
+            } message: {
+                Text("Mensaje publicado correctamente")
+            }
+            .onAppear {
+                Task {
+                    await viewModel.loadForums()
+                }
+            }
         }
     }
     
@@ -65,22 +78,41 @@ struct NewMessageView: View {
                 .font(.subheadline)
                 .foregroundColor(.secondary)
             
-            Menu {
-                ForEach(viewModel.availableForums, id: \.id) { forum in
-                    Button(forum.name) {
-                        viewModel.selectedForumId = forum.id
-                        viewModel.selectedForumName = forum.name
+            if viewModel.isLoadingForums {
+                ProgressView()
+                    .scaleEffect(0.8)
+                Text("Cargando foros...")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            } else if viewModel.availableForums.isEmpty {
+                VStack(alignment: .leading) {
+                    Text("No hay foros disponibles")
+                        .font(.subheadline)
+                        .foregroundColor(.red)
+                    if let debugInfo = viewModel.debugInfo {
+                        Text(debugInfo)
+                            .font(.caption2)
+                            .foregroundColor(.gray)
                     }
                 }
-            } label: {
-                HStack {
-                    Text(viewModel.selectedForumName)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                    Image(systemName: "chevron.down")
-                        .font(.caption)
+            } else {
+                Menu {
+                    ForEach(viewModel.availableForums, id: \.id) { forum in
+                        Button(forum.name) {
+                            viewModel.selectedForumId = forum.id
+                            viewModel.selectedForumName = forum.name
+                        }
+                    }
+                } label: {
+                    HStack {
+                        Text(viewModel.selectedForumName)
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        Image(systemName: "chevron.down")
+                            .font(.caption)
+                    }
+                    .foregroundColor(.blue)
                 }
-                .foregroundColor(.blue)
             }
             
             Spacer()
@@ -119,33 +151,27 @@ struct NewMessageView: View {
 @MainActor
 class NewMessageViewModel: ObservableObject {
     @Published var messageText: String = ""
-    @Published var selectedForumId: Int = 1
+    @Published var selectedForumId: Int = 0
     @Published var selectedForumName: String = "Seleccionar foro"
-    @Published var availableForums: [ForumInfo] = []
+    @Published var availableForums: [Forum] = []
     @Published var isLoading: Bool = false
+    @Published var isLoadingForums: Bool = false
     @Published var isSuccess: Bool = false
+    @Published var showSuccess: Bool = false
     @Published var errorMessage: String?
     @Published var showError: Bool = false
+    @Published var debugInfo: String?
     
-    private let repository = ForumRemoteRepository()
-    
-    init() {
-        // TODO: Cargar foros del usuario desde el backend
-        // Por ahora, datos de ejemplo
-        availableForums = [
-            ForumInfo(id: 1, name: "Foro de Salud"),
-            ForumInfo(id: 2, name: "Consultas Médicas"),
-            ForumInfo(id: 3, name: "Apoyo Familiar")
-        ]
-        if let first = availableForums.first {
-            selectedForumId = first.id
-            selectedForumName = first.name
-        }
-    }
+    private let repository = ForumRemoteRepository(
+        baseURL: AppConfig.apiBaseURL,
+        tokenProvider: AppConfig.tokenProvider
+    )
     
     var isValid: Bool {
         !messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         && messageText.count <= 1000
+        && selectedForumId > 0
+        && !availableForums.isEmpty
     }
     
     var characterCountColor: Color {
@@ -158,6 +184,41 @@ class NewMessageViewModel: ObservableObject {
         }
     }
     
+    func loadForums() async {
+        isLoadingForums = true
+        debugInfo = nil
+        
+        // Debug: verificar token
+        let token = AppConfig.tokenProvider()
+        print("🔐 Token disponible: \(token != nil ? "Sí (\(token!.prefix(20))...)" : "No")")
+        print("🌐 Base URL: \(AppConfig.apiBaseURL)")
+        
+        do {
+            // Usar fetchForums() para obtener todos los foros disponibles
+            let forums = try await repository.fetchForums(page: nil, limit: nil, search: nil, isPublic: nil)
+            print("✅ Foros recibidos: \(forums.count)")
+            for forum in forums {
+                print("   - ID: \(forum.id), Nombre: \(forum.name)")
+            }
+            
+            availableForums = forums
+            
+            // Seleccionar el primer foro por defecto
+            if let first = forums.first {
+                selectedForumId = first.id
+                selectedForumName = first.name
+            } else {
+                debugInfo = "El servidor devolvió una lista vacía"
+            }
+        } catch {
+            print("❌ Error al cargar foros: \(error)")
+            debugInfo = "Error: \(error.localizedDescription)"
+            setError("Error al cargar foros: \(error.localizedDescription)")
+        }
+        
+        isLoadingForums = false
+    }
+    
     func sendMessage() async {
         guard isValid else { return }
         
@@ -165,13 +226,21 @@ class NewMessageViewModel: ObservableObject {
         isSuccess = false
         errorMessage = nil
         
+        print("📤 Enviando mensaje al foro \(selectedForumId)")
+        print("📝 Contenido: \(messageText.prefix(50))...")
+        
         do {
-            _ = try await repository.postMessage(
+            let success = try await repository.postMessage(
                 forumId: selectedForumId,
                 content: messageText
             )
-            isSuccess = true
+            print("✅ Mensaje enviado: \(success)")
+            if success {
+                isSuccess = true
+                showSuccess = true
+            }
         } catch {
+            print("❌ Error al enviar mensaje: \(error)")
             setError("Error al enviar el mensaje: \(error.localizedDescription)")
         }
         
@@ -182,12 +251,6 @@ class NewMessageViewModel: ObservableObject {
         errorMessage = message
         showError = true
     }
-}
-
-// MARK: - Helper Model
-struct ForumInfo: Identifiable {
-    let id: Int
-    let name: String
 }
 
 #Preview {
