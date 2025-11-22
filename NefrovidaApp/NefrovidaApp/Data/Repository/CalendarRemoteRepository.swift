@@ -41,7 +41,8 @@ final class RemoteAppointmentRepository: AppointmentRepository {
                     appointmentType: "ANÁLISIS", // Static type to different in the view.
                     link: nil,
                     place: $0.place,
-                    appointmentStatus: $0.analysisStatus
+                    appointmentStatus: $0.analysisStatus,
+                    appointmentInfo: nil
                 )
             }
 

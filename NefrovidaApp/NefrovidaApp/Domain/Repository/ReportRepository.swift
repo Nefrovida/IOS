@@ -3,9 +3,9 @@ import Foundation
 // Use Case Protocol for fetching reports
 // Encapsulates the business logic for retrieving reports for a given user
 protocol ReportsRepositoryProtocol {
-    func fetchReports(for patientId: String) async throws -> [Report]
+    func fetchReports(for userId: String) async throws -> [Report]
 }
 
 protocol GetReportsUseCaseProtocol {
-    func execute(patientId: String) async throws -> [Report]
+    func execute(userId: String) async throws -> [Report]
 }
