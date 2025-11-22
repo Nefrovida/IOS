@@ -2,7 +2,7 @@ import Foundation
 
 public enum AppConfig {
     // Use `https://0658ebe3bc62.ngrok-free.app/api` as the base URL (ngrok provided)
-    public static let apiBaseURL = "http://10.25.106.158:3001/api"
+    public static let apiBaseURL = "http://localhost:3001/api"
 
     // Toggle to `true` to hit the remote API. Default is false (use MockRepo)
     public static let useRemoteForums = true

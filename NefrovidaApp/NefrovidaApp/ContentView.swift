@@ -37,7 +37,7 @@ struct ContentView: View {
                 HomeView(user: viewModel.loggedUser)
             }
         case .analisis:
-            ReportsView(patientId: "1")
+            ReportsView(userId: viewModel.loggedUser?.user_id ?? "")
         case .foros:
             ForumsScreen()
         case .agenda:

@@ -9,7 +9,7 @@ final class GetReportsUseCase: GetReportsUseCaseProtocol {
         self.repository = repository
     }
 
-    func execute(patientId: String) async throws -> [Report] {
-        try await repository.fetchReports(for: patientId)
+    func execute(userId: String) async throws -> [Report] {
+        try await repository.fetchReports(for: userId)
     }
 }
