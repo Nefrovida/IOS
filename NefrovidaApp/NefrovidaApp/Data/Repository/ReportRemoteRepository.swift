@@ -10,7 +10,7 @@ final class ReportsRemoteRepository: ReportsRepositoryProtocol {
     func fetchReports(for userId: String) async throws -> [Report] {
 
         // Builds the full API endpoint.
-        let endpoint = "\(AppConfig.apiBaseURL)/report/get-results-IOS/\(userId)"
+        let endpoint = "\(AppConfig.apiBaseURL)/report/get-results-ios/\(userId)"
 
         // Sends a GET request to the server using Alamofire.
         let request = AF.request(endpoint, method: .get).validate()
