@@ -9,7 +9,6 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var viewModel = ContentViewModel()
-
     var body: some View {
         if viewModel.isLoggedIn {
             mainAppView
@@ -34,13 +33,15 @@ struct ContentView: View {
     private var currentView: some View {
         switch viewModel.selectedTab {
         case .inicio:
-            HomeView()
+            NavigationStack {
+                HomeView(user: viewModel.loggedUser)
+            }
         case .analisis:
-            AnalysisView()
+            ReportsView(userId: viewModel.loggedUser?.user_id ?? "")
         case .foros:
             ForumsScreen()
         case .agenda:
-            CalendarView(idUser: "4b74425f-6c7a-4cf6-ac19-18372ac9854a")
+            CalendarView(idUser: viewModel.loggedUser?.user_id ?? "")
         }
     }
 }

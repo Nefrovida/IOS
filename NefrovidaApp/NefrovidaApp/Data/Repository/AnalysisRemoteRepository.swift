@@ -4,14 +4,11 @@ import Alamofire
 // Repository responsible for fetching analysis data from the backend.
 final class AnalysisRemoteRepository: AnalysisRepositoryProtocol {
 
-    // Base URL of the API server
-    private let baseURL = "http://localhost:3001"
-
     // Fetches a list of analyses as an async operation
     func fetchAnalysisList() async throws -> [Analysis] {
 
         // Defines the specific endpoint for fetching analysis data
-        let endpoint = "\(baseURL)/api/analysis"
+        let endpoint = "\(AppConfig.apiBaseURL)/analysis"
 
         // Makes the HTTP request using Alamofire, validating for errors
         let request = AF.request(endpoint, method: .get).validate()
@@ -35,14 +32,11 @@ final class AnalysisRemoteRepository: AnalysisRepositoryProtocol {
 // Repository responsible for fetching consultation data from the backend.
 final class ConsultationRemoteRepository: ConsultationRepositoryProtocol {
 
-    // Base URL of the API server
-    private let baseURL = "http://localhost:3001"
-
     // Fetches a list of consultations as an async operation
     func fetchConsultationList() async throws -> [Consultation] {
 
         // Defines the specific endpoint for fetching consultation data
-        let endpoint = "\(baseURL)/api/appointments/getAllAppointments"
+        let endpoint = "\(AppConfig.apiBaseURL)/appointments/getAllAppointments"
 
         // Makes the HTTP GET request and validates server response
         let request = AF.request(endpoint, method: .get).validate()

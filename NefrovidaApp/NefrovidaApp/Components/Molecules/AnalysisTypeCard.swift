@@ -46,18 +46,12 @@ struct AnalysisTypeCard: View {
                 }
             }
 
-            Spacer()
-            
-            // ---- SELECT BUTTON ----
-            nefroButton(
+            // ---- ACTION BUTTON ----
+            buttonBar(
+                imageName: isAnalysis ? "testtube.2" : "stethoscope",
                 text: "Seleccionar",
-                color: .nvBrand,
-                textColor: .white,
-                vertical: 8,
-                horizontal: 16,
-                hasStroke: false,
-                textSize: 14,
-                action: onSettings
+                move: onSettings
+
             )
         }
         .padding(.horizontal, 20)

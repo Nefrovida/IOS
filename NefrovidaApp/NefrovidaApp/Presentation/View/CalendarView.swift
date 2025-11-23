@@ -26,10 +26,9 @@ struct CalendarView: View {
 
             // Header section with tabs and current month title.
             HStack(spacing: 12) {
-                Spacer()
                 // Displays the current month title (e.g., “November”)
-                Text(vm.monthTitle())
-                    .font(.title3)
+                Text(vm.monthYearTitle())
+                    .font(.title)
                     .fontWeight(.bold)
             }
             .padding(.horizontal)

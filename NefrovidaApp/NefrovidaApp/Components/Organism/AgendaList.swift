@@ -23,7 +23,7 @@ struct AgendaList: View {
     private func appointmentsFor(hour: Int) -> [Appointment] {
         appointments
             //Apply a filter that match with the the hour.
-            .filter { $0.dateHour.dropFirst(11).prefix(2) == String(format: "%02d", hour) }
+            .filter {  $0.localHourInt == hour }
             .sorted { ($0.place ?? "") < ($1.place ?? "") }
     }
 

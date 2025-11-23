@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 import Combine
 
 // ViewModel responsible for managing the agenda (calendar) logic and state.
@@ -49,7 +50,9 @@ final class AgendaViewModel: ObservableObject {
     // Updates the selected date and reloads the corresponding appointments.
     // Parameter date: The new date selected by the user.
     func select(date: Date) {
-        selectedDate = date
+        withAnimation(.easeInOut(duration: 0.85)) {
+            selectedDate = date
+        }
         Task { await loadIfNeeded(for: date) }
     }
 
@@ -80,21 +83,19 @@ final class AgendaViewModel: ObservableObject {
     // Moves the selected date one week forward.
     func goNextWeek() {
         if let newDate = calendar.date(byAdding: .day, value: 7, to: selectedDate) {
-            select(date: newDate)
+            withAnimation(.easeInOut(duration: 0.90)) {
+                select(date: newDate)
+            }
         }
     }
-
+    
     //Moves the selected date one week backward.
     func goPrevWeek() {
         if let newDate = calendar.date(byAdding: .day, value: -7, to: selectedDate) {
-            select(date: newDate)
+            withAnimation(.easeInOut(duration: 0.90)) {
+                select(date: newDate)
+            }
         }
-    }
-
-    // Returns the current month name formatted for display.
-    func monthTitle() -> String {
-        let name = DateFormats.monthTitle.string(from: selectedDate)
-        return name.prefix(1).uppercased() + name.dropFirst()
     }
 
     //Returns the list of days for the current week.
@@ -107,5 +108,15 @@ final class AgendaViewModel: ObservableObject {
         let shift = (weekday == 1) ? 1 : 0
         startOfWeek = calendar.date(byAdding: .day, value: shift, to: startOfWeek) ?? startOfWeek
         return (0..<5).compactMap { calendar.date(byAdding: .day, value: $0, to: startOfWeek) }
+    }
+    
+    // Returns the current month name and year formatted for display.
+    func monthYearTitle() -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "es_MX")
+        formatter.dateFormat = "LLLL yyyy" // Ej: "noviembre 2025"
+
+        let raw = formatter.string(from: selectedDate)
+        return raw.prefix(1).capitalized + raw.dropFirst()
     }
 }

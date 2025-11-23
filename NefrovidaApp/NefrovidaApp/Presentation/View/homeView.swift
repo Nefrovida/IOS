@@ -1,7 +1,7 @@
     import SwiftUI
 
 struct HomeView: View {
-
+    let user: LoginEntity?
     // ViewModel for the view, initialized with use cases for both analysis and consultation
     @StateObject private var vm = AnalysisViewModel(
         getAnalysisUseCase: GetAnalysisUseCase(repository: AnalysisRemoteRepository()),
@@ -50,6 +50,10 @@ struct HomeView: View {
         }
     }
 
+    // Status to control navigation
+    @State private var selectedConsultation: Consultation?
+    @State private var selectedAnalysis: Analysis?
+    
     var body: some View {
         ZStack(alignment: .bottom) {  // Container that lets us overlay views
 
@@ -109,8 +113,16 @@ struct HomeView: View {
                                         costoComunidad: a.communityCost,
                                         costoGeneral: a.generalCost,
                                         isAnalysis: true,
-                                        onSettings: { selectAnalysis(a) }
+
+                                        onSettings: { selectedAnalysis = a }
                                     )
+                                }
+                                .navigationDestination(item: $selectedAnalysis) { analysis in
+                                    appointmentView( // Cambiar a la vista de analysis cuando ya este hecha
+                                        appointmentId: analysis.id,
+                                        userId: user?.user_id ?? ""
+                                    )
+                                    .navigationTitle(analysis.name)
                                 }
                             } else {
                                 // Show list of consultation cards when in consultation mode
@@ -121,8 +133,17 @@ struct HomeView: View {
                                         costoComunidad: "\(c.communityCost)",
                                         costoGeneral: "\(c.generalCost)",
                                         isAnalysis: false,
-                                        onSettings: { selectAnalysis(c) }
+                                        onSettings: { selectedConsultation = c }
+
                                     )
+                                }
+                                // Programmatic navigation: activated when selectedConsultation is not nil
+                                .navigationDestination(item: $selectedConsultation) { consultation in
+                                    appointmentView(
+                                        appointmentId: consultation.appointmentId,
+                                        userId: user?.user_id ?? ""
+                                    )
+                                    .navigationTitle(consultation.nameConsultation)
                                 }
                             }
                         }
@@ -160,5 +181,7 @@ struct HomeView: View {
 }
 
 #Preview {
-    HomeView()
+    NavigationStack {
+        HomeView(user: nil)
+    }
 }
