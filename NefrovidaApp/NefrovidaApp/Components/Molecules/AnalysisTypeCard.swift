@@ -19,19 +19,18 @@ struct AnalysisTypeCard: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: 16) {
-
+           
             // ---- TEXT SECTION ----
             VStack(alignment: .leading, spacing: 8) {
                 Text(title)
                     .font(.system(size: 22, weight: .bold))
                     .foregroundStyle(Color.nvBrand)
-
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text(description)
                     .font(.nvBody)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
-
-        
                 VStack(alignment: .leading, spacing: 4) {
                     if let general = costoGeneral {
                         Text("Externo: $\(general)")
@@ -40,20 +39,20 @@ struct AnalysisTypeCard: View {
                     }
                     if let community = costoComunidad {
                         Text("Comunidad: $\(community)")
-                            .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(.nvBrand)
                     }
                 }
             }
-
+            .frame(maxHeight: .infinity)
+            .padding(.vertical, 20)
             // ---- ACTION BUTTON ----
             buttonBar(
                 imageName: isAnalysis ? "testtube.2" : "stethoscope",
                 text: "Seleccionar",
                 move: onSettings
-
             )
         }
+        .frame(maxWidth: .infinity, minHeight: 120, maxHeight: 120)
         .padding(.horizontal, 20)
         .padding(.vertical, 18)
         .background(

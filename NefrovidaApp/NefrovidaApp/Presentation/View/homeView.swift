@@ -40,14 +40,12 @@ struct HomeView: View {
     // Function to handle continue action from popup
     private func continueAction() {
         showNefroPop = false
-        // Here you can add the original redirection logic
         if let analysis = selectedItem as? Analysis {
              selectedAnalysis = analysis 
             print("Redirecting to analysis details:", analysis.name)
-            // Add your navigation logic here
         } else if let consultation = selectedItem as? Consultation {
             print("Redirecting to consultation booking:", consultation.nameConsultation)
-            // Add your navigation logic here
+
         }
     }
 
