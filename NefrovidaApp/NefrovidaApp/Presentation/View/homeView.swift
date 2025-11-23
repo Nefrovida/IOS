@@ -147,7 +147,7 @@ struct HomeView: View {
                 nefroPop(
                     title: popupTitle,
                     description: popupDescription,
-                    subtitle: "Indicaciones",
+                    subtitle: "Requisitos",
                     indication: popupIndication,
                     buttonText: "Continuar",
                     buttonAction: continueAction,

@@ -14,3 +14,4 @@ public enum AppConfig {
         return UserDefaults.standard.string(forKey: "jwt_token")
     }
 }
+    

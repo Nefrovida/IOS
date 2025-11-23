@@ -31,7 +31,7 @@ struct AnalysisTypeCard: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
 
-                // 🧾 COST SECTION
+        
                 VStack(alignment: .leading, spacing: 4) {
                     if let general = costoGeneral {
                         Text("Externo: $\(general)")
