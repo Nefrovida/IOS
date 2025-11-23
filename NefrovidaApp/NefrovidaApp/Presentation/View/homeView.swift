@@ -42,6 +42,7 @@ struct HomeView: View {
         showNefroPop = false
         // Here you can add the original redirection logic
         if let analysis = selectedItem as? Analysis {
+             selectedAnalysis = analysis 
             print("Redirecting to analysis details:", analysis.name)
             // Add your navigation logic here
         } else if let consultation = selectedItem as? Consultation {
@@ -114,7 +115,7 @@ struct HomeView: View {
                                         costoGeneral: a.generalCost,
                                         isAnalysis: true,
 
-                                        onSettings: { selectedAnalysis = a }
+                                        onSettings: { selectAnalysis(a) }
                                     )
                                 }
                                 .navigationDestination(item: $selectedAnalysis) { analysis in
