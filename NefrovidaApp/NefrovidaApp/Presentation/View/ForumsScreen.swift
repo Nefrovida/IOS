@@ -61,7 +61,7 @@ struct ForumsScreen: View {
                         .padding(.vertical)
                     }
                     .navigationDestination(for: Int.self) { id in
-                        ForumDetailScreen(forumId: id)
+                        ForumFeedScreen(forumId: id)
                     }
                 }
             }

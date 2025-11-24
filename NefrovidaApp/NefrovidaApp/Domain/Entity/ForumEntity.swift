@@ -16,3 +16,11 @@ public struct Post: Identifiable {
     public let authorId: Int
     public let createdAt: Date?
 }
+
+public struct ForumFeedItem: Identifiable {
+    public let id: Int
+    let content: String
+    let likes: Int
+    let replies: Int
+    let forumName: String
+}

@@ -232,16 +232,29 @@ public final class ForumRemoteRepository: ForumRepository {
     
     
     // MARK: - get the message from the forum
-    public func getFeed(forumId: Int) async throws -> [ForumMessageEntity] {
-        let endpoint = "\(baseURL)/forums/\(forumId)/feed"
-        let headers = makeHeaders()
+    public func getFeed(forumId: Int?, page: Int) async throws -> [ForumFeedItem] {
+        var params: [String: Any] = ["page": page]
+        
+        if let forumId = forumId {
+            params["forumId"] = forumId
+        }
 
-        let request = AF.request(endpoint, method: .get, headers: HTTPHeaders(headers)).validate()
-        let result = await request.serializingData().response
+        let endpoint = "\(AppConfig.apiBaseURL)/forums/feed"
 
-        switch result.result {
+        let response = await AF.request(
+            endpoint,
+            method: .get,
+            parameters: params,
+            encoding: URLEncoding.default,
+            headers: HTTPHeaders(makeHeaders())
+        ).serializingData().response
+
+        switch response.result {
         case .success(let data):
-            return try JSONDecoder().decode([ForumMessageEntity].self, from: data)
+            let decoder = JSONDecoder()
+            let dtoList = try decoder.decode([FeedDTO].self, from: data)
+            return dtoList.map { $0.toDomain() }
+            
         case .failure(let error):
             throw error
         }
