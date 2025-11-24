@@ -16,8 +16,9 @@ struct ForumDetailScreen: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            UpBar()
+        UpBar()
+        VStack() {
+            
 
             Text(vm.forum?.name ?? "Foro")
                 .font(.title)

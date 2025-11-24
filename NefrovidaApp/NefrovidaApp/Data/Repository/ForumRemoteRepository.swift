@@ -40,15 +40,15 @@ private struct MyForumDTO: Codable {
 }
 
 public final class ForumRemoteRepository: ForumRepository {
-
+    
     private let baseURL: String
     private let tokenProvider: () -> String?
-
+    
     public init(baseURL: String, tokenProvider: @escaping () -> String? = { nil }) {
         self.baseURL = baseURL
         self.tokenProvider = tokenProvider
     }
-
+    
     public func fetchForums(page: Int? = nil, limit: Int? = nil, search: String? = nil, isPublic: Bool? = nil) async throws -> [Forum] {
         let endpoint = "\(baseURL)/forums"
         var params: Parameters = [:]
@@ -56,9 +56,9 @@ public final class ForumRemoteRepository: ForumRepository {
         if let limit = limit { params["limit"] = limit }
         if let search = search { params["search"] = search }
         if let isPublic = isPublic { params["isPublic"] = isPublic }
-
+        
         let headers = makeHeaders()
-
+        
         let request = AF.request(endpoint, method: .get, parameters: params, headers: HTTPHeaders(headers)).validate()
         let result = await request.serializingData().response
         switch result.result {
@@ -95,7 +95,7 @@ public final class ForumRemoteRepository: ForumRepository {
             throw error
         }
     }
-
+    
     public func fetchMyForums() async throws -> [Forum] {
         let endpoint = "\(baseURL)/forums/myForums"
         let headers = makeHeaders()
@@ -118,7 +118,7 @@ public final class ForumRemoteRepository: ForumRepository {
             throw error
         }
     }
-
+    
     public func fetchForum(by id: Int) async throws -> (Forum, [Post]) {
         let endpoint = "\(baseURL)/forums/\(id)"
         let headers = makeHeaders()
@@ -129,25 +129,25 @@ public final class ForumRemoteRepository: ForumRepository {
             do {
                 let decoder = JSONDecoder()
                 // Try to decode a response shaped as { "forum": { ... }, "posts": [...] }
-
+                
                 // Try typed container: {"forum": ForumDTO, "posts": [PostDTO]}
                 if let resp = try? decoder.decode(ForumWithPostsDTO.self, from: data), let forumDTO = resp.forum {
                     let posts = resp.posts?.map { $0.toDomain() } ?? []
                     return (forumDTO.toDomain(), posts)
                 }
-
+                
                 // Try to decode ForumDTO that includes posts property
                 if let forumDTO = try? decoder.decode(ForumDTO.self, from: data) {
                     let posts = forumDTO.posts?.map { $0.toDomain() } ?? []
                     return (forumDTO.toDomain(), posts)
                 }
-
+                
                 // Try to decode container {"posts": [...]}
                 if let postsContainer = try? decoder.decode([String: [PostDTO]].self, from: data), let posts = postsContainer["posts"] {
                     // no forum returned; we can't proceed so throw
                     throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "No forum object found"))
                 }
-
+                
                 throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "Unexpected forum detail response shape"))
             } catch {
                 throw error
@@ -156,7 +156,7 @@ public final class ForumRemoteRepository: ForumRepository {
             throw error
         }
     }
-
+    
     public func joinForum(id: Int) async throws -> Bool {
         let endpoint = "\(baseURL)/forums/\(id)/join"
         let headers = makeHeaders()
@@ -169,9 +169,9 @@ public final class ForumRemoteRepository: ForumRepository {
             throw error
         }
     }
-
+    
     // MARK: - Messages (Merged from develop)
-
+    
     public func getMessages(forumId: Int) async throws -> [ForumMessageEntity] {
         let endpoint = "\(baseURL)/forums/\(forumId)/messages"
         let headers = makeHeaders()
@@ -184,7 +184,7 @@ public final class ForumRemoteRepository: ForumRepository {
             throw error
         }
     }
-
+    
     public func postMessage(forumId: Int, content: String) async throws -> ForumMessageEntity {
         let endpoint = "\(baseURL)/forums/\(forumId)/messages"
         let headers = makeHeaders()
@@ -198,7 +198,7 @@ public final class ForumRemoteRepository: ForumRepository {
             throw error
         }
     }
-
+    
     public func replyToMessage(forumId: Int, parentMessageId: Int, content: String) async throws -> ForumMessageEntity {
         let endpoint = "\(baseURL)/forums/\(forumId)/replies"
         let headers = makeHeaders()
@@ -215,7 +215,7 @@ public final class ForumRemoteRepository: ForumRepository {
             throw error
         }
     }
-
+    
     private func makeHeaders() -> [String: String] {
         var headers: [String: String] = ["Content-Type": "application/json"]
         if let token = tokenProvider() {
@@ -223,10 +223,27 @@ public final class ForumRemoteRepository: ForumRepository {
         }
         return headers
     }
-
+    
     // Helper DTO for responses shaped as { "forum": {...}, "posts": [...] }
     private struct ForumWithPostsDTO: Codable {
         let forum: ForumDTO?
         let posts: [PostDTO]?
+    }
+    
+    
+    // MARK: - get the message from the forum
+    public func getFeed(forumId: Int) async throws -> [ForumMessageEntity] {
+        let endpoint = "\(baseURL)/forums/\(forumId)/feed"
+        let headers = makeHeaders()
+
+        let request = AF.request(endpoint, method: .get, headers: HTTPHeaders(headers)).validate()
+        let result = await request.serializingData().response
+
+        switch result.result {
+        case .success(let data):
+            return try JSONDecoder().decode([ForumMessageEntity].self, from: data)
+        case .failure(let error):
+            throw error
+        }
     }
 }

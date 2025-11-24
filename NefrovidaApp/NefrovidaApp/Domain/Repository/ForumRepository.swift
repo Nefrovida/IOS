@@ -10,4 +10,5 @@ public protocol ForumRepository {
     func getMessages(forumId: Int) async throws -> [ForumMessageEntity]
     func postMessage(forumId: Int, content: String) async throws -> ForumMessageEntity
     func replyToMessage(forumId: Int, parentMessageId: Int, content: String) async throws -> ForumMessageEntity
+    func getFeed(forumId: Int) async throws -> [ForumMessageEntity]
 }

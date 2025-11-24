@@ -2,67 +2,45 @@ import SwiftUI
 
 struct HomeView: View {
     let user: LoginEntity?
-    // ViewModel for the view, initialized with use cases for both analysis and consultation
+
     @StateObject private var vm = AnalysisViewModel(
         getAnalysisUseCase: GetAnalysisUseCase(repository: AnalysisRemoteRepository()),
         getConsultationUseCase: GetConsultationUseCases(repository: ConsultationRemoteRepository())
     )
 
-    // Status to control navigation
     @State private var selectedConsultation: Consultation?
     @State private var selectedAnalysis: Analysis?
-    
-    var body: some View {
-        ZStack(alignment: .bottom) {  // Container that lets us overlay views
 
-            // Main scrollable content
+    var body: some View {
+        ZStack(alignment: .bottom) {
+
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 20) {
 
-                    UpBar() // Top bar (e.g., logo or header)
+                    UpBar()
 
-                    // ---------- SELECTOR ----------
-                    HStack(spacing: 12) {
-                        // Button to toggle to "Analysis" view
-                        nefroButton(
-                            text: "Analysis",
-                            color: vm.selectedAnalysis ? .nvBrand : .white,
-                            textColor: vm.selectedAnalysis ? .white : .nvBrand,
-                            vertical: 10,
-                            horizontal: 22,
-                            hasStroke: !vm.selectedAnalysis, // Unselected button shows border
-                            textSize: 14
-                        ) {
-                            withAnimation { vm.selectedAnalysis = true } // Switch to analysis view
-                        }
+                    // --------- SEGMENTED CONTROL ----------
+                    Picker("Selector", selection: $vm.selectedAnalysis) {
+                        Text("Analysis")
+                            .tag(true)
 
-                        // Button to toggle to "Consultation" view
-                        nefroButton(
-                            text: "Consultations",
-                            color: !vm.selectedAnalysis ? .nvBrand : .white,
-                            textColor: !vm.selectedAnalysis ? .white : .nvBrand,
-                            vertical: 10,
-                            horizontal: 22,
-                            hasStroke: vm.selectedAnalysis, // Unselected button shows border
-                            textSize: 14
-                        ) {
-                            withAnimation { vm.selectedAnalysis = false } // Switch to consultation view
-                        }
+                        Text("Consultations")
+                            .tag(false)
                     }
+                    .pickerStyle(.segmented)
                     .padding(.horizontal)
 
-                    // CONTENT
+                    // ------------- CONTENT --------------
                     if vm.isLoading {
-                        // Loading indicator while data is being fetched
                         ProgressView("Cargando...")
 
                     } else if let error = vm.errorMessage {
-                        // Display any error that occurred during loading
                         Text(error).foregroundColor(.red)
 
                     } else {
                         VStack(spacing: 16) {
-                            // Show list of analysis cards when in analysis mode
+
+                            // ------- MODE: ANALYSIS -------
                             if vm.selectedAnalysis {
                                 ForEach(vm.analyses) { a in
                                     AnalysisTypeCard(
@@ -75,14 +53,16 @@ struct HomeView: View {
                                     )
                                 }
                                 .navigationDestination(item: $selectedAnalysis) { analysis in
-                                    appointmentView( // Cambiar a la vista de analysis cuando ya este hecha
+                                    appointmentView(
                                         appointmentId: analysis.id,
                                         userId: user?.user_id ?? ""
                                     )
                                     .navigationTitle(analysis.name)
                                 }
-                            } else {
-                                // Show list of consultation cards when in consultation mode
+                            }
+
+                            // ------- MODE: CONSULTATION -------
+                            else {
                                 ForEach(vm.consultation) { c in
                                     AnalysisTypeCard(
                                         title: c.nameConsultation,
@@ -93,7 +73,6 @@ struct HomeView: View {
                                         onSettings: { selectedConsultation = c }
                                     )
                                 }
-                                // Programmatic navigation: activated when selectedConsultation is not nil
                                 .navigationDestination(item: $selectedConsultation) { consultation in
                                     appointmentView(
                                         appointmentId: consultation.appointmentId,
@@ -103,16 +82,14 @@ struct HomeView: View {
                                 }
                             }
                         }
-                        .padding(.horizontal)     // Horizontal padding for layout
-                        .padding(.bottom, 90)     // Leave space for the BottomBar
+                        .padding(.horizontal)
+                        .padding(.bottom, 90) // Bottom bar space
                     }
                 }
             }
-
-            // Fixed bottom navigation/action bar
         }
-        .background(Color(.systemGroupedBackground)) // System-like grouped background
-        .onAppear { vm.onAppear() } // Trigger ViewModel load when view appears
+        .background(Color(.systemGroupedBackground))
+        .onAppear { vm.onAppear() }
     }
 }
 
