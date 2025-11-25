@@ -102,51 +102,53 @@ final class appointmentViewModel: ObservableObject {
 
             // Generate hourly slots within working hours
             for hour in startHour...endHour {
-                var components = dateComponents
-                components.hour = hour
-                components.minute = 0
-                components.second = 0
-                components.timeZone = TimeZone.current
-                
-                // Create the Date instance for this hour
-                guard let date = calendar.date(from: components) else { continue }
-                
-                // Debug: print the generated slot
-                let formatter = DateFormatter()
-                formatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
-                print("🔍 Slot local: \(formatter.string(from: date))")
-                
-                // Check whether this slot matches any occupied appointment
-                let occupied = takenAppointments.contains { appointment in
-                    let slotComps = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
-                    let aptComps = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: appointment.date)
+                for minute in stride (from: 0, to: 60, by: 10) {
+                    var components = dateComponents
+                    components.hour = hour
+                    components.minute = minute
+                    components.second = 0
+                    components.timeZone = TimeZone.current
                     
-                    let isMatch = slotComps.year == aptComps.year &&
-                                 slotComps.month == aptComps.month &&
-                                 slotComps.day == aptComps.day &&
-                                 slotComps.hour == aptComps.hour &&
-                                 slotComps.minute == aptComps.minute
+                    // Create the Date instance for this hour
+                    guard let date = calendar.date(from: components) else { continue }
                     
-                    if isMatch {
-                        print("   ✅ OCUPADO - Coincide con cita ID: \(appointment.id)")
+                    // Debug: print the generated slot
+                    let formatter = DateFormatter()
+                    formatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
+                    print("🔍 Slot local: \(formatter.string(from: date))")
+                    
+                    // Check whether this slot matches any occupied appointment
+                    let occupied = takenAppointments.contains { appointment in
+                        let slotComps = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
+                        let aptComps = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: appointment.date)
+                        
+                        let isMatch = slotComps.year == aptComps.year &&
+                        slotComps.month == aptComps.month &&
+                        slotComps.day == aptComps.day &&
+                        slotComps.hour == aptComps.hour &&
+                        slotComps.minute == aptComps.minute
+                        
+                        if isMatch {
+                            print("   ✅ OCUPADO - Coincide con cita ID: \(appointment.id)")
+                        }
+                        
+                        return isMatch
                     }
                     
-                    return isMatch
+                    // Mark slot as unavailable if:
+                    // - it’s already taken
+                    // - the selected day is in the past
+                    // - the slot time already passed today
+                    let isPastTime = isToday && date < now
+                    let finalOccupied = occupied || isPastDay || isPastTime
+                    
+                    print("   Estado: \(finalOccupied ? "🔴 OCUPADO" : "🟢 DISPONIBLE")")
+                    
+                    // Add new slot
+                    generatedSlots.append(
+                        SlotEntity(date: date, isOccupied: finalOccupied)
+                    )
                 }
-                
-                // Mark slot as unavailable if:
-                // - it’s already taken
-                // - the selected day is in the past
-                // - the slot time already passed today
-                let isPastTime = isToday && date < now
-                let finalOccupied = occupied || isPastDay || isPastTime
-                
-                print("   Estado: \(finalOccupied ? "🔴 OCUPADO" : "🟢 DISPONIBLE")")
-
-                // Add new slot
-                generatedSlots.append(
-                    SlotEntity(date: date, isOccupied: finalOccupied)
-                )
             }
 
             self.slots = generatedSlots
