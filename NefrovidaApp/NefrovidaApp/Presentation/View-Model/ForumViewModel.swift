@@ -8,63 +8,45 @@ class ForumViewModel: ObservableObject {
     @Published var newMessageContent: String = ""
     @Published var replyContent: String = ""
     @Published var selectedParentMessageId: Int? = nil
+    @Published var forum: Forum?
+    @Published var isLoading = false
+    @Published var errorMessage: String?
 
     // Dependencias (casos de uso)
     private let getMessagesUC: GetMessagesUseCase
     private let postMessageUC: PostMessageUseCase
     private let replyToMessageUC: ReplyToMessageUseCase
+    private let getForumDetailsUC: GetForumDetailsUseCase
 
     // Dependencies (use cases)
     init(getMessagesUC: GetMessagesUseCase,
          postMessageUC: PostMessageUseCase,
-         replyToMessageUC: ReplyToMessageUseCase) {
+         replyToMessageUC: ReplyToMessageUseCase,
+         getForumDetailsUC: GetForumDetailsUseCase) {
         self.getMessagesUC = getMessagesUC
         self.postMessageUC = postMessageUC
         self.replyToMessageUC = replyToMessageUC
+        self.getForumDetailsUC = getForumDetailsUC
     }
 
     // MARK: - Funciones de negocio
 
     // Load all messages from a forum
     func loadMessages(forumId: Int) async {
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
+        
         do {
-            // messages = try await getMessagesUC.execute(forumId: forumId)
-            messages = getMockData()
-
+            // Fetch forum details and messages in parallel
+            async let fetchedMessages = getMessagesUC.execute(forumId: forumId)
+            async let (fetchedForum, _) = getForumDetailsUC.execute(forumId: forumId)
+            
+            self.messages = try await fetchedMessages
+            self.forum = try await fetchedForum
         } catch {
-            print("Error al cargar mensajes: \(error)")
+            self.errorMessage = "No se pudo cargar el foro."
         }
-    }
-
-    func getMockData() -> [ForumMessageEntity] {
-        return [ForumMessageEntity(
-            id: 1,
-            forumId: 1,
-            parentMessageId: nil,
-            content: "hola q hace",
-            createdBy: "Pao",
-            createdAt: "2025-11-12",),
-                ForumMessageEntity(
-                    id: 2,
-                    forumId: 1,
-                    parentMessageId: nil,
-                    content: "hola q hace",
-                    createdBy: "Pao",
-                    createdAt: "2025-11-12",),
-                ForumMessageEntity(
-                        id: 3,
-                        forumId: 1,
-                        parentMessageId: nil,
-                        content: "hola q hace",
-                        createdBy: "Pao",
-                        createdAt: "2025-11-12",),
-        ForumMessageEntity(
-                id: 4,
-                forumId: 1,
-                parentMessageId: 3,
-                content: "hola q hace",
-                createdBy: "Pao",
-                createdAt: "2025-11-12",)]
     }
     
     // Send a new root message
@@ -75,7 +57,6 @@ class ForumViewModel: ObservableObject {
             messages.append(message)
             newMessageContent = ""
         } catch {
-            print("Error al enviar mensaje: \(error)")
         }
     }
 
@@ -92,7 +73,6 @@ class ForumViewModel: ObservableObject {
             replyContent = ""
             selectedParentMessageId = nil
         } catch {
-            print("Error al enviar respuesta: \(error)")
         }
     }
 }

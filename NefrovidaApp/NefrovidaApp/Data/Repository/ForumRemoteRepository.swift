@@ -193,7 +193,16 @@ public final class ForumRemoteRepository: ForumRepository {
         let result = await request.serializingData().response
         switch result.result {
         case .success(let data):
-            return try JSONDecoder().decode(ForumMessageEntity.self, from: data)
+            let decoder = JSONDecoder()
+            if let entity = try? decoder.decode(ForumMessageEntity.self, from: data) {
+                return entity
+            }
+            // Try wrapper
+            if let wrapper = try? decoder.decode([String: ForumMessageEntity].self, from: data), let entity = wrapper["data"] {
+                return entity
+            }
+            // Throw original error or generic
+            return try decoder.decode(ForumMessageEntity.self, from: data)
         case .failure(let error):
             throw error
         }
@@ -210,7 +219,14 @@ public final class ForumRemoteRepository: ForumRepository {
         let result = await request.serializingData().response
         switch result.result {
         case .success(let data):
-            return try JSONDecoder().decode(ForumMessageEntity.self, from: data)
+            let decoder = JSONDecoder()
+            if let entity = try? decoder.decode(ForumMessageEntity.self, from: data) {
+                return entity
+            }
+            if let wrapper = try? decoder.decode(ForumMessageWrapperDTO.self, from: data) {
+                return wrapper.data
+            }
+            return try decoder.decode(ForumMessageEntity.self, from: data)
         case .failure(let error):
             throw error
         }
@@ -228,5 +244,10 @@ public final class ForumRemoteRepository: ForumRepository {
     private struct ForumWithPostsDTO: Codable {
         let forum: ForumDTO?
         let posts: [PostDTO]?
+    }
+    
+    // Helper DTO for wrapped message responses
+    private struct ForumMessageWrapperDTO: Codable {
+        let data: ForumMessageEntity
     }
 }
