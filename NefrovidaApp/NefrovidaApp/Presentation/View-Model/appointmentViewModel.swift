@@ -92,9 +92,9 @@ final class appointmentViewModel: ObservableObject {
             // Extract Y/M/D from selected date
             let dateComponents = calendar.dateComponents([.year, .month, .day], from: selectedDate)
             
-            // Time range for appointments (8 AM - 6 PM)
+            // Time range for appointments (8 AM - 5 PM)
             let startHour = 8
-            let endHour = 18
+            let endHour = 17
             
             let now = Date()
             let isToday = calendar.isDateInToday(selectedDate)
@@ -108,6 +108,11 @@ final class appointmentViewModel: ObservableObject {
                     components.minute = minute
                     components.second = 0
                     components.timeZone = TimeZone.current
+                    
+                    // Verification to ensure that schedules greater than endHour are not displayed
+                    if hour == endHour && minute > 0 {
+                        continue
+                    }
                     
                     // Create the Date instance for this hour
                     guard let date = calendar.date(from: components) else { continue }
