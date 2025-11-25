@@ -39,7 +39,7 @@ final class ForumsViewModel: ObservableObject {
                 self.myForums = []
             }
         } catch {
-            self.errorMessage = "No se pudieron cargar los foros: \(error.localizedDescription)"
+            self.errorMessage = RetroErrorMapper.map(error)
         }
     }
 
@@ -57,7 +57,7 @@ final class ForumsViewModel: ObservableObject {
             }
             return success
         } catch {
-            errorMessage = "No se pudo unir al foro: \(error.localizedDescription)"
+            errorMessage = RetroErrorMapper.map(error)
             return false
         }
     }

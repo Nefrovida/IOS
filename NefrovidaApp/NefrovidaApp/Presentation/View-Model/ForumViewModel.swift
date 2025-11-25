@@ -8,6 +8,7 @@ class ForumViewModel: ObservableObject {
     @Published var newMessageContent: String = ""
     @Published var replyContent: String = ""
     @Published var selectedParentMessageId: Int? = nil
+    @Published var errorMessage: String?
 
     // Dependencias (casos de uso)
     private let getMessagesUC: GetMessagesUseCase
@@ -31,6 +32,7 @@ class ForumViewModel: ObservableObject {
             messages = try await getMessagesUC.execute(forumId: forumId)
         } catch {
             print("Error al cargar mensajes: \(error)")
+            self.errorMessage = RetroErrorMapper.map(error)
         }
     }
 
@@ -43,6 +45,7 @@ class ForumViewModel: ObservableObject {
             newMessageContent = ""
         } catch {
             print("Error al enviar mensaje: \(error)")
+            self.errorMessage = RetroErrorMapper.map(error)
         }
     }
 
@@ -60,6 +63,7 @@ class ForumViewModel: ObservableObject {
             selectedParentMessageId = nil
         } catch {
             print("Error al enviar respuesta: \(error)")
+            self.errorMessage = RetroErrorMapper.map(error)
         }
     }
 }

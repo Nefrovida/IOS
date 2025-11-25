@@ -34,10 +34,22 @@ struct ForumsScreen: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if let err = vm.errorMessage {
                     VStack(spacing: 10) {
-                        Text(err).foregroundStyle(.red)
-                        Button("Reintentar") { vm.onAppear() }
+                        Text(err)
+                            .font(.system(.body, design: .monospaced))
+                            .foregroundStyle(.green)
+                            .padding()
+                            .background(Color.black)
+                            .cornerRadius(8)
+                            .multilineTextAlignment(.center)
+                        
+                        Button("REINTENTAR") { vm.onAppear() }
+                            .font(.system(.body, design: .monospaced))
+                            .buttonStyle(.borderedProminent)
+                            .tint(.green)
+                            .foregroundStyle(.black)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.black.opacity(0.9))
                 } else {
                     ScrollView {
                         VStack(spacing: 12) {

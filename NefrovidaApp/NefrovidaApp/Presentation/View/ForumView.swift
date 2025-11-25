@@ -74,6 +74,30 @@ struct ForumView: View {
             }
 
         }
+        }
+        .overlay {
+            if let err = vm.errorMessage {
+                ZStack {
+                    Color.black.opacity(0.8).ignoresSafeArea()
+                    VStack(spacing: 10) {
+                        Text(err)
+                            .font(.system(.body, design: .monospaced))
+                            .foregroundStyle(.green)
+                            .padding()
+                            .background(Color.black)
+                            .cornerRadius(8)
+                            .multilineTextAlignment(.center)
+                        
+                        Button("CERRAR") { vm.errorMessage = nil }
+                            .font(.system(.body, design: .monospaced))
+                            .buttonStyle(.borderedProminent)
+                            .tint(.green)
+                            .foregroundStyle(.black)
+                    }
+                    .padding()
+                }
+            }
+        }
         .onAppear {
             Task { await vm.loadMessages(forumId: forumId) }
         }
