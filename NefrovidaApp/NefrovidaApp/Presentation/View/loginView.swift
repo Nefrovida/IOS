@@ -49,6 +49,9 @@ struct loginView: View {
             }
             .padding(20)
         }
+        .onTapGesture {
+            UIApplication.shared.hideKeyboard()
+        }
         // Change to logged-in status
         .onChange(of: viewModel.loggedUser) { oldValue, newValue in
             if let user = newValue {
