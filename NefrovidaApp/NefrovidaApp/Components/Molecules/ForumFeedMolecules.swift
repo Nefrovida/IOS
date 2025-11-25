@@ -91,7 +91,6 @@ struct FloatingActionButtons: View {
     var body: some View {
         VStack(spacing: 16) {
             FloatingActionButton(icon: "plus", action: onNewPostTapped)
-            FloatingActionButton(icon: "square.and.pencil", action: onEditTapped)
         }
     }
 }

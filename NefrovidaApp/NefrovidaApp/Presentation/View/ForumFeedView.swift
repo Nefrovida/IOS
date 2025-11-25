@@ -54,7 +54,6 @@ struct ForumFeedView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
                 Spacer(minLength: 0)
-                BottomBar()
             }
             
             // Botones flotantes
