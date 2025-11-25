@@ -17,16 +17,19 @@ class ForumViewModel: ObservableObject {
     private let postMessageUC: PostMessageUseCase
     private let replyToMessageUC: ReplyToMessageUseCase
     private let getForumDetailsUC: GetForumDetailsUseCase
+    private let getRepliesUC: GetRepliesUseCase
 
     // Dependencies (use cases)
     init(getMessagesUC: GetMessagesUseCase,
          postMessageUC: PostMessageUseCase,
          replyToMessageUC: ReplyToMessageUseCase,
-         getForumDetailsUC: GetForumDetailsUseCase) {
+         getForumDetailsUC: GetForumDetailsUseCase,
+         getRepliesUC: GetRepliesUseCase) {
         self.getMessagesUC = getMessagesUC
         self.postMessageUC = postMessageUC
         self.replyToMessageUC = replyToMessageUC
         self.getForumDetailsUC = getForumDetailsUC
+        self.getRepliesUC = getRepliesUC
     }
 
     // MARK: - Funciones de negocio
@@ -73,6 +76,19 @@ class ForumViewModel: ObservableObject {
             replyContent = ""
             selectedParentMessageId = nil
         } catch {
+        }
+    }
+    
+    // Fetch replies for a specific message
+    func fetchReplies(forumId: Int, messageId: Int) async {
+        do {
+            let replies = try await getRepliesUC.execute(forumId: forumId, messageId: messageId, page: 1, limit: 20)
+            // Append new replies, avoiding duplicates
+            let existingIds = Set(messages.map { $0.id })
+            let newReplies = replies.filter { !existingIds.contains($0.id) }
+            messages.append(contentsOf: newReplies)
+        } catch {
+            print("Error fetching replies: \(error)")
         }
     }
 }

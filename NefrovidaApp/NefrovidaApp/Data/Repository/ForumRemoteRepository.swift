@@ -232,6 +232,35 @@ public final class ForumRemoteRepository: ForumRepository {
         }
     }
 
+    public func fetchReplies(forumId: Int, messageId: Int, page: Int?, limit: Int?) async throws -> [ForumMessageEntity] {
+        let endpoint = "\(baseURL)/forums/\(forumId)/messages/\(messageId)/replies"
+        var params: Parameters = [:]
+        if let page = page { params["page"] = page }
+        if let limit = limit { params["limit"] = limit }
+        
+        let headers = makeHeaders()
+        let request = AF.request(endpoint, method: .get, parameters: params, headers: HTTPHeaders(headers)).validate()
+        let result = await request.serializingData().response
+        
+        switch result.result {
+        case .success(let data):
+            let decoder = JSONDecoder()
+            // Try to decode the wrapper { data: [...], pagination: {...} }
+            if let wrapper = try? decoder.decode(RepliesResponseDTO.self, from: data) {
+                return wrapper.data
+            }
+            // Fallback: try decoding array directly just in case
+            if let list = try? decoder.decode([ForumMessageEntity].self, from: data) {
+                 return list
+            }
+            // If both fail, try one more time to let it throw and print error
+            return try decoder.decode([ForumMessageEntity].self, from: data)
+            
+        case .failure(let error):
+            throw error
+        }
+    }
+
     private func makeHeaders() -> [String: String] {
         var headers: [String: String] = ["Content-Type": "application/json"]
         if let token = tokenProvider() {
@@ -249,5 +278,10 @@ public final class ForumRemoteRepository: ForumRepository {
     // Helper DTO for wrapped message responses
     private struct ForumMessageWrapperDTO: Codable {
         let data: ForumMessageEntity
+    }
+    
+    // Helper DTO for replies response
+    private struct RepliesResponseDTO: Codable {
+        let data: [ForumMessageEntity]
     }
 }

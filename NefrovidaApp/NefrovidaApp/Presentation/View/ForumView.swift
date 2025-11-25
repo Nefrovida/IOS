@@ -16,12 +16,14 @@ struct ForumView: View {
         let postUC = PostMessageUseCase(repository: repo as! ForumRemoteRepository)
         let replyUC = ReplyToMessageUseCase(repository: repo as! ForumRemoteRepository)
         let getDetailsUC = GetForumDetailsUseCase(repository: repo)
+        let getRepliesUC = GetRepliesUseCase(repository: repo)
         
         _vm = StateObject(wrappedValue: ForumViewModel(
             getMessagesUC: getUC,
             postMessageUC: postUC,
             replyToMessageUC: replyUC,
-            getForumDetailsUC: getDetailsUC
+            getForumDetailsUC: getDetailsUC,
+            getRepliesUC: getRepliesUC
         ))
         self.forumId = forumId
     }
@@ -80,6 +82,9 @@ struct ForumView: View {
                                 }
                                 .font(.caption)
                                 .foregroundColor(.blue)
+                            }
+                            .task {
+                                await vm.fetchReplies(forumId: forumId, messageId: parent.id)
                             }
                         }
                     }
