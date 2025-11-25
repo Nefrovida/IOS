@@ -92,8 +92,8 @@ final class appointmentViewModel: ObservableObject {
             // Extract Y/M/D from selected date
             let dateComponents = calendar.dateComponents([.year, .month, .day], from: selectedDate)
             
-            // Time range for appointments (8 AM - 5 PM)
-            let startHour = 8
+            // Time range for appointments (9 AM - 5 PM)
+            let startHour = 9
             let endHour = 17
             
             let now = Date()

@@ -72,8 +72,8 @@ final class analysisViewModel: ObservableObject {
             
             let dateComponents = calendar.dateComponents([.year, .month, .day], from: selectedDate)
             
-            // Time range for analysis (8 AM - 5 PM)
-            let startHour = 8
+            // Time range for analysis (7 AM - 5 PM)
+            let startHour = 7
             let endHour = 17
             
             let now = Date()
