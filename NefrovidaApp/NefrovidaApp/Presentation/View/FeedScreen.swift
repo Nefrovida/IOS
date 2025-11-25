@@ -14,7 +14,6 @@ struct ForumFeedScreen: View {
             wrappedValue: FeedViewModel(
                 repo: ForumRemoteRepository(
                     baseURL: AppConfig.apiBaseURL,
-                    tokenProvider: AppConfig.tokenProvider
                 ),
                 forumId: forumId
             )
@@ -22,7 +21,12 @@ struct ForumFeedScreen: View {
     }
 
     var body: some View {
+        UpBar()
         ScrollView {
+            Spacer()
+            if vm.items.isEmpty {
+                Text("No hay contenido disponible")
+            }
             LazyVStack(spacing: 14) {
                 ForEach(vm.items) { item in
                     FeedCard(item: item)

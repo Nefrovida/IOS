@@ -6,7 +6,7 @@
 //
 import Foundation
 
-struct FeedDTO: Codable {
+struct FeedDTO: Decodable {
     let messageId: Int
     let content: String
     let likes: Int
@@ -14,7 +14,7 @@ struct FeedDTO: Codable {
     let forums: ForumFeedInfoDTO
 }
 
-struct ForumFeedInfoDTO: Codable {
+struct ForumFeedInfoDTO: Decodable {
     let forumId: Int
     let name: String
 }

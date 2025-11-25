@@ -249,13 +249,19 @@ public final class ForumRemoteRepository: ForumRepository {
             headers: HTTPHeaders(makeHeaders())
         ).serializingData().response
 
+        print(response.result)
         switch response.result {
         case .success(let data):
+            print("🔵 RAW JSON ----------")
+            print(String(data: data, encoding: .utf8) ?? "NO JSON")
+            print("🔵 -------------------")
             let decoder = JSONDecoder()
             let dtoList = try decoder.decode([FeedDTO].self, from: data)
-            return dtoList.map { $0.toDomain() }
+            print("get data")
+            return dtoList.map {$0.toDomain()}
             
         case .failure(let error):
+            print("error: \(error)")
             throw error
         }
     }

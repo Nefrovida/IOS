@@ -6,7 +6,7 @@ struct ForumDetailScreen: View {
     init(forumId: Int) {
         let repo: ForumRepository
         if AppConfig.useRemoteForums {
-            repo = ForumRemoteRepository(baseURL: AppConfig.apiBaseURL, tokenProvider: AppConfig.tokenProvider)
+            repo = ForumRemoteRepository(baseURL: AppConfig.apiBaseURL)
         } else {
             repo = MockForumRepository()
         }

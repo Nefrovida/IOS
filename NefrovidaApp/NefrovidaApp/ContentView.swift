@@ -39,7 +39,7 @@ struct ContentView: View {
         case .analisis:
             ReportsView(userId: viewModel.loggedUser?.user_id ?? "")
         case .foros:
-            ForumsScreen()
+            ForumFeedScreen(forumId: 1)
         case .agenda:
             CalendarView(idUser: viewModel.loggedUser?.user_id ?? "")
         }
