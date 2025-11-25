@@ -75,8 +75,8 @@ struct HomeView: View {
                                     )
                                 }
                                 .navigationDestination(item: $selectedAnalysis) { analysis in
-                                    appointmentView( // Cambiar a la vista de analysis cuando ya este hecha
-                                        appointmentId: analysis.id,
+                                    analysisView( // Cambiar a la vista de analysis cuando ya este hecha
+                                        analysisId: analysis.id,
                                         userId: user?.user_id ?? ""
                                     )
                                     .navigationTitle(analysis.name)
