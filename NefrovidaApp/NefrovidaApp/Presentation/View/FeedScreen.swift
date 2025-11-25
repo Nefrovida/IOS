@@ -12,41 +12,44 @@ struct ForumFeedScreen: View {
     init(forumId: Int? = nil) {
         _vm = StateObject(
             wrappedValue: FeedViewModel(
-                repo: ForumRemoteRepository(
-                    baseURL: AppConfig.apiBaseURL,
-                ),
+                repo: ForumRemoteRepository(baseURL: AppConfig.apiBaseURL),
                 forumId: forumId
             )
         )
     }
 
     var body: some View {
-        UpBar()
-        ScrollView {
-            Spacer()
-            if vm.items.isEmpty {
-                Text("No hay contenido disponible")
-            }
-            LazyVStack(spacing: 14) {
-                ForEach(vm.items) { item in
-                    FeedCard(item: item)
-                        .padding(.horizontal)
-                        .onAppear {
-                            /// Infinite scroll
-                            if item.id == vm.items.last?.id {
-                                Task { await vm.loadNext() }
-                            }
-                        }
+        VStack(spacing: 0) { /// <-- Junta todo
+            UpBar() /// <-- Siempre arriba
+            ScrollView {
+                if vm.items.isEmpty {
+                    VStack {
+                        Spacer(minLength: 80)
+                        Text("No hay contenido disponible")
+                            .foregroundColor(.secondary)
+                    }
                 }
+
+                LazyVStack(spacing: 14) {
+                    ForEach(vm.items) { item in
+                        FeedCard(item: item)
+                            .padding(.horizontal)
+                            .onAppear {
+                                if item.id == vm.items.last?.id {
+                                    Task { await vm.loadNext() }
+                                }
+                            }
+                    }
+                }
+                .padding(.top, 12)
+                .padding(.bottom, 50)
             }
-            .padding(.vertical)
         }
         .onAppear {
             Task { await vm.loadNext() }
         }
     }
 }
-
 #Preview {
     ForumFeedScreen(forumId: 2)
 }
