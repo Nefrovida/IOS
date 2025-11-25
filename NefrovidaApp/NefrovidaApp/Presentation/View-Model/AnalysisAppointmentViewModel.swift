@@ -82,7 +82,7 @@ final class analysisViewModel: ObservableObject {
             
             // Generate 10-minute interval slots
             for hour in startHour...endHour {
-                for minute in stride(from: 0, to: 60, by: 10) {
+                for minute in stride(from: 0, to: 60, by: 30) {
                     var components = dateComponents
                     components.hour = hour
                     components.minute = minute
