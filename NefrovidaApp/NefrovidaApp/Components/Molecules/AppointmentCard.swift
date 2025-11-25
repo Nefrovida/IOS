@@ -5,21 +5,31 @@ struct AppointmentCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
+            
+            Text("Cita: \(appt.appointmentInfo?.name.trimmingCharacters(in: .whitespaces) ?? "Sin nombre")")
+                .font(.nvSemibold)
+                .foregroundColor(.primary)
+            
             Text("Tipo: \(appt.appointmentType)")
                 .font(.nvSemibold)
-                .foregroundColor(appt.appointmentType == "ANÁLISIS" ? .blue : .black)
-                .font(.nvBody)
+                .foregroundColor(.primary)
+
             Text("Lugar: \(appt.place ?? "No especificado")")
                 .font(.nvBody)
                 .foregroundStyle(.primary)
-            Text("Fecha: \(appt.dateHour.prefix(10)) \(appt.dateHour.dropFirst(11).prefix(5))")
+
+            Text("Status: \(appt.appointmentStatus.appointmentStatusSpanish)")
                 .font(.nvSemibold)
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.nvCardBlue)
+                .fill(Color.statusColor(for: appt.appointmentStatus))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.statusColor(for: appt.appointmentStatus).opacity(0.8), lineWidth: 2)
         )
     }
 }
