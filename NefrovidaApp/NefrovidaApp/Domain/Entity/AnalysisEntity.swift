@@ -11,7 +11,7 @@ import Foundation
 // This is the cleaned and unified version of an analysis,
 // independent from how the backend returns data.
 struct AnalysisEntity: Identifiable {
-    let id: String            // Unique analysis ID (patient_analysis_id)
+    let id: Int               // Unique analysis ID (patient_analysis_id)
     let analysisId: Int       // The type/template ID of this analysis
     let date: Date            // Parsed Date object (analysis_date)
     let duration: Int         // Duration of the analysis in minutes

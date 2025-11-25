@@ -10,7 +10,7 @@ import Foundation
 // Represents an analysis received from the backend.
 // This structure mirrors the JSON response exactly.
 struct AnalysisModel: Decodable {
-    let patient_analysis_id: String         // Unique ID for the patient's analysis
+    let patient_analysis_id: Int            // Unique ID for the patient's analysis
     let patient_id: String?                 // ID of the patient (optional)
     let analysis_id: Int                    // ID of the analysis type
     let laboratorist_id: String?            // ID of assigned laboratorist (optional)
