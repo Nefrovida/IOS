@@ -224,10 +224,14 @@ final class appointmentViewModel: ObservableObject {
         }
     }
     
-    // Returns the capitalized month name for the selected date.
-    func monthTitle() -> String {
-        let name = DateFormats.monthTitle.string(from: selectedDate)
-        return name.prefix(1).uppercased() + name.dropFirst()
+    // Returns the capitalized month name and year for the selected date.
+    func monthYearTitle() -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "es_MX")
+        formatter.dateFormat = "LLLL yyyy" // Ej: "noviembre 2025"
+
+        let raw = formatter.string(from: selectedDate)
+        return raw.prefix(1).capitalized + raw.dropFirst()
     }
     
     // Moves forward one week.

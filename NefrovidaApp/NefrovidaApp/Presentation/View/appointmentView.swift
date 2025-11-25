@@ -41,7 +41,7 @@ struct appointmentView: View {
             // Top tab-like buttons (Citas / Solicitudes)
             HStack(spacing: 0) {
                 // Displays current month title based on selected date
-                Text(vm.monthTitle())
+                Text(vm.monthYearTitle())
                     .font(.title).fontWeight(.bold)
             }
             .padding(.horizontal)
