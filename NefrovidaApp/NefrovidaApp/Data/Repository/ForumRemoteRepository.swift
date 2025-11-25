@@ -184,16 +184,22 @@ public final class ForumRemoteRepository: ForumRepository {
             throw error
         }
     }
-    
-    public func postMessage(forumId: Int, content: String) async throws -> ForumMessageEntity {
-        let endpoint = "\(baseURL)/forums/\(forumId)/messages"
+
+    // Posts a new message to the forum
+    // Parameters:
+    // forumId: The ID of the forum to post to
+    // content: The message content
+    // Returns: True if the message was posted successfully
+    public func postMessage(forumId: Int, content: String) async throws -> Bool {
+        let endpoint = "\(baseURL)/forums/\(forumId)"
         let headers = makeHeaders()
-        let params: [String: Any] = ["content": content]
+        // Backend expects "message" field, not "content"
+        let params: [String: Any] = ["message": content]
         let request = AF.request(endpoint, method: .post, parameters: params, encoding: JSONEncoding.default, headers: HTTPHeaders(headers)).validate()
         let result = await request.serializingData().response
         switch result.result {
-        case .success(let data):
-            return try JSONDecoder().decode(ForumMessageEntity.self, from: data)
+        case .success:
+            return true
         case .failure(let error):
             throw error
         }

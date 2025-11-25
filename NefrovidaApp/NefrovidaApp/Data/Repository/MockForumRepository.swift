@@ -49,10 +49,10 @@ public final class MockForumRepository: ForumRepository {
             ForumMessageEntity(id: 3, forumId: forumId, parentMessageId: nil, content: "Any interesting topics today?", createdBy: "MockUser2", createdAt: "2023-01-01T13:00:00Z")
         ]
     }
-    
-    public func postMessage(forumId: Int, content: String) async throws -> ForumMessageEntity {
-        // Simulate creating a new message
-        return ForumMessageEntity(id: Int.random(in: 100...999), forumId: forumId, parentMessageId: nil, content: content, createdBy: "CurrentUser", createdAt: Date().ISO8601Format())
+
+    public func postMessage(forumId: Int, content: String) async throws -> Bool {
+        // Simulate creating a new message - just return success
+        return true
     }
     
     public func replyToMessage(forumId: Int, parentMessageId: Int, content: String) async throws -> ForumMessageEntity {
