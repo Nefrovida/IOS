@@ -16,10 +16,12 @@ final class FeedViewModel: ObservableObject {
     
     private let repo: ForumRepository
     private let forumId: Int?
+    private let forumName: String?
 
-    init(repo: ForumRepository, forumId: Int?) {
+    init(repo: ForumRepository, forumId: Int?, forumName: String?) {
         self.repo = repo
         self.forumId = forumId
+        self.forumName = forumName
     }
     
     func loadNext() async {

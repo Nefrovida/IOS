@@ -8,47 +8,47 @@ import SwiftUI
 
 struct ForumFeedScreen: View {
     @StateObject private var vm: FeedViewModel
-
+    private let forum: Forum
+    
     init(forum: Forum) {
-        _vm = StateObject(
+        self.forum = forum                      // <--- PRIMERO
+        
+        _vm = StateObject(                      // <--- DESPUÉS
             wrappedValue: FeedViewModel(
                 repo: ForumRemoteRepository(baseURL: AppConfig.apiBaseURL),
-                forumId: forum.id
+                forumId: forum.id,
+                forumName: forum.name
             )
         )
     }
-
+    
     var body: some View {
         VStack(spacing: 0) {
             UpBar()
             ScrollView {
                 if vm.items.isEmpty {
-                    VStack {
-                        Spacer(minLength: 80)
-                        Text("No hay contenido disponible")
-                            .foregroundColor(.secondary)
-                    }
-                }
-
-                LazyVStack(spacing: 14) {
-                    ForEach(vm.items) { item in
-                        FeedCard(item: item)
-                            .padding(.horizontal)
-                            .onAppear {
-                                if item.id == vm.items.last?.id {
-                                    Task { await vm.loadNext() }
+                    Text("No hay contenido disponible")
+                        .padding(.top, 40)
+                        .foregroundColor(.secondary)
+                } else {
+                    LazyVStack(spacing: 14) {
+                        ForEach(vm.items) { item in
+                            FeedCard(item: item)
+                                .padding(.horizontal)
+                                .onAppear {
+                                    if item.id == vm.items.last?.id {
+                                        Task { await vm.loadNext() }
+                                    }
                                 }
-                            }
+                        }
                     }
+                    .padding(.vertical)
                 }
-                .padding(.top, 12)
-                .padding(.bottom, 50)
             }
         }
-        .onAppear {
-            Task { await vm.loadNext() }
+        .navigationTitle(forum.name)
+        .task {
+            await vm.loadNext()
         }
     }
-}
-#Preview {
 }
