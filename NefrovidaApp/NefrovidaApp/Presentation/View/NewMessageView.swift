@@ -9,7 +9,6 @@ import SwiftUI
 import Combine
 
 struct NewMessageView: View {
-    let forumId : Int
     @Environment(\.dismiss) var dismiss
     @StateObject private var viewModel: NewMessageViewModel
     

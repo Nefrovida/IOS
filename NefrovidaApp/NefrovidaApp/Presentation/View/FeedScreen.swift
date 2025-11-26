@@ -11,13 +11,14 @@ struct ForumFeedScreen: View {
     @State private var showNewMessageSheet = false
     @State private var showSuccessMessage = false
     
-
-
+    
+    
     init(forum: Forum) {
         _vm = StateObject(
             wrappedValue: FeedViewModel(
                 repo: ForumRemoteRepository(baseURL: AppConfig.apiBaseURL),
-                forumId: forum.id
+                forumId: forum.id,
+                forumName: forum.name
             )
         )
     }
@@ -39,75 +40,76 @@ struct ForumFeedScreen: View {
                                         .foregroundColor(.green)
                                     Text("¡Mensaje enviado correctamente!")
                                         .foregroundColor(.green)
-
-                                .padding()
-                                .background(Color.green.opacity(0.1))
-                                .cornerRadius(10)
-                                .transition(.opacity.combined(with: .scale))
-                                .padding(.top, 20)
+                                    
+                                        .padding()
+                                        .background(Color.green.opacity(0.1))
+                                        .cornerRadius(10)
+                                        .transition(.opacity.combined(with: .scale))
+                                        .padding(.top, 20)
+                                }
                             }
                         }
-                    }
-
-                    LazyVStack(spacing: 14) {
-                        ForEach(vm.items) { item in
-                            FeedCard(item: item)
-                                .padding(.horizontal)
-                                .onAppear {
-                                    if item.id == vm.items.last?.id {
-                                        Task { await vm.loadNext() }
+                        
+                        LazyVStack(spacing: 14) {
+                            ForEach(vm.items) { item in
+                                FeedCard(item: item)
+                                    .padding(.horizontal)
+                                    .onAppear {
+                                        if item.id == vm.items.last?.id {
+                                            Task { await vm.loadNext() }
+                                        }
                                     }
-                                }
+                            }
                         }
+                        .padding(.top, 12)
+                        .padding(.bottom, 50)
                     }
-                    .padding(.top, 12)
-                    .padding(.bottom, 50)
                 }
-            }
-            
-            // Botones flotantes
-            VStack {
-                Spacer()
-                HStack {
+                
+                // Botones flotantes
+                VStack {
                     Spacer()
-                    FloatingActionButtons(
-                        onNewPostTapped: {
-                            showNewMessageSheet = true
-                        },
-                        onEditTapped: {
-                            // TODO: Acción de editar/drafts
-                        }
-                    )
-                    .padding(.trailing, 16)
-                    .padding(.bottom, 90)
-                }
-            }
-        }
-        .edgesIgnoringSafeArea(.top)
-        .sheet(isPresented: $showNewMessageSheet) {
-            NewMessageView(
-                forumId: forumId,
-                forumName: forumName,
-                onMessageSent: {
-                // Mostrar mensaje de éxito temporalmente
-                withAnimation {
-                    showSuccessMessage = true
-                }
-                // Ocultar después de 3 segundos
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                    withAnimation {
-                        showSuccessMessage = false
+                    HStack {
+                        Spacer()
+                        FloatingActionButtons(
+                            onNewPostTapped: {
+                                showNewMessageSheet = true
+                            },
+                            onEditTapped: {
+                                // TODO: Acción de editar/drafts
+                            }
+                        )
+                        .padding(.trailing, 16)
+                        .padding(.bottom, 90)
                     }
                 }
-                // Recargar el feed después de enviar el mensaje
-                Task {
-                    vm.items.removeAll()
-                    await vm.loadNext()
-                }
-            })
-        }
-        .onAppear {
-            Task { await vm.loadNext() }
+            }
+            .edgesIgnoringSafeArea(.top)
+            .sheet(isPresented: $showNewMessageSheet) {
+                NewMessageView(
+                    forumId: vm.forumId,
+                    forumName: vm.forumName,
+                    onMessageSent: {
+                        // Mostrar mensaje de éxito temporalmente
+                        withAnimation {
+                            showSuccessMessage = true
+                        }
+                        // Ocultar después de 3 segundos
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                            withAnimation {
+                                showSuccessMessage = false
+                            }
+                        }
+                        // Recargar el feed después de enviar el mensaje
+                        Task {
+                            vm.items.removeAll()
+                            await vm.loadNext()
+                        }
+                    })
+            }
+            .onAppear {
+                Task { await vm.loadNext() }
+            }
         }
     }
 }
