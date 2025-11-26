@@ -8,12 +8,12 @@ import SwiftUI
 
 struct ForumFeedScreen: View {
     @StateObject private var vm: FeedViewModel
-    private let forum: Forum
+    @State private var showNewMessageSheet = false
+    @State private var showSuccessMessage = false
+    
     
     init(forum: Forum) {
-        self.forum = forum                      // <--- PRIMERO
-        
-        _vm = StateObject(                      // <--- DESPUÉS
+        _vm = StateObject(
             wrappedValue: FeedViewModel(
                 repo: ForumRemoteRepository(baseURL: AppConfig.apiBaseURL),
                 forumId: forum.id,
@@ -23,14 +23,34 @@ struct ForumFeedScreen: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            UpBar()
-            ScrollView {
-                if vm.items.isEmpty {
-                    Text("No hay contenido disponible")
+        ZStack(alignment: .top) {
+            VStack(spacing: 0) {
+                UpBar()
+                
+                ScrollView {
+                    if vm.items.isEmpty {
+                        VStack {
+                            Spacer(minLength: 80)
+                            Text("No hay contenido disponible")
+                                .foregroundColor(.secondary)
+                            
+                            if showSuccessMessage {
+                                HStack {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(.green)
+                                    Text("¡Mensaje enviado correctamente!")
+                                        .foregroundColor(.green)
+                                }
+                                .padding()
+                                .background(Color.green.opacity(0.1))
+                                .cornerRadius(10)
+                                .transition(.opacity.combined(with: .scale))
+                                .padding(.top, 20)
+                            }
+                        }
                         .padding(.top, 40)
-                        .foregroundColor(.secondary)
-                } else {
+                    }
+                    
                     LazyVStack(spacing: 14) {
                         ForEach(vm.items) { item in
                             FeedCard(item: item)
@@ -42,13 +62,56 @@ struct ForumFeedScreen: View {
                                 }
                         }
                     }
-                    .padding(.vertical)
+                    .padding(.vertical, 12)
                 }
             }
-        }
-        .navigationTitle(forum.name)
-        .task {
-            await vm.loadNext()
+            
+            // Botones flotantes
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    FloatingActionButtons(
+                        onNewPostTapped: {
+                            showNewMessageSheet = true
+                        },
+                        onEditTapped: {
+                            // TODO: Acción de editar/drafts
+                        }
+                    )
+                    .padding(.trailing, 16)
+                    .padding(.bottom, 90)
+                    
+                }
+            }
+            .navigationTitle(vm.forumName)
+            
+            .edgesIgnoringSafeArea(.top)
+            .sheet(isPresented: $showNewMessageSheet) {
+                NewMessageView(
+                    forumId: vm.forumId,
+                    forumName: vm.forumName,
+                    onMessageSent: {
+                        // Mostrar mensaje de éxito temporalmente
+                        withAnimation {
+                            showSuccessMessage = true
+                        }
+                        // Ocultar después de 3 segundos
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                            withAnimation {
+                                showSuccessMessage = false
+                            }
+                        }
+                        // Recargar el feed después de enviar el mensaje
+                        Task {
+                            vm.items.removeAll()
+                            await vm.loadNext()
+                        }
+                    })
+            }
+            .onAppear {
+                Task { await vm.loadNext() }
+            }
         }
     }
 }

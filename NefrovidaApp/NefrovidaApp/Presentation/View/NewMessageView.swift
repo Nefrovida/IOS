@@ -9,11 +9,15 @@ import SwiftUI
 import Combine
 
 struct NewMessageView: View {
-    let forumId : Int
     @Environment(\.dismiss) var dismiss
-    @StateObject private var viewModel = NewMessageViewModel()
+    @StateObject private var viewModel: NewMessageViewModel
     
     let onMessageSent: () -> Void
+    
+    init(forumId: Int, forumName: String, onMessageSent: @escaping () -> Void) {
+        _viewModel = StateObject(wrappedValue: NewMessageViewModel(forumId: forumId, forumName: forumName))
+        self.onMessageSent = onMessageSent
+    }
     
     var body: some View {
         NavigationView {
@@ -65,11 +69,6 @@ struct NewMessageView: View {
             } message: {
                 Text("Mensaje publicado correctamente")
             }
-            .onAppear {
-                Task {
-                    await viewModel.loadForums()
-                }
-            }
         }
     }
     
@@ -79,42 +78,10 @@ struct NewMessageView: View {
                 .font(.subheadline)
                 .foregroundColor(.secondary)
             
-            if viewModel.isLoadingForums {
-                ProgressView()
-                    .scaleEffect(0.8)
-                Text("Cargando foros...")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            } else if viewModel.availableForums.isEmpty {
-                VStack(alignment: .leading) {
-                    Text("No hay foros disponibles")
-                        .font(.subheadline)
-                        .foregroundColor(.red)
-                    if let debugInfo = viewModel.debugInfo {
-                        Text(debugInfo)
-                            .font(.caption2)
-                            .foregroundColor(.gray)
-                    }
-                }
-            } else {
-                Menu {
-                    ForEach(viewModel.availableForums, id: \.id) { forum in
-                        Button(forum.name) {
-                            viewModel.selectedForumId = forum.id
-                            viewModel.selectedForumName = forum.name
-                        }
-                    }
-                } label: {
-                    HStack {
-                        Text(viewModel.selectedForumName)
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-                        Image(systemName: "chevron.down")
-                            .font(.caption)
-                    }
-                    .foregroundColor(.blue)
-                }
-            }
+            Text(viewModel.selectedForumName)
+                .font(.subheadline)
+                .fontWeight(.medium)
+                .foregroundColor(.primary)
             
             Spacer()
         }
@@ -152,27 +119,28 @@ struct NewMessageView: View {
 @MainActor
 class NewMessageViewModel: ObservableObject {
     @Published var messageText: String = ""
-    @Published var selectedForumId: Int = 0
-    @Published var selectedForumName: String = "Seleccionar foro"
-    @Published var availableForums: [Forum] = []
     @Published var isLoading: Bool = false
-    @Published var isLoadingForums: Bool = false
     @Published var isSuccess: Bool = false
     @Published var showSuccess: Bool = false
     @Published var errorMessage: String?
     @Published var showError: Bool = false
-    @Published var debugInfo: String?
+    
+    let selectedForumId: Int
+    let selectedForumName: String
     
     private let repository = ForumRemoteRepository(
         baseURL: AppConfig.apiBaseURL,
         tokenProvider: AppConfig.tokenProvider
     )
     
+    init(forumId: Int, forumName: String) {
+        self.selectedForumId = forumId
+        self.selectedForumName = forumName
+    }
+    
     var isValid: Bool {
         !messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         && messageText.count <= 1000
-        && selectedForumId > 0
-        && !availableForums.isEmpty
     }
     
     var characterCountColor: Color {
@@ -183,41 +151,6 @@ class NewMessageViewModel: ObservableObject {
         } else {
             return .gray
         }
-    }
-    
-    func loadForums() async {
-        isLoadingForums = true
-        debugInfo = nil
-        
-        // Debug: verificar token
-        let token = AppConfig.tokenProvider()
-        print("🔐 Token disponible: \(token != nil ? "Sí (\(token!.prefix(20))...)" : "No")")
-        print("🌐 Base URL: \(AppConfig.apiBaseURL)")
-        
-        do {
-            // Usar fetchForums() para obtener todos los foros disponibles
-            let forums = try await repository.fetchForums(page: nil, limit: nil, search: nil, isPublic: nil)
-            print("✅ Foros recibidos: \(forums.count)")
-            for forum in forums {
-                print("   - ID: \(forum.id), Nombre: \(forum.name)")
-            }
-            
-            availableForums = forums
-            
-            // Seleccionar el primer foro por defecto
-            if let first = forums.first {
-                selectedForumId = first.id
-                selectedForumName = first.name
-            } else {
-                debugInfo = "El servidor devolvió una lista vacía"
-            }
-        } catch {
-            print("❌ Error al cargar foros: \(error)")
-            debugInfo = "Error: \(error.localizedDescription)"
-            setError("Error al cargar foros: \(error.localizedDescription)")
-        }
-        
-        isLoadingForums = false
     }
     
     func sendMessage() async {
@@ -252,8 +185,4 @@ class NewMessageViewModel: ObservableObject {
         errorMessage = message
         showError = true
     }
-}
-
-#Preview {
-    NewMessageView(forumId: 1,onMessageSent: {})
 }
