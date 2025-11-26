@@ -60,6 +60,12 @@ class ForumViewModel: ObservableObject {
             messages.append(message)
             newMessageContent = ""
         } catch {
+            print("❌ Error sending message: \(error)")
+            // Fallback: reload messages if local append failed (e.g. decoding error)
+            // If we are reloading, it implies we assume the message might have been sent.
+            // Clear the text box so the user doesn't send it again.
+            newMessageContent = ""
+            await loadMessages(forumId: forumId)
         }
     }
 

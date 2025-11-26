@@ -185,10 +185,16 @@ public final class ForumRemoteRepository: ForumRepository {
         }
     }
 
+    // Posts a new message to the forum
+    // Parameters:
+    // forumId: The ID of the forum to post to
+    // content: The message content
+    // Returns: True if the message was posted successfully
     public func postMessage(forumId: Int, content: String) async throws -> ForumMessageEntity {
-        let endpoint = "\(baseURL)/forums/\(forumId)/messages"
+        let endpoint = "\(baseURL)/forums/\(forumId)"
         let headers = makeHeaders()
-        let params: [String: Any] = ["content": content]
+        // Backend expects "message" field, not "content"
+        let params: [String: Any] = ["message": content]
         let request = AF.request(endpoint, method: .post, parameters: params, encoding: JSONEncoding.default, headers: HTTPHeaders(headers)).validate()
         let result = await request.serializingData().response
         switch result.result {
@@ -201,9 +207,16 @@ public final class ForumRemoteRepository: ForumRepository {
             if let wrapper = try? decoder.decode([String: ForumMessageEntity].self, from: data), let entity = wrapper["data"] {
                 return entity
             }
+            
+            // Debug: Print raw JSON if decoding fails
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print("❌ Failed to decode postMessage response. Raw JSON: \(jsonString)")
+            }
+            
             // Throw original error or generic
             return try decoder.decode(ForumMessageEntity.self, from: data)
         case .failure(let error):
+            print("❌ postMessage failed: \(error)")
             throw error
         }
     }

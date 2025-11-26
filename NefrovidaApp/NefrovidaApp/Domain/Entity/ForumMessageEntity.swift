@@ -49,11 +49,11 @@ public struct ForumMessageEntity: Codable, Identifiable {
             createdBy = directCreator
         } else {
             // Fallback to 'author' object
-            let authorContainer = try decoder.container(keyedBy: AuthorKeys.self)
-            if let author = try? authorContainer.decode(AuthorDTO.self, forKey: .author) {
+            if let authorContainer = try? decoder.container(keyedBy: AuthorKeys.self),
+               let author = try? authorContainer.decode(AuthorDTO.self, forKey: .author) {
                 createdBy = author.name
             } else {
-                createdBy = "Unknown"
+                createdBy = "Usuario" // Default fallback instead of failing
             }
         }
     }
