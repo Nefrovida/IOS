@@ -53,7 +53,7 @@ struct ForumFeedScreen: View {
                     
                     LazyVStack(spacing: 14) {
                         ForEach(vm.items) { item in
-                            FeedCard(item: item)
+                            FeedCard(item: item, onRepliesTapped: {})
                                 .padding(.horizontal)
                                 .onAppear {
                                     if item.id == vm.items.last?.id {

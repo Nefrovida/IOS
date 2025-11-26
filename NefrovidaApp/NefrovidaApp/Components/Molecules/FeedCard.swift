@@ -8,6 +8,7 @@ import SwiftUI
 
 struct FeedCard: View {
     let item: ForumFeedItem
+    let onRepliesTapped: () -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -30,8 +31,12 @@ struct FeedCard: View {
 
             HStack(spacing: 18) {
                 Label("\(item.likes)", systemImage: "hand.thumbsup")
-                Label("\(item.replies)", systemImage: "bubble.left")
-                
+
+                Button {
+                    onRepliesTapped()
+                } label: {
+                    Label("\(item.replies)", systemImage: "bubble.left")
+                }
                 Spacer()
                 
                 Text("Ver más")
