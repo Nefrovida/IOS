@@ -76,7 +76,7 @@ struct ForumFeedView: View {
         }
         .edgesIgnoringSafeArea(.top)
         .sheet(isPresented: $showNewMessageSheet) {
-            NewMessageView(onMessageSent: {
+            NewMessageView(forumId: 1, onMessageSent: {
                 // Mostrar mensaje de éxito temporalmente
                 withAnimation {
                     showSuccessMessage = true

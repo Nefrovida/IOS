@@ -9,6 +9,7 @@ import SwiftUI
 import Combine
 
 struct NewMessageView: View {
+    let forumId : Int
     @Environment(\.dismiss) var dismiss
     @StateObject private var viewModel = NewMessageViewModel()
     
@@ -254,5 +255,5 @@ class NewMessageViewModel: ObservableObject {
 }
 
 #Preview {
-    NewMessageView(onMessageSent: {})
+    NewMessageView(forumId: 1,onMessageSent: {})
 }

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ForumsScreen: View {
     @StateObject private var vm: ForumsViewModel
-    @State private var path: [Int] = []
+    @State private var path: [Forum] = []
 
     init() {
         let repo: ForumRepository
@@ -52,7 +52,7 @@ struct ForumsScreen: View {
                                             }
                                         }
                                         // Navigate to forum detail
-                                        path.append(forum.id)
+                                        path.append(forum)
                                     }
                                 }
                                 .padding(.horizontal)
@@ -60,8 +60,10 @@ struct ForumsScreen: View {
                         }
                         .padding(.vertical)
                     }
-                    .navigationDestination(for: Int.self) { id in
-                        ForumFeedScreen(forumId: id)
+                    .navigationDestination(for: Forum.self) { forum in
+                        ForumFeedScreen(forum: forum)
+                            .navigationTitle(forum.name)
+                            
                     }
                 }
             }

@@ -9,18 +9,18 @@ import SwiftUI
 struct ForumFeedScreen: View {
     @StateObject private var vm: FeedViewModel
 
-    init(forumId: Int? = nil) {
+    init(forum: Forum) {
         _vm = StateObject(
             wrappedValue: FeedViewModel(
                 repo: ForumRemoteRepository(baseURL: AppConfig.apiBaseURL),
-                forumId: forumId
+                forumId: forum.id
             )
         )
     }
 
     var body: some View {
-        VStack(spacing: 0) { /// <-- Junta todo
-            UpBar() /// <-- Siempre arriba
+        VStack(spacing: 0) {
+            UpBar()
             ScrollView {
                 if vm.items.isEmpty {
                     VStack {
@@ -51,5 +51,4 @@ struct ForumFeedScreen: View {
     }
 }
 #Preview {
-    ForumFeedScreen(forumId: 2)
 }
