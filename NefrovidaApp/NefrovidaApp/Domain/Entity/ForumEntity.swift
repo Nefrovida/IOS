@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Forum: Identifiable {
+public struct Forum: Identifiable, Hashable{
     public let id: Int
     public let name: String
     public let description: String

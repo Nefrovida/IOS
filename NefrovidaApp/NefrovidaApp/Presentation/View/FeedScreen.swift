@@ -11,20 +11,16 @@ struct ForumFeedScreen: View {
     @State private var showNewMessageSheet = false
     @State private var showSuccessMessage = false
     
-    private let forumId: Int
-    private let forumName: String
-    
-    init(forumId: Int, forumName: String) {
-        self.forumId = forumId
-        self.forumName = forumName
+
+
+    init(forum: Forum) {
         _vm = StateObject(
             wrappedValue: FeedViewModel(
                 repo: ForumRemoteRepository(baseURL: AppConfig.apiBaseURL),
-                forumId: forumId
+                forumId: forum.id
             )
         )
     }
-
     var body: some View {
         ZStack(alignment: .top) {
             VStack(spacing: 0) {
@@ -43,7 +39,7 @@ struct ForumFeedScreen: View {
                                         .foregroundColor(.green)
                                     Text("¡Mensaje enviado correctamente!")
                                         .foregroundColor(.green)
-                                }
+
                                 .padding()
                                 .background(Color.green.opacity(0.1))
                                 .cornerRadius(10)
@@ -114,8 +110,4 @@ struct ForumFeedScreen: View {
             Task { await vm.loadNext() }
         }
     }
-}
-
-#Preview {
-    ForumFeedScreen(forumId: 2, forumName: "Foro Salud 2")
 }

@@ -9,6 +9,7 @@ import SwiftUI
 import Combine
 
 struct NewMessageView: View {
+    let forumId : Int
     @Environment(\.dismiss) var dismiss
     @StateObject private var viewModel: NewMessageViewModel
     
@@ -185,8 +186,4 @@ class NewMessageViewModel: ObservableObject {
         errorMessage = message
         showError = true
     }
-}
-
-#Preview {
-    NewMessageView(forumId: 2, forumName: "Foro General", onMessageSent: {})
 }
