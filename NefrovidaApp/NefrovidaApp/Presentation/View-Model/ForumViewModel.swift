@@ -56,16 +56,14 @@ class ForumViewModel: ObservableObject {
     func sendMessage(forumId: Int) async {
         guard !newMessageContent.isEmpty else { return }
         do {
-            let message = try await postMessageUC.execute(forumId: forumId, content: newMessageContent)
-            messages.append(message)
-            newMessageContent = ""
+            let success = try await postMessageUC.execute(forumId: forumId, content: newMessageContent)
+            if success {
+                newMessageContent = ""
+                // Reload messages to show the new one
+                await loadMessages(forumId: forumId)
+            }
         } catch {
             print("❌ Error sending message: \(error)")
-            // Fallback: reload messages if local append failed (e.g. decoding error)
-            // If we are reloading, it implies we assume the message might have been sent.
-            // Clear the text box so the user doesn't send it again.
-            newMessageContent = ""
-            await loadMessages(forumId: forumId)
         }
     }
 
