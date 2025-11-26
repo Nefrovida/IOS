@@ -59,7 +59,14 @@ public final class MockForumRepository: ForumRepository {
         // Simulate creating a new reply
         return ForumMessageEntity(id: Int.random(in: 100...999), forumId: forumId, parentMessageId: parentMessageId, content: content, createdBy: "CurrentUser", createdAt: Date().ISO8601Format())
     }
-    
+
+
+    public func fetchReplies(forumId: Int, messageId: Int, page: Int?, limit: Int?) async throws -> [ForumMessageEntity] {
+        // Return mock replies
+        return [
+            ForumMessageEntity(id: Int.random(in: 1000...9999), forumId: forumId, parentMessageId: messageId, content: "This is a mock reply", createdBy: "MockUser", createdAt: Date().ISO8601Format())
+        ]
+    }
 }
 
 

@@ -8,32 +8,50 @@ class ForumViewModel: ObservableObject {
     @Published var newMessageContent: String = ""
     @Published var replyContent: String = ""
     @Published var selectedParentMessageId: Int? = nil
+    @Published var forum: Forum?
+    @Published var isLoading = false
+    @Published var errorMessage: String?
 
     // Dependencias (casos de uso)
     private let getMessagesUC: GetMessagesUseCase
     private let postMessageUC: PostMessageUseCase
     private let replyToMessageUC: ReplyToMessageUseCase
+    private let getForumDetailsUC: GetForumDetailsUseCase
+    private let getRepliesUC: GetRepliesUseCase
 
     // Dependencies (use cases)
     init(getMessagesUC: GetMessagesUseCase,
          postMessageUC: PostMessageUseCase,
-         replyToMessageUC: ReplyToMessageUseCase) {
+         replyToMessageUC: ReplyToMessageUseCase,
+         getForumDetailsUC: GetForumDetailsUseCase,
+         getRepliesUC: GetRepliesUseCase) {
         self.getMessagesUC = getMessagesUC
         self.postMessageUC = postMessageUC
         self.replyToMessageUC = replyToMessageUC
+        self.getForumDetailsUC = getForumDetailsUC
+        self.getRepliesUC = getRepliesUC
     }
 
     // MARK: - Funciones de negocio
 
     // Load all messages from a forum
     func loadMessages(forumId: Int) async {
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
+        
         do {
-            messages = try await getMessagesUC.execute(forumId: forumId)
+            // Fetch forum details and messages in parallel
+            async let fetchedMessages = getMessagesUC.execute(forumId: forumId)
+            async let (fetchedForum, _) = getForumDetailsUC.execute(forumId: forumId)
+            
+            self.messages = try await fetchedMessages
+            self.forum = try await fetchedForum
         } catch {
-            print("Error al cargar mensajes: \(error)")
+            self.errorMessage = "No se pudo cargar el foro."
         }
     }
-
+    
     // Send a new root message
     func sendMessage(forumId: Int) async {
         guard !newMessageContent.isEmpty else { return }
@@ -43,7 +61,6 @@ class ForumViewModel: ObservableObject {
                 newMessageContent = ""
             }
         } catch {
-            print("Error al enviar mensaje: \(error)")
         }
     }
 
@@ -60,7 +77,19 @@ class ForumViewModel: ObservableObject {
             replyContent = ""
             selectedParentMessageId = nil
         } catch {
-            print("Error al enviar respuesta: \(error)")
+        }
+    }
+    
+    // Fetch replies for a specific message
+    func fetchReplies(forumId: Int, messageId: Int) async {
+        do {
+            let replies = try await getRepliesUC.execute(forumId: forumId, messageId: messageId, page: 1, limit: 20)
+            // Append new replies, avoiding duplicates
+            let existingIds = Set(messages.map { $0.id })
+            let newReplies = replies.filter { !existingIds.contains($0.id) }
+            messages.append(contentsOf: newReplies)
+        } catch {
+            print("Error fetching replies: \(error)")
         }
     }
 }

@@ -64,6 +64,7 @@ struct ForumsScreen: View {
                         ForumFeedScreen(forum: forum)
                             .navigationTitle(forum.name)
                             
+
                     }
                 }
             }
