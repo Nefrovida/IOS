@@ -10,7 +10,11 @@ struct ForumFeedScreen: View {
     @StateObject private var vm: FeedViewModel
     @State private var showNewMessageSheet = false
     @State private var showSuccessMessage = false
+    @State private var navPath: [MessageRoute] = []
     
+    enum MessageRoute: Hashable {
+        case replies(forumId: Int, messageId: Int)
+    }
     
     init(forum: Forum) {
         _vm = StateObject(
@@ -53,7 +57,14 @@ struct ForumFeedScreen: View {
                     
                     LazyVStack(spacing: 14) {
                         ForEach(vm.items) { item in
-                            FeedCard(item: item, onRepliesTapped: {})
+                            FeedCard(item: item,
+                                     onRepliesTapped: {
+                                navPath.append(.replies(
+                                    forumId: vm.forumId,
+                                    messageId: item.id
+                                ))
+                            }
+                            )
                                 .padding(.horizontal)
                                 .onAppear {
                                     if item.id == vm.items.last?.id {
