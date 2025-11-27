@@ -6,7 +6,10 @@ struct ForumView: View {
     let rootMessageId: Int
 
     init(forumId: Int, rootMessageId: Int) {
-        let repo = ForumRemoteRepository(baseURL: AppConfig.apiBaseURL, tokenProvider: AppConfig.tokenProvider)
+        let repo = ForumRemoteRepository(
+            baseURL: AppConfig.apiBaseURL,
+            tokenProvider: AppConfig.tokenProvider
+        )
 
         _vm = StateObject(
             wrappedValue: ForumViewModel(
@@ -17,41 +20,30 @@ struct ForumView: View {
                 getRepliesUC: GetRepliesUseCase(repository: repo)
             )
         )
-
+        
         self.forumId = forumId
         self.rootMessageId = rootMessageId
     }
 
     var body: some View {
         VStack(spacing: 0) {
-
             UpBar()
 
-            List {
-                ForEach(vm.messages.filter { $0.parentMessageId == nil }) { parent in
-                    VStack(alignment: .leading) {
-                        Text(parent.content)
-                            .font(.body)
+            List(vm.messages) { reply in
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(reply.createdBy)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
 
-                        // replies
-                        ForEach(vm.messages.filter { $0.parentMessageId == parent.id }) { reply in
-                            Text(reply.content)
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                                .padding(.leading, 20)
-                        }
-                    }
-                    .task {
-                        await vm.fetchReplies(forumId: forumId, messageId: parent.id)
-                    }
+                    Text(reply.content)
+                        .font(.body)
                 }
+                .padding(.vertical, 6)
             }
         }
-        .onAppear {
-            Task { await vm.loadMessages(forumId: forumId) }
+        .task {
+            await vm.loadMessages(forumId: forumId, rootId: rootMessageId)
         }
         .navigationTitle("Respuestas")
     }
 }
-
-#Preview { ForumView(forumId: 1, rootMessageId: 1) }

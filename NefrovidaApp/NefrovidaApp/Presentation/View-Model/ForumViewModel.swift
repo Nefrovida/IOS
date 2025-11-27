@@ -35,34 +35,19 @@ class ForumViewModel: ObservableObject {
     // MARK: - Funciones de negocio
 
     // Load all messages from a forum
-    func loadMessages(forumId: Int) async {
-        isLoading = true
-        errorMessage = nil
-        defer { isLoading = false }
-        
+    func loadMessages(forumId: Int, rootId: Int) async {
         do {
-            // Fetch forum details and messages in parallel
-            async let fetchedMessages = getMessagesUC.execute(forumId: forumId)
-            async let (fetchedForum, _) = getForumDetailsUC.execute(forumId: forumId)
-            
-            self.messages = try await fetchedMessages
-            self.forum = try await fetchedForum
+            self.messages = try await getRepliesUC.execute(
+                forumId: forumId,
+                messageId: rootId,
+                page: 1,
+                limit: 20
+            )
         } catch {
-            self.errorMessage = "No se pudo cargar el foro."
+            print(error)
         }
     }
     
-    // Send a new root message
-    func sendMessage(forumId: Int) async {
-        guard !newMessageContent.isEmpty else { return }
-        do {
-            let success = try await postMessageUC.execute(forumId: forumId, content: newMessageContent)
-            if success {
-                newMessageContent = ""
-            }
-        } catch {
-        }
-    }
 
     // Reply to an existing message
     func sendReply(forumId: Int) async {
@@ -77,19 +62,6 @@ class ForumViewModel: ObservableObject {
             replyContent = ""
             selectedParentMessageId = nil
         } catch {
-        }
-    }
-    
-    // Fetch replies for a specific message
-    func fetchReplies(forumId: Int, messageId: Int) async {
-        do {
-            let replies = try await getRepliesUC.execute(forumId: forumId, messageId: messageId, page: 1, limit: 20)
-            // Append new replies, avoiding duplicates
-            let existingIds = Set(messages.map { $0.id })
-            let newReplies = replies.filter { !existingIds.contains($0.id) }
-            messages.append(contentsOf: newReplies)
-        } catch {
-            print("Error fetching replies: \(error)")
         }
     }
 }
