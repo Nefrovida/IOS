@@ -10,17 +10,14 @@ struct ForumView: View {
             baseURL: AppConfig.apiBaseURL,
             tokenProvider: AppConfig.tokenProvider
         )
-
+        
         _vm = StateObject(
             wrappedValue: ForumViewModel(
-                getMessagesUC: GetMessagesUseCase(repository: repo),
-                postMessageUC: PostMessageUseCase(repository: repo),
                 replyToMessageUC: ReplyToMessageUseCase(repository: repo),
-                getForumDetailsUC: GetForumDetailsUseCase(repository: repo),
                 getRepliesUC: GetRepliesUseCase(repository: repo)
             )
         )
-        
+
         self.forumId = forumId
         self.rootMessageId = rootMessageId
     }
@@ -29,6 +26,7 @@ struct ForumView: View {
         VStack(spacing: 0) {
             UpBar()
 
+            // --- Replies list ---
             List(vm.messages) { reply in
                 VStack(alignment: .leading, spacing: 6) {
                     Text(reply.createdBy)
@@ -40,10 +38,27 @@ struct ForumView: View {
                 }
                 .padding(.vertical, 6)
             }
+            .listStyle(.plain)
+
+            // --- Input bar ---
+            HStack {
+                TextField("Escribe una respuesta...", text: $vm.replyContent)
+                    .textFieldStyle(.roundedBorder)
+
+                Button("Enviar") {
+                    Task {
+                        await vm.sendReply(forumId: forumId, rootId: rootMessageId)
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            .padding()
+            .background(.ultraThinMaterial)
         }
         .task {
-            await vm.loadMessages(forumId: forumId, rootId: rootMessageId)
+            await vm.loadThread(forumId: forumId, rootId: rootMessageId)
         }
         .navigationTitle("Respuestas")
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
