@@ -24,45 +24,68 @@ struct ForumFeedScreen: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            UpBar()
+        ZStack {
+            VStack(spacing: 0) {
+                UpBar()
 
-            ScrollView {
-                LazyVStack(spacing: 14) {
-                    ForEach(vm.items) { item in
-                        FeedCard(
-                            item: item,
-                            onRepliesTapped: {
-                                path.append(.replies(
-                                    forumId: vm.forumId,
-                                    messageId: item.id
-                                ))
-                            }
-                        )
-                        .padding(.horizontal)
-                        .onAppear {
-                            if item.id == vm.items.last?.id {
-                                Task { await vm.loadNext() }
+                ScrollView {
+                    LazyVStack(spacing: 14) {
+                        ForEach(vm.items) { item in
+                            FeedCard(
+                                item: item,
+                                onRepliesTapped: {
+                                    path.append(.replies(
+                                        forumId: vm.forumId,
+                                        messageId: item.id
+                                    ))
+                                }
+                            )
+                            .padding(.horizontal)
+                            .onAppear {
+                                if item.id == vm.items.last?.id {
+                                    Task { await vm.loadNext() }
+                                }
                             }
                         }
                     }
+                    .padding(.vertical, 12)
                 }
-                .padding(.vertical, 12)
+            }
+
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    FloatingActionButtons(
+                        onNewPostTapped: {
+                            showNewMessageSheet = true
+                        },
+                        onEditTapped: {}
+                    )
+                    .padding(.trailing, 16)
+                    .padding(.bottom, 90)
+                }
             }
         }
+        .navigationTitle(vm.forumName)
         .sheet(isPresented: $showNewMessageSheet) {
             NewMessageView(
                 forumId: vm.forumId,
                 forumName: vm.forumName,
                 onMessageSent: {
-                    Task {
-                        vm.items.removeAll()
-                        await vm.loadNext()
+                    // animación éxito
+                    withAnimation {
+                        showSuccessMessage = true
                     }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                        withAnimation {
+                            showSuccessMessage = false
+                        }
+                    }
+
                 }
             )
         }
-        .navigationTitle(vm.forumName)
         .onAppear {
             Task { await vm.loadNext() }
         }
