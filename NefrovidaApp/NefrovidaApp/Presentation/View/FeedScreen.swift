@@ -1,14 +1,14 @@
 //
-//  FeedScreen.swift
+//  ForumFeedScreen.swift
 //  NefrovidaApp
 //
-//  Created by Manuel Bajos Rivera on 23/11/25.
-//
+
 import SwiftUI
 
 struct ForumFeedScreen: View {
     @Binding var path: [MessageRoute]
     @StateObject private var vm: FeedViewModel
+
     @State private var showNewMessageSheet = false
     @State private var showSuccessMessage = false
 
@@ -24,7 +24,7 @@ struct ForumFeedScreen: View {
     }
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .bottomTrailing) {
             VStack(spacing: 0) {
                 UpBar()
 
@@ -42,52 +42,65 @@ struct ForumFeedScreen: View {
                             )
                             .padding(.horizontal)
                             .onAppear {
+                                // trigger de scroll infinito
                                 if item.id == vm.items.last?.id {
                                     Task { await vm.loadNext() }
                                 }
                             }
                         }
+
+                        /// Loader al final
+                        if vm.isLoading {
+                            ProgressView()
+                                .padding(.vertical, 14)
+                        }
                     }
-                    .padding(.vertical, 12)
+                    .padding(.vertical, 16)
                 }
             }
 
-            VStack {
-                Spacer()
-                HStack {
-                    Spacer()
-                    FloatingActionButtons(
-                        onNewPostTapped: {
-                            showNewMessageSheet = true
-                        },
-                        onEditTapped: {}
-                    )
-                    .padding(.trailing, 16)
-                    .padding(.bottom, 90)
-                }
-            }
+            /// Botón flotante
+            FloatingActionButtons(
+                onNewPostTapped: { showNewMessageSheet = true },
+                onEditTapped: {}
+            )
+            .padding(.trailing, 16)
+            .padding(.bottom, 90)
         }
+        .navigationBarTitleDisplayMode(.inline)
         .navigationTitle(vm.forumName)
         .sheet(isPresented: $showNewMessageSheet) {
             NewMessageView(
                 forumId: vm.forumId,
                 forumName: vm.forumName,
-                onMessageSent: {
-                    // animación éxito
-                    withAnimation {
-                        showSuccessMessage = true
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                        withAnimation {
-                            showSuccessMessage = false
-                        }
-                    }
-
-                }
+                onMessageSent: handleNewMessageSent
             )
         }
         .onAppear {
-            Task { await vm.loadNext() }
+            /// evita doble carga
+            if vm.items.isEmpty {
+                Task { await vm.loadNext() }
+            }
+        }
+    }
+}
+
+// MARK: - Helpers
+private extension ForumFeedScreen {
+    func handleNewMessageSent() {
+        withAnimation {
+            showSuccessMessage = true
+        }
+
+        Task {
+            vm.reset()
+            await vm.loadNext()
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            withAnimation {
+                showSuccessMessage = false
+            }
         }
     }
 }

@@ -2,8 +2,7 @@
 //  FeedViewModel.swift
 //  NefrovidaApp
 //
-//  Created by Manuel Bajos Rivera on 23/11/25.
-//
+
 import SwiftUI
 import Combine
 import Observation
@@ -11,9 +10,10 @@ import Observation
 @MainActor
 final class FeedViewModel: ObservableObject {
     @Published var items: [ForumFeedItem] = []
-    @Published var page = 0
-    @Published var isLoading = false
-    
+    @Published var page: Int = 0
+    @Published var isLoading: Bool = false
+    @Published var reachedEnd: Bool = false
+
     private let repo: ForumRepository
 
     public let forumId: Int
@@ -24,18 +24,31 @@ final class FeedViewModel: ObservableObject {
         self.forumId = forumId
         self.forumName = forumName
     }
-    
+
     func loadNext() async {
-        guard !isLoading else { return }
+        guard !isLoading, !reachedEnd else { return }
         isLoading = true
         defer { isLoading = false }
-        
+
         do {
             let new = try await repo.getFeed(forumId: forumId, page: page)
+
+            if new.isEmpty {
+                reachedEnd = true
+                return
+            }
+
             items.append(contentsOf: new)
             page += 1
         } catch {
             print("Error loading feed:", error)
         }
+    }
+
+    /// reset para refresh manual
+    func reset() {
+        items.removeAll()
+        page = 0
+        reachedEnd = false
     }
 }
