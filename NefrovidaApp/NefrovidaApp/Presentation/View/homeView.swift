@@ -1,4 +1,4 @@
-import SwiftUI
+    import SwiftUI
 
 struct HomeView: View {
     let user: LoginEntity?
@@ -7,6 +7,47 @@ struct HomeView: View {
         getAnalysisUseCase: GetAnalysisUseCase(repository: AnalysisRemoteRepository()),
         getConsultationUseCase: GetConsultationUseCases(repository: ConsultationRemoteRepository())
     )
+    
+    // State variables for popup management
+    @State private var showNefroPop = false
+    @State private var selectedItem: Any?
+    @State private var popupTitle = ""
+    @State private var popupDescription = ""
+    @State private var popupIndication = ""
+    
+    // Function to handle analysis selection
+    private func selectAnalysis(_ analysis: Any) {
+        selectedItem = analysis
+        if let a = analysis as? Analysis {
+            popupTitle = "¡Importante!"
+            popupDescription = """
+            ¿Para qué sirve este estudio?
+            \(a.description)
+            """
+            popupIndication = a.previousRequirements.isEmpty ? "No se requieren preparaciones especiales." : a.previousRequirements
+        } else if let c = analysis as? Consultation {
+            popupTitle = "¡Confirmar Consulta!"
+            popupDescription = """
+            Tipo de consulta: \(c.nameConsultation)
+            
+            Esta consulta te permitirá recibir atención médica especializada para tu condición.
+            """
+            popupIndication = "Asegúrate de tener toda la documentación médica necesaria y llegar 15 minutos antes de tu cita."
+        }
+        showNefroPop = true
+    }
+    
+    // Function to handle continue action from popup
+    private func continueAction() {
+        showNefroPop = false
+        if let analysis = selectedItem as? Analysis {
+             selectedAnalysis = analysis 
+            print("Redirecting to analysis details:", analysis.name)
+        } else if let consultation = selectedItem as? Consultation {
+            print("Redirecting to consultation booking:", consultation.nameConsultation)
+
+        }
+    }
 
     // Status to control navigation
     @State private var selectedConsultation: Consultation?
@@ -71,7 +112,8 @@ struct HomeView: View {
                                         costoComunidad: a.communityCost,
                                         costoGeneral: a.generalCost,
                                         isAnalysis: true,
-                                        onSettings: { selectedAnalysis = a }
+
+                                        onSettings: { selectAnalysis(a) }
                                     )
                                 }
                                 .navigationDestination(item: $selectedAnalysis) { analysis in
@@ -91,6 +133,7 @@ struct HomeView: View {
                                         costoGeneral: "\(c.generalCost)",
                                         isAnalysis: false,
                                         onSettings: { selectedConsultation = c }
+
                                     )
                                 }
                                 // Programmatic navigation: activated when selectedConsultation is not nil
@@ -113,6 +156,26 @@ struct HomeView: View {
         }
         .background(Color(.systemGroupedBackground)) // System-like grouped background
         .onAppear { vm.onAppear() } // Trigger ViewModel load when view appears
+        .overlay(
+            // NefroPop overlay
+            showNefroPop ? 
+            ZStack {
+                Color.black.opacity(0.4)
+                    .edgesIgnoringSafeArea(.all)
+                    .onTapGesture { showNefroPop = false }
+                
+                nefroPop(
+                    title: popupTitle,
+                    description: popupDescription,
+                    subtitle: "Requisitos",
+                    indication: popupIndication,
+                    buttonText: "Continuar",
+                    buttonAction: continueAction,
+                    closeAction: { showNefroPop = false }
+                )
+            }
+            : nil
+        )
     }
 }
 
