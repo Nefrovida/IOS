@@ -19,12 +19,15 @@ struct AnalysisTypeCard: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: 16) {
-
+           
             // ---- TEXT SECTION ----
             VStack(alignment: .leading, spacing: 8) {
                 Text(title)
                     .font(.system(size: 22, weight: .bold))
                     .foregroundStyle(Color.nvBrand)
+.lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
+
 
                 Text(description)
                     .font(.nvBody)
@@ -45,9 +48,7 @@ struct AnalysisTypeCard: View {
                     }
                 }
             }
-
             Spacer()
-
             // ---- ACTION BUTTON ----
             buttonBar(
                 imageName: isAnalysis ? "testtube.2" : "stethoscope",
@@ -55,6 +56,7 @@ struct AnalysisTypeCard: View {
                 move: onSettings
             )
         }
+        .frame(maxWidth: .infinity, minHeight: 120, maxHeight: 120)
         .padding(.horizontal, 20)
         .padding(.vertical, 18)
         .background(
