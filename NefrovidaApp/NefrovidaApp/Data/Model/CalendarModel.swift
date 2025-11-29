@@ -49,29 +49,6 @@ extension Appointment: Identifiable {
     var id: Int { patientAppointmentId }
 }
 
-// Struct that represent a individual analysis.
-struct AnalysisDTO: Codable {
-    let patientAnalysisId: Int
-    let laboratoristId: String?
-    let analysisId: Int
-    let patientId: String
-    let analysisDate: String
-    let resultsDate: String?
-    let place: String
-    let duration: Int
-    let analysisStatus: String
-
-    enum CodingKeys: String, CodingKey {
-        case patientAnalysisId = "patient_analysis_id"
-        case laboratoristId = "laboratorist_id"
-        case analysisId = "analysis_id"
-        case patientId = "patient_id"
-        case analysisDate = "analysis_date"
-        case resultsDate = "results_date"
-        case place, duration
-        case analysisStatus = "analysis_status"
-    }
-}
 
 extension Appointment {
     var localDate: Date {
@@ -93,4 +70,36 @@ extension Appointment {
     var localHourInt: Int {
         Int(localHourString.prefix(2)) ?? 0
     }
+}
+
+// Struct that represent a individual analysis.
+struct AnalysisDTO: Codable {
+    let patientAnalysisId: Int
+    let laboratoristId: String?
+    let analysisId: Int
+    let patientId: String
+    let analysisDate: String
+    let resultsDate: String?
+    let place: String
+    let duration: Int
+    let analysisStatus: String
+    
+    // ESTE ES EL NOMBRE
+    let analysis: AnalysisInfoDTO?
+
+    enum CodingKeys: String, CodingKey {
+        case patientAnalysisId = "patient_analysis_id"
+        case laboratoristId = "laboratorist_id"
+        case analysisId = "analysis_id"
+        case patientId = "patient_id"
+        case analysisDate = "analysis_date"
+        case resultsDate = "results_date"
+        case place, duration
+        case analysisStatus = "analysis_status"
+        case analysis
+    }
+}
+
+struct AnalysisInfoDTO: Codable {
+    let name: String
 }

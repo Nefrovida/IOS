@@ -38,14 +38,16 @@ final class RemoteAppointmentRepository: AppointmentRepository {
                     appointmentId: $0.analysisId,
                     dateHour: $0.analysisDate,
                     duration: $0.duration,
-                    appointmentType: "ANÁLISIS", // Static type to different in the view.
+                    appointmentType: "ANÁLISIS",
                     link: nil,
                     place: $0.place,
                     appointmentStatus: $0.analysisStatus,
-                    appointmentInfo: nil
+                    appointmentInfo: AppointmentInfo(
+                        name: $0.analysis?.name.trimmingCharacters(in: .whitespacesAndNewlines)
+                            ?? "Análisis"
+                    )
                 )
             }
-
             // Add the analysis to the array of the appointment.
             combined.append(contentsOf: mappedAnalysis)
 

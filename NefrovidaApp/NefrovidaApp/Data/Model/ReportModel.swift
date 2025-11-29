@@ -1,6 +1,7 @@
 import Foundation
 
 // Report model
+// arreglar calendario y reportes
 struct Report: Codable, Identifiable {
     var id: Int { resultId }                      // Identifiable: use resultId to identify to use for loops.
 
