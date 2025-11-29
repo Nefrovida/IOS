@@ -1,4 +1,19 @@
+//
+//  ReportsView.swift
+//  NefrovidaApp
+//
+//  Created by Manuel Bajos
+//
+
 import SwiftUI
+
+// Selector de sección
+enum ReportSection: String, CaseIterable, Identifiable {
+    case analysis = "Análisis"
+    case notes = "Notas"
+
+    var id: String { self.rawValue }
+}
 
 // Main view to display the report screen for a specific user
 struct ReportsView: View {
@@ -8,12 +23,12 @@ struct ReportsView: View {
     
     // ViewModel that handles fetching and managing report data
     @StateObject private var vm: ReportsViewModel
+    
+    // Estado local para controlar qué pestaña está seleccionada
+    @State private var selectedTab: ReportSection = .analysis
 
     // Custom initializer to inject the idUser and initialize the ViewModel
     init(userId: String) {
-        // Initialize the ViewModel with dependency injection:
-        // - userId to fetch their reports
-        // - GetReportsUseCase that contains the business logic
         _vm = StateObject(wrappedValue: ReportsViewModel(
             userId: userId,
             getReportsUseCase: GetReportsUseCase(repository: ReportsRemoteRepository())
@@ -24,31 +39,106 @@ struct ReportsView: View {
     var body: some View {
         VStack(spacing: 0) {
             
+            //─────────────────────────
             // Top navigation bar
+            //─────────────────────────
             UpBar()
             
-            // Scrollable body showing a filterable list of reports
+            //─────────────────────────
+            // Selector de Sección
+            //─────────────────────────
+            Picker("Tipo", selection: $selectedTab) {
+                Text("Resultados").tag(ReportSection.analysis)
+                Text("Notas").tag(ReportSection.notes)
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal)
+            .padding(.top, 8)
+            .padding(.bottom, 8)
+
+            //─────────────────────────
+            // CONTENIDO
+            //─────────────────────────
             ScrollView {
-                Spacer()
-                
-                // Custom organism that displays a list of reports
-                if vm.reports.isEmpty{
-                    Spacer()
-                    Text("No tiene reportes para mostrar")
-                        .font(.headline)
-                        .foregroundColor(.gray)
+
+                if vm.isLoading {
+                    ProgressView("Cargando…")
                         .padding(.top, 40)
-                }else{
-                    FilterableReportList(viewModel: vm)
+
+                } else if let err = vm.errorMessage {
+                    VStack(spacing: 10) {
+                        Text(err)
+                            .foregroundStyle(.red)
+                        Button("Reintentar") { vm.onAppear() }
+                    }
+                    .padding(.top, 40)
+
+                } else {
+                    // Vista condicional por pestaña
+                    switch selectedTab {
+                        
+                    case .analysis:
+                        if vm.analysisResults.isEmpty {
+                            EmptyState(text: "No hay resultados de análisis.")
+                        } else {
+                            VStack(spacing: 14) {
+                                ForEach(vm.analysisResults) { result in
+                                    ReportCard(
+                                        title: result.patientAnalysis.analysis.name
+                                            .trimmingCharacters(in: .whitespaces),
+                                        specialty: "Laboratorio Clínico",
+                                        doctor: "Especialista Nefrólogo",
+                                        date: DateFormats.isoTo(result.date, format: "dd/MM/yyyy"),
+                                        recommendations: result.patientAnalysis.analysis.description,
+                                        treatment: result.interpretation ?? "Sin tratamiento",
+                                        onViewReport: { print("Ver:", result.path) },
+                                        onDownloadReport: { print("Descargar:", result.path) }
+                                    )
+                                }
+                            }
+                            .padding(.top, 12)
+                        }
+
+                    case .notes:
+                        if vm.appointmentNotes.isEmpty {
+                            EmptyState(text: "No hay notas de consulta.")
+                        } else {
+                            VStack(spacing: 14) {
+                                ForEach(vm.appointmentNotes) { note in
+                                    NoteCard(note: note)
+                                }
+                            }
+                            .padding(.top, 12)
+                        }
+                    }
                 }
             }
-            
 
         }
-        .background(Color(.systemGroupedBackground)) // Use grouped background style
-        .onAppear { vm.onAppear() } // Trigger initial data loading on first display
+        .background(Color(.systemGroupedBackground))
+        .onAppear { vm.onAppear() }
     }
 }
+
+
+//────────────────────────────
+// Componente reutilizable para estados vacíos
+//────────────────────────────
+private struct EmptyState: View {
+    let text: String
+    
+    var body: some View {
+        VStack(spacing: 10) {
+            Spacer()
+            Text(text)
+                .font(.headline)
+                .foregroundColor(.gray)
+                .padding(.top, 20)
+        }
+        .frame(maxWidth: .infinity, minHeight: 200)
+    }
+}
+
 
 // Preview for SwiftUI canvas
 #Preview {
