@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct AnalysisView: View {
+struct AnalysisViewA: View {
     var body: some View {
         VStack {
             Text("Análisis")
@@ -21,5 +21,5 @@ struct AnalysisView: View {
 }
 
 #Preview {
-    AnalysisView()
+    AnalysisViewA()
 }

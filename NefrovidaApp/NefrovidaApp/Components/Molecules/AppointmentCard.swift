@@ -18,7 +18,7 @@ struct AppointmentCard: View {
                 .font(.nvBody)
                 .foregroundStyle(.primary)
 
-            Text("Status: \(appt.appointmentStatus.appointmentStatusSpanish)")
+            Text("Estatus: \(appt.appointmentStatus.appointmentStatusSpanish)")
                 .font(.nvSemibold)
         }
         .padding(12)

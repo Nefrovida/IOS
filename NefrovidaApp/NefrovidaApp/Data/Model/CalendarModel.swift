@@ -52,11 +52,11 @@ extension Appointment: Identifiable {
 // Struct that represent a individual analysis.
 struct AnalysisDTO: Codable {
     let patientAnalysisId: Int
-    let laboratoristId: String
+    let laboratoristId: String?
     let analysisId: Int
     let patientId: String
     let analysisDate: String
-    let resultsDate: String
+    let resultsDate: String?
     let place: String
     let duration: Int
     let analysisStatus: String
