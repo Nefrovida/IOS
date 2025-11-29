@@ -44,7 +44,7 @@ struct AnalysisDetail: Codable {
 
 struct AppointmentNote: Decodable, Identifiable {
 
-    // Identifiable → usar noteId
+    // Identifiable → noteId
     var id: Int { noteId }
 
     let noteId: Int
@@ -64,7 +64,7 @@ struct AppointmentNote: Decodable, Identifiable {
     let appointment: AppointmentReportInfo
 }
 
-// Relación con la cita
+// Relation with the appointment
 struct AppointmentReportInfo: Decodable {
     let appointmentId: Int
     let date: String

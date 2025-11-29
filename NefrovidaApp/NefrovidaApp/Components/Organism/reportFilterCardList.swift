@@ -13,7 +13,7 @@ struct FilterableReportList: View {
         VStack(spacing: 20) {
             
             //──────────────────────────────────────
-            // 1) Resultados de análisis
+            // 1) Result of analysis
             if !viewModel.analysisResults.isEmpty {
                 Section("Resultados de análisis") {
                     ForEach(viewModel.analysisResults) { result in
@@ -32,7 +32,7 @@ struct FilterableReportList: View {
             }
             
             //──────────────────────────────────────
-            // 2) Notas de consultas
+            // 2) Appointment Notes
             if !viewModel.appointmentNotes.isEmpty {
                 Section("Notas de consulta") {
                     ForEach(viewModel.appointmentNotes) { note in

@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-// Selector de sección
+// Selector of the view
 enum ReportSection: String, CaseIterable, Identifiable {
     case analysis = "Análisis"
     case notes = "Notas"
@@ -18,16 +18,16 @@ enum ReportSection: String, CaseIterable, Identifiable {
 // Main view to display the report screen for a specific user
 struct ReportsView: View {
     
-    // Unique identifier of the logged-in user (passed from previous screen)
     let userId: String
     
     // ViewModel that handles fetching and managing report data
     @StateObject private var vm: ReportsViewModel
     
-    // Estado local para controlar qué pestaña está seleccionada
+    // State to control the section
     @State private var selectedTab: ReportSection = .analysis
 
-    // Custom initializer to inject the idUser and initialize the ViewModel
+    // Custom initializer to inject the idUser
+    // and initialize the ViewModel
     init(userId: String) {
         _vm = StateObject(wrappedValue: ReportsViewModel(
             userId: userId,
@@ -45,7 +45,7 @@ struct ReportsView: View {
             UpBar()
             
             //─────────────────────────
-            // Selector de Sección
+            // Selector
             //─────────────────────────
             Picker("Tipo", selection: $selectedTab) {
                 Text("Resultados").tag(ReportSection.analysis)
@@ -57,7 +57,7 @@ struct ReportsView: View {
             .padding(.bottom, 8)
 
             //─────────────────────────
-            // CONTENIDO
+            // Content
             //─────────────────────────
             ScrollView {
 
@@ -74,7 +74,7 @@ struct ReportsView: View {
                     .padding(.top, 40)
 
                 } else {
-                    // Vista condicional por pestaña
+                    // View depending of the selection
                     switch selectedTab {
                         
                     case .analysis:
@@ -122,7 +122,8 @@ struct ReportsView: View {
 
 
 //────────────────────────────
-// Componente reutilizable para estados vacíos
+// Component to use when there
+// is not reports notes.
 //────────────────────────────
 private struct EmptyState: View {
     let text: String
@@ -139,8 +140,6 @@ private struct EmptyState: View {
     }
 }
 
-
-// Preview for SwiftUI canvas
 #Preview {
     ReportsView(userId:"474be354-8e34-4168-b9cf-3d6f0526ce53")
 }

@@ -44,7 +44,7 @@ struct NoteCard: View {
             }
         }
         .padding(18)
-        .frame(maxWidth: .infinity, alignment: .leading)   // 👉 KEY
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 20)
                 .fill(.white)
@@ -53,7 +53,6 @@ struct NoteCard: View {
         .padding(.horizontal)
     }
 
-    /// Pretty Section builder
     private func section(title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
