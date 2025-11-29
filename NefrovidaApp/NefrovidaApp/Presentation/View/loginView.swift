@@ -28,6 +28,14 @@ struct loginView: View {
                 // It's called the nefrovida logo
                 NefroVidaLogo()
                     .padding(.top, 30)
+                // Error messages are displayed.
+                if let error = viewModel.errorMessage {
+                    ErrorMessage(
+                        message: error,
+                        onDismiss: {
+                            viewModel.errorMessage = nil
+                        })
+                }
                 // The loginForm molecule is used
                 LoginForm(
                     user: $viewModel.username,
@@ -40,11 +48,6 @@ struct loginView: View {
                 if viewModel.isLoading {
                     ProgressView("Iniciando sesión...")
                         .padding(.top, 20)
-                }
-                if viewModel.errorMessage != nil {
-                    Text("No se pudo iniciar sesión")
-                        .foregroundColor(.red)
-                        .padding(.top, 10)
                 }
             }
             .padding(20)
