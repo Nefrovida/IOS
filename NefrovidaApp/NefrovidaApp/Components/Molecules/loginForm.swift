@@ -29,9 +29,16 @@ struct LoginForm: View {
                     }
                 }
             textField(placeholder: "Contraseña", text: $password, isSecure: true, iconName: "eye")
-                // Automatically removes spaces and special characters
+                // Automatically removes spaces and some special characters
                 .onChange(of: password) { oldValue, newValue in
-                    let filtered = newValue.filter { !$0.isWhitespace }
+                    let allowedSpecialChars = "!@#%*+"
+                    
+                    let filtered = newValue.filter { char in
+                        return char.isLetter ||
+                        char.isNumber ||
+                        allowedSpecialChars.contains(char)
+                    }
+                    
                     if filtered != newValue {
                         password = filtered
                     }
