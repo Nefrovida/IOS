@@ -17,7 +17,7 @@ enum Tab: Equatable {
     var iconName: String {
         switch self {
         case .inicio: return "house"
-        case .analisis: return "testtube.2"
+        case .analisis: return "doc.text"
         case .foros: return "text.bubble"
         case .agenda: return "calendar"
         }
@@ -26,7 +26,7 @@ enum Tab: Equatable {
     var label: String {
         switch self {
         case .inicio: return "Inicio"
-        case .analisis: return "Análisis"
+        case .analisis: return "Resultados"
         case .foros: return "Foros"
         case .agenda: return "Agenda"
         }
