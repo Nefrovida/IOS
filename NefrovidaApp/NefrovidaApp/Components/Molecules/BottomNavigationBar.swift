@@ -10,6 +10,7 @@ import SwiftUI
 // Molecule component: Bottom navigation bar composed of NavTabButton atoms
 struct BottomNavigationBar: View {
     @Binding var selectedTab: Tab
+    @Binding var isFirstLogin: Bool
     let onSelect: (Tab) -> Void
 
     var body: some View {
@@ -22,9 +23,11 @@ struct BottomNavigationBar: View {
             NavTabButton(tab: .analisis, isSelected: selectedTab == .analisis) {
                 onSelect(.analisis)
             }
-            Spacer()
-            NavTabButton(tab: .foros, isSelected: selectedTab == .foros) {
-                onSelect(.foros)
+            if !isFirstLogin{
+                Spacer()
+                NavTabButton(tab: .foros, isSelected: selectedTab == .foros) {
+                    onSelect(.foros)
+                }
             }
             Spacer()
             NavTabButton(tab: .agenda, isSelected: selectedTab == .agenda) {
@@ -35,11 +38,5 @@ struct BottomNavigationBar: View {
         .padding(.vertical, 10)
         .background(Color.nvBrand)
         .edgesIgnoringSafeArea(.bottom)
-    }
-}
-
-#Preview {
-    BottomNavigationBar(selectedTab: .constant(.inicio)) { tab in
-        print("Selected: \(tab)")
     }
 }

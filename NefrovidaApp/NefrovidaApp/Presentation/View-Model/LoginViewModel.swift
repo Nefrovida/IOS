@@ -17,14 +17,18 @@ final class LoginViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var loggedUser: LoginEntity?
     @Published var isLoggedIn: Bool = false
+    @Published var isFirstLogin: Bool = false
     
     // The logingUseCase is called
     private let loginUseCase: LoginUseCase
+    private let isFirstLoginUseCase: isLogginUsesCase
     
     // Initializes the login use case with a repository that handles server requests
     init() {
         let repository = AuthRepositoryD()
+        let userRepository = UserRemoteRepository()
         self.loginUseCase = LoginUseCase(repository: repository)
+        self.isFirstLoginUseCase = isLogginUsesCase(repository: userRepository)
     }
     
     // The fields are validated to ensure they are complete.
@@ -40,8 +44,10 @@ final class LoginViewModel: ObservableObject {
         // Calls the login use case to perform authentication
         do {
             let user = try await loginUseCase.execute(username: username, password: password)
+            let firstL = try await isFirstLoginUseCase.execute(userId: user.user_id)
             self.loggedUser = user
             self.isLoggedIn = true
+            self.isFirstLogin = firstL
             print("Sesión iniciada como: \(user.username)")
         } catch {
             // If the authentication fails, an error message is sent

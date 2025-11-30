@@ -13,6 +13,5 @@ struct LoginEntity: Equatable {
     let name: String
     let username: String
     let role_id: Int
-    let first_login: Bool
     let privileges: [String]
 }

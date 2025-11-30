@@ -63,7 +63,6 @@ final class AuthRepositoryD: AuthRepository {
                 name: user.name,
                 username: user.username,
                 role_id: user.role_id,
-                first_login: user.first_login,
                 privileges: []
             )
         // If it fails, it displays an error message.
@@ -73,6 +72,28 @@ final class AuthRepositoryD: AuthRepository {
                 throw NSError(domain: "", code: response.response?.statusCode ?? 500,
                               userInfo: [NSLocalizedDescriptionKey: message])
             }
+            throw error
+        }
+    }
+}
+
+final class UserRemoteRepository:UserRepository {
+    
+    func fetchFirstLogin(for userId: String) async throws -> Bool {
+        let endpoint = "\(AppConfig.apiBaseURL)/users/first-login/\(userId)"
+        
+        do {
+            // Devuelve directamente FirstLoginResponse (no DataResponse<>)
+            let decoded = try await AF.request(endpoint)
+                .validate()
+                .serializingDecodable(FirstLoginResponse.self)
+                .value
+            
+            print("estado de first-login:",decoded.isFirstLogin)
+            return decoded.isFirstLogin
+            
+        } catch {
+            print("Error fetching first-login:", error)
             throw error
         }
     }

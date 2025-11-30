@@ -10,6 +10,7 @@ import SwiftUI
 struct loginView: View {
     @Binding var isLoggedIn: Bool
     @Binding var loggedUser: LoginEntity?
+    @Binding var isFirstLogin: Bool
     // Connects to loginViewModel
     @StateObject private var viewModel = LoginViewModel()
     var body: some View {
@@ -62,6 +63,10 @@ struct loginView: View {
                 isLoggedIn = true
             }
         }
+
+        .onChange(of: viewModel.isFirstLogin) { _, newValue in
+            isFirstLogin = newValue
+        }
         // Redirect to another view after logging in
         .fullScreenCover(isPresented: $isLoggedIn) {
             HomeView(user: viewModel.loggedUser)
@@ -70,6 +75,4 @@ struct loginView: View {
 }
 
 // A preview to visualize the view of the loginView
-#Preview {
-    loginView(isLoggedIn: .constant(false), loggedUser: .constant(nil))
-}
+
