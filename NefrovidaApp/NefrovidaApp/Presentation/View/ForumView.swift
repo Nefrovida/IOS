@@ -27,23 +27,48 @@ struct ForumView: View {
             UpBar()
 
             // --- Replies list ---
-            List(vm.messages) { reply in
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(reply.createdBy)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-
-                    Text(reply.content)
-                        .font(.body)
+            if vm.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let error = vm.errorMessage {
+                VStack(spacing: 8) {
+                    Text(error)
+                        .foregroundColor(.red)
+                        .multilineTextAlignment(.center)
+                    Button("Reintentar") {
+                        Task {
+                            await vm.loadThread(forumId: forumId, rootId: rootMessageId)
+                        }
+                    }
+                    .buttonStyle(.bordered)
                 }
-                .padding(.vertical, 6)
-            }
-            .listStyle(.plain)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if vm.messages.isEmpty {
+                Text("Aún no hay respuestas en este hilo")
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                List(vm.messages) { reply in
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(reply.createdBy)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
 
-            // --- Input bar ---
+                        Text(reply.content)
+                            .font(.body)
+                    }
+                    .padding(.vertical, 6)
+                }
+                .listStyle(.plain)
+            }
+        }
+        // --- Input bar ---
+        .safeAreaInset(edge: .bottom) {
             HStack {
-                TextField("Escribe una respuesta...", text: $vm.replyContent)
+                TextField("Escribe una respuesta...", text: $vm.replyContent, axis: .vertical)
                     .textFieldStyle(.roundedBorder)
+                    .lineLimit(1...3)
 
                 Button("Enviar") {
                     Task {
@@ -51,6 +76,16 @@ struct ForumView: View {
                     }
                 }
                 .buttonStyle(.borderedProminent)
+                .disabled(
+                    vm.replyContent
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                        .isEmpty || vm.isLoading
+                )
+                .opacity(
+                    vm.replyContent
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                        .isEmpty || vm.isLoading ? 0.6 : 1
+                )
             }
             .padding()
             .background(.ultraThinMaterial)
@@ -59,6 +94,6 @@ struct ForumView: View {
             await vm.loadThread(forumId: forumId, rootId: rootMessageId)
         }
         .navigationTitle("Respuestas")
-        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
