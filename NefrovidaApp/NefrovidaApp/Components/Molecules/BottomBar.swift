@@ -5,7 +5,9 @@ struct BottomBar: View {
     var idUser : String
     var body: some View {
         HStack{
-            buttonBar(imageName:"house", text: "Inicio"){ print("Home")}
+            buttonBar(imageName:"house", text: "Inicio"){ print("Inicio")}
+            Spacer()
+            buttonBar(imageName:"cross.case", text: "Servicios"){ print("Servicios")}
             Spacer()
             buttonBar(imageName:"testtube.2", text: "Analisis"){ print("Analisis")}
             Spacer()
