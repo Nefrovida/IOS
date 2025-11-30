@@ -5,6 +5,7 @@ struct ForumView: View {
     let forumId: Int
     let rootMessageId: Int
 
+    @FocusState private var isInputFocused: Bool
     init(forumId: Int, rootMessageId: Int) {
         let repo = ForumRemoteRepository(
             baseURL: AppConfig.apiBaseURL,
@@ -46,33 +47,71 @@ struct ForumView: View {
             } else if vm.messages.isEmpty {
                 Text("Aún no hay respuestas en este hilo")
                     .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
-                List(vm.messages) { reply in
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(reply.createdBy)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                    .contentShape(Rectangle())
+                    .onTapGesture { isInputFocused = false }
 
-                        Text(reply.content)
-                            .font(.body)
+            } else {
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: 0) {
+                            ForEach(vm.messages) { reply in
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text(reply.createdBy)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+
+                                    Text(reply.content)
+                                        .font(.body)
+                                }
+                                .padding(.vertical, 10)
+                                .padding(.horizontal)
+                                .id(reply.id)
+
+                                Divider()
+                                    .padding(.leading)
+                            }
+                        }
+                        .padding(.bottom, isInputFocused ? 80 : 0)
                     }
-                    .padding(.vertical, 6)
+                    .onAppear {
+                        guard let last = vm.messages.last else { return }
+                        DispatchQueue.main.async {
+                            proxy.scrollTo(last.id, anchor: .bottom)
+                        }
+                    }
+                    .onChange(of: vm.messages.count) { _ in
+                        guard let last = vm.messages.last else { return }
+                        DispatchQueue.main.async {
+                            withAnimation {
+                                proxy.scrollTo(last.id, anchor: .bottom)
+                            }
+                        }
+                    }
+                    .simultaneousGesture(
+                        TapGesture().onEnded { isInputFocused = false }
+                    )
                 }
-                .listStyle(.plain)
             }
         }
         // --- Input bar ---
         .safeAreaInset(edge: .bottom) {
             HStack {
-                TextField("Escribe una respuesta...", text: $vm.replyContent, axis: .vertical)
-                    .textFieldStyle(.roundedBorder)
-                    .lineLimit(1...3)
+                TextField(
+                    "Escribe una respuesta...",
+                    text: $vm.replyContent,
+                    axis: .vertical
+                )
+                .textFieldStyle(.roundedBorder)
+                .lineLimit(1...3)
+                .focused($isInputFocused)
 
                 Button("Enviar") {
                     Task {
                         await vm.sendReply(forumId: forumId, rootId: rootMessageId)
+                        await MainActor.run {
+                            isInputFocused = false
+                        }
                     }
                 }
                 .buttonStyle(.borderedProminent)
