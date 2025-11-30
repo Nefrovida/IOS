@@ -21,6 +21,6 @@ public struct ForumFeedItem: Identifiable {
     public let id: Int
     let content: String
     let likes: Int
-    let replies: Int
+    var replies: Int
     let forumName: String
 }

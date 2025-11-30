@@ -1,6 +1,10 @@
 import SwiftUI
 import Combine
 
+extension Notification.Name {
+    static let forumRepliesUpdated = Notification.Name("forumRepliesUpdated")
+}
+
 @MainActor
 class ForumViewModel: ObservableObject {
     @Published var messages: [ForumMessageEntity] = []
@@ -44,6 +48,14 @@ class ForumViewModel: ObservableObject {
             )
             messages.append(newReply)
             replyContent = ""
+            
+            // Notify feed that post-root message has a new reply
+            NotificationCenter.default.post(
+                name: .forumRepliesUpdated,
+                object: nil,
+                userInfo: ["messageId": rootId]
+            )
+            
         } catch {
             print("Error enviando reply: \(error)")
         }
