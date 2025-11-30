@@ -10,24 +10,26 @@ struct FeedCard: View {
     let item: ForumFeedItem
     let onRepliesTapped: () -> Void
     
+    @State private var isExpanded = false
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             
-            HStack {
+            HStack(alignment: .center, spacing: 10) {
                 Image(systemName: "person.circle.fill")
                     .font(.title3)
                     .foregroundColor(.gray)
 
-                Text(item.forumName)
+                Text(item.authorName)
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .foregroundColor(.primary)
+                Spacer()
             }
-
-            Text(item.content)
+            
+            Text(isExpanded ? item.content : truncatedContent)
                 .foregroundColor(.primary)
                 .font(.body)
-                .lineLimit(4)
+                .lineLimit(isExpanded ? nil : 4)
 
             HStack(spacing: 18) {
                 Label("\(item.likes)", systemImage: "hand.thumbsup")
@@ -38,13 +40,26 @@ struct FeedCard: View {
                     Label("\(item.replies)", systemImage: "bubble.left")
                 }
                 Spacer()
-                
-                Text("Ver más")
-                    .font(.caption)
-                    .foregroundColor(.blue)
+
+                if item.content.count > 200 && !isExpanded {
+                    Button {
+                        isExpanded.toggle()
+                    } label: {
+                        Text("Ver más")
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                    }
+                }
             }
         }
         .padding()
         .background(RoundedRectangle(cornerRadius: 12).stroke(.gray.opacity(0.2)))
+    }
+
+    private var truncatedContent: String {
+        if item.content.count > 200 {
+            return String(item.content.prefix(200)) + "..."
+        }
+        return item.content
     }
 }

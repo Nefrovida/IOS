@@ -11,6 +11,7 @@ struct FeedDTO: Decodable {
     let likes: Int
     let replies: Int
     let forums: ForumFeedInfoDTO
+    let userName: String?
 }
 
 struct ForumFeedInfoDTO: Decodable {
@@ -25,7 +26,8 @@ extension FeedDTO {
             content: content,
             likes: likes,
             replies: replies,
-            forumName: forums.name
+            forumName: forums.name,
+            authorName: userName ?? "Usuario"
         )
         
     }

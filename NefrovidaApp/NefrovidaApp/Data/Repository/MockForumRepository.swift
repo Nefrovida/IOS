@@ -8,9 +8,9 @@ public final class MockForumRepository: ForumRepository {
 
     public func getFeed(forumId: Int?, page: Int) async throws -> [ForumFeedItem] {
         return [
-            ForumFeedItem(id: 1, content: "Bienvenidos al foro 👋", likes: 12, replies: 5, forumName: "General"),
-            ForumFeedItem(id: 2, content: "Recuerden hidratarse 💧", likes: 5, replies: 1, forumName: "Tips de salud"),
-            ForumFeedItem(id: 3, content: "¿Dudas sobre medicamentos?", likes: 8, replies: 3, forumName: "Consultas")
+//            ForumFeedItem(id: 1, content: "Bienvenidos al foro 👋", likes: 12, replies: 5, forumName: "General"),
+//            ForumFeedItem(id: 2, content: "Recuerden hidratarse 💧", likes: 5, replies: 1, forumName: "Tips de salud"),
+//            ForumFeedItem(id: 3, content: "¿Dudas sobre medicamentos?", likes: 8, replies: 3, forumName: "Consultas")
         ]
     }
         

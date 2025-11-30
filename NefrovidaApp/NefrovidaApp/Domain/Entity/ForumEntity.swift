@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Forum: Identifiable, Hashable{
+public struct Forum: Identifiable, Hashable {
     public let id: Int
     public let name: String
     public let description: String
@@ -23,4 +23,5 @@ public struct ForumFeedItem: Identifiable {
     let likes: Int
     var replies: Int
     let forumName: String
+    let authorName: String
 }

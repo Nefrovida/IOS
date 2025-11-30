@@ -18,7 +18,8 @@ struct MessageCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             MessageCardHeader(
-                forumName: "Foro \(message.forumId)", // Placeholder
+                authorName: message.createdBy,
+                forumName: message.forumId.map { "Foro \($0)" },
                 onMoreTapped: onMoreTapped
             )
             

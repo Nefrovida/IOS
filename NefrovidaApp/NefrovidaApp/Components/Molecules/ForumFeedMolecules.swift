@@ -9,14 +9,24 @@ import SwiftUI
 
 // MARK: - Message Card Header
 struct MessageCardHeader: View {
-    let forumName: String
+    let authorName: String
+    let forumName: String?
     let onMoreTapped: () -> Void
     
     var body: some View {
         HStack {
             UserAvatar(imageUrl: nil, size: 40)
             
-            ForumBadge(forumName: forumName)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(authorName)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                
+                if let forumName = forumName {
+                    ForumBadge(forumName: forumName)
+                        .foregroundColor(.secondary)
+                }
+            }
             
             Spacer()
             
