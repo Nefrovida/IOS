@@ -56,12 +56,14 @@ final class AuthRepositoryD: AuthRepository {
             }
             
             let user = loginResponse.user
+            print(user)
             // Return the users data
             return LoginEntity(
                 user_id: user.user_id,
                 name: user.name,
                 username: user.username,
                 role_id: user.role_id,
+                first_login: user.first_login,
                 privileges: []
             )
         // If it fails, it displays an error message.

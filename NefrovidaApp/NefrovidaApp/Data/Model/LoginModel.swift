@@ -19,5 +19,6 @@ nonisolated struct LoginModel: Decodable, Sendable {
     let name: String
     let username: String
     let role_id: Int
+    let first_login: Bool
     let privileges: [String]?
 }
