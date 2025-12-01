@@ -24,7 +24,6 @@ final class RemoteAppointmentRepository: AppointmentRepository {
         case .success(let data):
             // If the response is successfully, try to decode the json.
             let response = try JSONDecoder().decode(AppointmentsResponse.self, from: data)
-            print("se obtuvo las citas")
 
             // Make a temporal array with the appointments that get by the backend.
             var combined: [Appointment] = response.appointments
