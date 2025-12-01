@@ -12,6 +12,7 @@ struct LoginForm: View {
     @Binding var password: String
     // Call the login logic from the viewModel
     var onLogin: () -> Void
+    var onCreateAccount: () -> Void
 
     var body: some View {
         VStack(spacing: 16) {
@@ -63,7 +64,7 @@ struct LoginForm: View {
                 action: onLogin
             )
             // Button that redirects to the view for creating a new account
-            Button("¿Nuevo? Crea tu cuenta aquí") {}
+            Button("¿Nuevo? Crea tu cuenta aquí") {onCreateAccount()}
             .font(.footnote)
             .foregroundColor(.gray)
             .padding()
@@ -79,5 +80,5 @@ struct LoginForm: View {
 #Preview {
     @Previewable @State var password = ""
     @Previewable @State var user = ""
-    LoginForm(user: $user, password: $password, onLogin: { })
+    LoginForm(user: $user, password: $password, onLogin: { }, onCreateAccount: { })
 }
