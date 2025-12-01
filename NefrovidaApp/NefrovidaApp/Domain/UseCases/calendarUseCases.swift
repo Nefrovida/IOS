@@ -34,3 +34,27 @@ final class GetAppointmentsForDayUseCase {
         return sameDay
     }
 }
+
+final class CancelAppointmentUseCase {
+    private let repo: CancelAppointmentRepository
+    
+    init(repository: CancelAppointmentRepository) {
+        self.repo = repository
+    }
+    
+    func execute(id: Int) async throws {
+        try await repo.cancelAppointment(id: id)
+    }
+}
+
+final class CancelAnalysisUseCase {
+    private let repo: CancelAnalysisRepository
+    
+    init(repository: CancelAnalysisRepository) {
+        self.repo = repository
+    }
+    
+    func execute(id: Int) async throws {
+        try await repo.cancelAnalysis(id: id)
+    }
+}

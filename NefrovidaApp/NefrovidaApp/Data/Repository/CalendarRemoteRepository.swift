@@ -59,3 +59,40 @@ final class RemoteAppointmentRepository: AppointmentRepository {
         }
     }
 }
+
+final class RemoteCancelAppointmentRepository: CancelAppointmentRepository {
+
+    func cancelAppointment(id: Int) async throws {
+        let url = "\(AppConfig.apiBaseURL)/appointments/\(id)/cancel"
+
+        let response = await AF.request(url, method: .post)
+            .validate()
+            .serializingData()
+            .response
+
+        switch response.result {
+        case .success:
+            print("🟢 Cita cancelada con éxito")
+        case .failure(let error):
+            throw error
+        }
+    }
+}
+
+final class RemoteCancelAnalysisRepository: CancelAnalysisRepository {
+    func cancelAnalysis(id: Int) async throws {
+        let url = "\(AppConfig.apiBaseURL)/analysis/\(id)/cancel"
+
+        let response = await AF.request(url, method: .post)
+            .validate()
+            .serializingData()
+            .response
+
+        switch response.result {
+        case .success:
+            print("🟢 Análisis cancelado con éxito")
+        case .failure(let error):
+            throw error
+        }
+    }
+}

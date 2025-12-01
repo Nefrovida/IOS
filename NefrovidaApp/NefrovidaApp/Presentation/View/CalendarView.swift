@@ -4,26 +4,37 @@ struct CalendarView: View {
     // ViewModel that handles the state, data, and logic of the agenda.
     var idUser : String
     @StateObject private var vm: AgendaViewModel
-
+    
     // Initializes the agenda screen by injecting dependencies into the ViewModel.
     // Parameter idUser: The unique identifier of the authenticated user.
     init(idUser: String) {
         self.idUser = idUser
-        // Example repository for testing (can be replaced with RemoteAppointmentRepository).
-        let repo = RemoteAppointmentRepository()
-        // Use case responsible for retrieving appointments.
-        let uc = GetAppointmentsForDayUseCase(repository: repo)
-        // Initializes the ViewModel with the use case and user ID.
-        _vm = StateObject(wrappedValue: AgendaViewModel(getAppointmentsUC: uc, idUser: idUser))
-    }
+        
+        let appointmentRepo = RemoteAppointmentRepository()
+        let cancelApptRepo = RemoteCancelAppointmentRepository()
+        let cancelAnalysisRepo = RemoteCancelAnalysisRepository()
 
+        let getUC = GetAppointmentsForDayUseCase(repository: appointmentRepo)
+        let cancelUC = CancelAppointmentUseCase(repository: cancelApptRepo)
+        let cancelAnalysisUC = CancelAnalysisUseCase(repository: cancelAnalysisRepo)
+
+        _vm = StateObject(wrappedValue:
+            AgendaViewModel(
+                getAppointmentsUC: getUC,
+                cancelAppointmentUC: cancelUC,
+                cancelAnalysisUC: cancelAnalysisUC,
+                idUser: idUser
+            )
+        )
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
             // Top bar (title, user info, etc.)
             UpBar()
             
             Spacer()
-
+            
             // Header section with tabs and current month title.
             HStack(spacing: 12) {
                 // Displays the current month title (e.g., “November”)
@@ -32,9 +43,9 @@ struct CalendarView: View {
                     .fontWeight(.bold)
             }
             .padding(.horizontal)
-
+            
             Spacer()
-
+            
             // Week selector strip (allows user to pick a specific day).
             WeekStrip(
                 days: vm.currentWeekDays(),
@@ -49,7 +60,7 @@ struct CalendarView: View {
                         if value.translation.width > 40 { vm.goPrevWeek() }  // Swipe right
                     }
             )
-
+            
             // Displays loading indicator, error message, or appointments list depending on state.
             if vm.isLoading {
                 // Shows a loading spinner while fetching data.
@@ -80,15 +91,14 @@ struct CalendarView: View {
                     }
                 }
             }
-
+            
         }
         // Loads appointments when the view appears on screen.
         .onAppear { vm.onAppear() }
+        .onReceive(NotificationCenter.default.publisher(for: .cancelAppointmentRequest)) { notif in
+            if let appt = notif.object as? Appointment {
+                vm.cancel(appt: appt)
+            }
+        }
     }
-}
-
-#Preview {
-    // Preview of the agenda screen with a mock user ID.
-    CalendarView(idUser: "4b74425f-6c7a-4cf6-ac19-18372ac9854a")
-
 }

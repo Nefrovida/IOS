@@ -103,3 +103,10 @@ struct AnalysisDTO: Codable {
 struct AnalysisInfoDTO: Codable {
     let name: String
 }
+
+extension Appointment {
+    var canBeCancelled: Bool {
+        let diff = localDate.timeIntervalSince(Date())
+        return diff >= (24 * 3600)
+    }
+}
