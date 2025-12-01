@@ -49,6 +49,8 @@ struct AppointmentPopup: View {
     let appt: Appointment
     let onCancel: () -> Void
     let onClose: () -> Void
+    
+    @State private var showConfirmCancel = false
 
     var body: some View {
         VStack(spacing: 16) {
@@ -61,7 +63,7 @@ struct AppointmentPopup: View {
             Text("Tipo: \(appt.appointmentType)")
 
             Button(role: .destructive) {
-                onCancel()
+                showConfirmCancel = true
             } label: {
                 Text("Cancelar cita")
                     .frame(maxWidth: .infinity)
@@ -75,9 +77,17 @@ struct AppointmentPopup: View {
             }
         }
         .padding(22)
-        .background(.thinMaterial)
+        .background(.ultraThinMaterial)
         .cornerRadius(18)
         .shadow(radius: 10)
         .frame(maxWidth: 350)
+        .alert("¿Seguro que quieres cancelar esta cita?", isPresented: $showConfirmCancel) {
+            Button("Cancelar cita", role: .destructive) {
+                onCancel()
+            }
+            Button("Volver", role: .cancel) {}
+        } message: {
+            Text("Esta acción no se puede deshacer.")
+        }
     }
 }
