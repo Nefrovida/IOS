@@ -116,7 +116,7 @@ final class AgendaViewModel: ObservableObject {
     func monthYearTitle() -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "es_MX")
-        formatter.dateFormat = "LLLL yyyy" // Ej: "noviembre 2025"
+        formatter.dateFormat = "LLLL yyyy" 
         
         let raw = formatter.string(from: selectedDate)
         return raw.prefix(1).capitalized + raw.dropFirst()
@@ -128,11 +128,9 @@ final class AgendaViewModel: ObservableObject {
         
         do {
             if appt.appointmentType.uppercased() == "ANÁLISIS" {
-                print("➡️ CANCEL ANALYSIS")
                 return try await getAppointmentsUC.CancelAnalysis(id: appt.patientAppointmentId)
             }
             
-            print("➡️ CANCEL APPOINTMENT")
             return try await getAppointmentsUC.CancelAppointment(id: appt.patientAppointmentId)
             
         } catch {

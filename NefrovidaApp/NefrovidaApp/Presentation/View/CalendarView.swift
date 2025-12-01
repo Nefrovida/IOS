@@ -81,7 +81,7 @@ struct CalendarView: View {
                             let ok = await vm.cancelApp()
                             if ok {
                                 showDetails = false
-                                vm.select(date: vm.selectedDate) // Recargar citas
+                                vm.select(date: vm.selectedDate) 
                             }
                         }
                     },
