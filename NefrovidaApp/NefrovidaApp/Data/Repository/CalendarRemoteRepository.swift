@@ -44,7 +44,7 @@ final class RemoteAppointmentRepository: AppointmentRepository {
                     appointmentInfo: AppointmentInfo(
                         name: $0.analysis?.name.trimmingCharacters(in: .whitespacesAndNewlines)
                         ?? "Análisis"
-                    )
+                    ),
                 )
             }
             // Add the analysis to the array of the appointment.
