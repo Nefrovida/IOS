@@ -21,7 +21,28 @@ struct LoginForm: View {
                 .padding(20)
             // The textField atom is used for the User and Password field
             textField(placeholder: "Usuario", text: $user, isSecure: false, iconName: "xmark")
+                // Only allows letters, numbers, underscores, and no spaces
+                .onChange(of: user) { oldValue, newValue in
+                    let filtered = newValue.filter { $0.isLetter || $0.isNumber || $0 == "_" }
+                    if filtered != newValue {
+                        user = filtered
+                    }
+                }
             textField(placeholder: "Contraseña", text: $password, isSecure: true, iconName: "eye")
+                // Automatically removes spaces and some special characters
+                .onChange(of: password) { oldValue, newValue in
+                    let allowedSpecialChars = "!@#%*+"
+                    
+                    let filtered = newValue.filter { char in
+                        return char.isLetter ||
+                        char.isNumber ||
+                        allowedSpecialChars.contains(char)
+                    }
+                    
+                    if filtered != newValue {
+                        password = filtered
+                    }
+                }
             
             // Button that redirects to the view for change the password
             Button("¿Olvidaste tu contraseña?") {}

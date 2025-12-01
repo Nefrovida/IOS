@@ -45,10 +45,25 @@ final class LoginViewModel: ObservableObject {
             print("Sesión iniciada como: \(user.username)")
         } catch {
             // If the authentication fails, an error message is sent
-            self.errorMessage = error.localizedDescription
+            self.errorMessage = handleLoginError(error)
             print("Error de login:", error.localizedDescription)
         }
         
         isLoading = false
+    }
+    // Depending on the server error, the message is selected.
+    private func handleLoginError(_ error: Error) -> String {
+        let errorDescription = error.localizedDescription.lowercased()
+        if errorDescription.contains("401") || errorDescription.contains("credentials") {
+            return "Usuario o contraseña incorrectos"
+        } else if errorDescription.contains("network") || errorDescription.contains("connection") {
+            return "Error de conexión. Verifica tu internet"
+        } else if errorDescription.contains("timeout") {
+            return "El servidor no responde. Intenta de nuevo"
+        } else if errorDescription.contains("500") {
+            return "Error del servidor. Intenta más tarde"
+        } else {
+            return "Error al iniciar sesión. Intenta de nuevo"
+        }
     }
 }
