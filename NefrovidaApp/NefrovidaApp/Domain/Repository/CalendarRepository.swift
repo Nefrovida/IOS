@@ -8,4 +8,8 @@ protocol AppointmentRepository {
     // Returns: Array of the appointments and analysis.
     // Throws: Error if the conection fails or the decode.
     func fetchAppointments(idUser: String) async throws -> [Appointment]
+    
+    func CancelAppointment(id: Int) async throws -> Bool
+    
+    func CancelAnalysis(id: Int) async throws -> Bool
 }

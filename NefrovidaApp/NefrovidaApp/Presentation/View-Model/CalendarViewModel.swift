@@ -9,6 +9,10 @@ final class AgendaViewModel: ObservableObject {
     // The currently selected date in the agenda.
     @Published var selectedDate: Date
     
+    @Published var SelectedAppointment: Appointment?
+    
+    @Published var SelectedAnlaysis: AnalysisDTO?
+    
     // List of appointments for the selected day.
     @Published private(set) var appointments: [Appointment] = []
     
@@ -118,5 +122,24 @@ final class AgendaViewModel: ObservableObject {
 
         let raw = formatter.string(from: selectedDate)
         return raw.prefix(1).capitalized + raw.dropFirst()
+    }
+    
+    func cancelApp() async -> Bool {
+        do {
+            if let appt = SelectedAppointment {
+                print("cita cancelada")
+                return try await getAppointmentsUC.CancelAppointment(id: appt.patientAppointmentId)
+            }
+            
+            if let analysis = SelectedAnlaysis {
+                print("analisis cancelado")
+                return try await getAppointmentsUC.CancelAnalysis(id: analysis.patientAnalysisId)
+            }
+            
+            return false
+        } catch {
+            print("Error cancelando cita/análisis:", error)
+            return false
+        }
     }
 }
