@@ -5,6 +5,8 @@ struct CalendarView: View {
     @StateObject private var vm: AgendaViewModel
     
     @State private var showDetails = false
+    @State private var navigateToReschedule = false
+    @State private var appointmentIdToReschedule: Int?
 
     init(idUser: String) {
         self.idUser = idUser
@@ -14,8 +16,9 @@ struct CalendarView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            UpBar()
+        NavigationStack {
+            VStack(spacing: 0) {
+                UpBar()
 
             Spacer()
 
@@ -87,10 +90,26 @@ struct CalendarView: View {
                     },
                     onClose: {
                         showDetails = false
+                    },
+                    onReschedule: {
+                        Task {
+                            let ok = await vm.cancelApp()
+                            if ok {
+                                appointmentIdToReschedule = appt.appointmentId
+                                showDetails = false
+                                navigateToReschedule = true
+                            }
+                        }
                     }
                 )
             }
         }
+        .navigationDestination(isPresented: $navigateToReschedule) {
+            if let appointmentId = appointmentIdToReschedule {
+                appointmentView(appointmentId: appointmentId, userId: idUser)
+            }
+        }
         .onAppear { vm.onAppear() }
+        }
     }
 }

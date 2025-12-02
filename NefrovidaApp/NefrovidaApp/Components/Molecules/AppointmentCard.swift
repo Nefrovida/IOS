@@ -49,8 +49,10 @@ struct AppointmentPopup: View {
     let appt: Appointment
     let onCancel: () -> Void
     let onClose: () -> Void
+    let onReschedule: () -> Void
     
     @State private var showConfirmCancel = false
+    @State private var showConfirmReschedule = false
 
     var body: some View {
         VStack(spacing: 16) {
@@ -72,6 +74,16 @@ struct AppointmentPopup: View {
                     .cornerRadius(10)
             }
 
+            Button {
+                showConfirmReschedule = true
+            } label: {
+                Text("Reagendar")
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.blue.opacity(0.15))
+                    .cornerRadius(10)
+            }
+
             Button("Cerrar") {
                 onClose()
             }
@@ -88,6 +100,14 @@ struct AppointmentPopup: View {
             Button("Volver", role: .cancel) {}
         } message: {
             Text("Esta acción no se puede deshacer.")
+        }
+        .alert("¿Deseas reagendar esta cita?", isPresented: $showConfirmReschedule) {
+            Button("Sí, reagendar", role: .destructive) {
+                onReschedule()
+            }
+            Button("Cancelar", role: .cancel) {}
+        } message: {
+            Text("Tu cita actual será cancelada y podrás programar una nueva.")
         }
     }
 }
