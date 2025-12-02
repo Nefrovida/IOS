@@ -17,7 +17,7 @@ class RegisterViewModel: ObservableObject {
     @Published var apellidoMaterno = ""
     @Published var telefono = ""
     @Published var fechaNacimiento = Date()
-    @Published var generoSeleccionado = "Masculino"
+    @Published var generoSeleccionado = ""
     @Published var curp = ""
     @Published var username = ""
     @Published var password = ""
