@@ -1,3 +1,8 @@
+//
+//  ForumViewModel.swift
+//  NefrovidaApp
+//
+
 import SwiftUI
 import Combine
 
@@ -15,12 +20,31 @@ class ForumViewModel: ObservableObject {
     private let replyToMessageUC: ReplyToMessageUseCase
     private let getRepliesUC: GetRepliesUseCase
 
-    init(replyToMessageUC: ReplyToMessageUseCase,
-         getRepliesUC: GetRepliesUseCase) {
+    init(
+        replyToMessageUC: ReplyToMessageUseCase,
+        getRepliesUC: GetRepliesUseCase
+    ) {
         self.replyToMessageUC = replyToMessageUC
         self.getRepliesUC = getRepliesUC
     }
 
+    // ======== VALIDACIÓN ========
+    var isValidReply: Bool {
+        !replyContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        && replyContent.count <= 1000
+    }
+
+    var characterCountColor: Color {
+        if replyContent.count > 700 {
+            return .red
+        } else if replyContent.count > 650 {
+            return .orange
+        } else {
+            return .gray
+        }
+    }
+
+    // ======== LOAD THREAD ========
     func loadThread(forumId: Int, rootId: Int) async {
         isLoading = true
         defer { isLoading = false }
@@ -37,8 +61,10 @@ class ForumViewModel: ObservableObject {
         }
     }
 
+    // ======== SEND REPLY ========
     func sendReply(forumId: Int, rootId: Int) async {
-        guard !replyContent.isEmpty else { return }
+        // Seguridad: evitar bypass
+        guard isValidReply else { return }
 
         do {
             let newReply = try await replyToMessageUC.execute(
@@ -46,10 +72,10 @@ class ForumViewModel: ObservableObject {
                 parentMessageId: rootId,
                 content: replyContent
             )
+
             messages.append(newReply)
             replyContent = ""
-            
-            // Notify feed that post-root message has a new reply
+
             NotificationCenter.default.post(
                 name: .forumRepliesUpdated,
                 object: nil,
@@ -57,7 +83,8 @@ class ForumViewModel: ObservableObject {
             )
             
         } catch {
-            print("Error enviando reply: \(error)")
+            print("❌ Error enviando reply: \(error)")
+            errorMessage = "No se pudo enviar la respuesta."
         }
     }
 }
