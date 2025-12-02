@@ -39,11 +39,12 @@ struct loginView: View {
                                 viewModel.errorMessage = nil
                             })
                     }
+                    // Succed messages are displayed
                     if accountCreated {
-                        Text("Cuenta creada con éxito 🎉")
-                            .foregroundColor(.green)
-                            .font(.headline)
-                            .padding(.bottom, 10)
+                        SuccessMessage(
+                            message: "¡Cuenta creada con éxito!",
+                            onDismiss: { accountCreated = false }
+                        )
                     }
                     // The loginForm molecule is used
                     LoginForm(
