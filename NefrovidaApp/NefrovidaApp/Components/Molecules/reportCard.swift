@@ -10,7 +10,6 @@ struct ReportCard: View {
     let recommendations: String
     let treatment: String
 
-    let onViewReport: () -> Void
     let onDownloadReport: () -> Void
 
     @State private var expanded = false
@@ -41,17 +40,6 @@ struct ReportCard: View {
                     Text(date)
                         .font(.nvBody)
                         .foregroundStyle(.secondary)
-
-                    nefroButton(
-                        text: "Ver análisis",
-                        color: .white,
-                        textColor: Color.nvBrand,
-                        vertical: 6,
-                        horizontal: 10,
-                        hasStroke: true,
-                        textSize: 13,
-                        action: onViewReport
-                    )
 
                     nefroButton(
                         text: "Descargar",
@@ -125,7 +113,6 @@ struct ReportCard: View {
         date: "12/10/2025",
         recommendations: "Tomar 2L de agua al día",
         treatment: "Control cada 3 meses",
-        onViewReport: { print("Ver PDF") },
         onDownloadReport: { print("Descargar PDF") },
     )
 }

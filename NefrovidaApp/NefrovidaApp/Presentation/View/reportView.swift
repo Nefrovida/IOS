@@ -14,9 +14,12 @@ struct ReportsView: View {
         // Initialize the ViewModel with dependency injection:
         // - userId to fetch their reports
         // - GetReportsUseCase that contains the business logic
+        // - DownloadReportUseCase to handle downloads
+        let repository = ReportsRemoteRepository()
         _vm = StateObject(wrappedValue: ReportsViewModel(
             userId: userId,
-            getReportsUseCase: GetReportsUseCase(repository: ReportsRemoteRepository())
+            getReportsUseCase: GetReportsUseCase(repository: repository),
+            downloadReportUseCase: DownloadReportUseCase(repository: repository)
         ))
         self.userId = userId
     }

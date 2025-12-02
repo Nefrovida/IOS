@@ -18,16 +18,17 @@ struct FilterableReportList: View {
                 ProgressView("Cargando reportes…")
                     .padding(.top, 20)
                 
-            } else if let error = viewModel.errorMessage {
-                Text(error)
-                    .foregroundColor(.red)
-                    .padding()
-                
             } else {
                 ScrollView {
                     VStack(spacing: 20) {
-                        
-                        
+                        if let error = viewModel.errorMessage {
+                            ErrorMessage(
+                                message: error,
+                                onDismiss: {
+                                    viewModel.errorMessage = nil
+                                }
+                            )
+                        }
                         // With the for check the reports that the api sends.
                         ForEach(viewModel.reports) { report in
                             
@@ -45,17 +46,40 @@ struct FilterableReportList: View {
                                 recommendations: report.patientAnalysis.analysis.previous_requirements ?? "Sin recomendaciones",
                                 treatment: report.interpretation ?? "Sin tratamiento",
                                 
-                                // Acciones al presionar botones
                                 // Actions when you press the button.
-                                onViewReport: { print("Ver reporte:", report.path) },
-                                onDownloadReport: { print("Descargar:", report.path) }
+                                onDownloadReport: { 
+                                    viewModel.downloadReport(report: report)
+                                }
                             )
                         }
                         
                     }
                     .padding(.vertical)
                 }
+                .sheet(item: Binding(
+                    get: { viewModel.downloadedFileURL.map { IdentifiableURL(url: $0) } },
+                    set: { _ in viewModel.downloadedFileURL = nil }
+                )) { identifiableURL in
+                    ShareSheet(activityItems: [identifiableURL.url])
+                }
+                .overlay {
+                    if viewModel.isDownloading {
+                        ZStack {
+                            Color.black.opacity(0.4)
+                                .ignoresSafeArea()
+                            ProgressView("Descargando...")
+                                .padding()
+                                .background(Color.white)
+                                .cornerRadius(10)
+                        }
+                    }
+                }
             }
         }
     }
+}
+
+struct IdentifiableURL: Identifiable {
+    let id = UUID()
+    let url: URL
 }
