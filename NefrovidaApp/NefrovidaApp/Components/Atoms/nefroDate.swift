@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct datePickerField: View {
+struct nefroDate: View {
     var text: String
     var placeholder: String
     @Binding var date: Date
@@ -45,7 +45,7 @@ struct datePickerField: View {
     @Previewable @State var appointmentDate = Date()
     
     VStack(spacing: 20) {
-        datePickerField(
+        nefroDate(
             text: "Fecha de naciemiento",
             placeholder: "Fecha de nacimiento",
             date: $birthDate
