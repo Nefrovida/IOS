@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct selectField: View {
+struct nefroSelect: View {
     var placeholder: String
     @Binding var selection: String
     var options: [String]
@@ -52,13 +52,13 @@ struct selectField: View {
     @Previewable @State var selectedCountry = ""
     
     VStack(spacing: 20) {
-        selectField(
+        nefroSelect(
             placeholder: "Selecciona tu género",
             selection: $selectedGender,
             options: ["Masculino", "Femenino", "Otro"]
         )
         
-        selectField(
+        nefroSelect(
             placeholder: "Selecciona tu país",
             selection: $selectedCountry,
             options: ["México", "Estados Unidos", "España", "Argentina"]
