@@ -18,7 +18,7 @@ struct RegisterForm: View {
     @Binding var username: String
     @Binding var password: String
     
-    let generos = ["Masculino", "Femenino", "Otro"]
+    let generos = ["Masculino", "Femenino"]
     let onRegister: () -> Void
     let onLogin: () -> Void
     var isFormValid: Bool = true
