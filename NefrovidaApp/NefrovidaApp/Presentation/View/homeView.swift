@@ -5,6 +5,7 @@ struct HomeView: View {
     @State private var selectedTab = 0
     @StateObject private var viewModel = ContentViewModel()
     
+    // se quito 2 de nefrovida
     var body: some View {
 
             ScrollView {
