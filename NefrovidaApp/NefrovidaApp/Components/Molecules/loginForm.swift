@@ -12,6 +12,7 @@ struct LoginForm: View {
     @Binding var password: String
     // Call the login logic from the viewModel
     var onLogin: () -> Void
+    var onCreateAccount: () -> Void
 
     var body: some View {
         VStack(spacing: 16) {
@@ -23,25 +24,16 @@ struct LoginForm: View {
             textField(placeholder: "Usuario", text: $user, isSecure: false, iconName: "xmark")
                 // Only allows letters, numbers, underscores, and no spaces
                 .onChange(of: user) { oldValue, newValue in
-                    let filtered = newValue.filter { $0.isLetter || $0.isNumber || $0 == "_" }
-                    if filtered != newValue {
-                        user = filtered
-                    }
+                    let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "_"))
+                    let filtered = newValue.unicodeScalars.filter { allowed.contains($0) }
+                    user = String(String.UnicodeScalarView(filtered).prefix(60))
                 }
             textField(placeholder: "Contraseña", text: $password, isSecure: true, iconName: "eye")
                 // Automatically removes spaces and some special characters
                 .onChange(of: password) { oldValue, newValue in
-                    let allowedSpecialChars = "!@#%*+"
-                    
-                    let filtered = newValue.filter { char in
-                        return char.isLetter ||
-                        char.isNumber ||
-                        allowedSpecialChars.contains(char)
-                    }
-                    
-                    if filtered != newValue {
-                        password = filtered
-                    }
+                    let allowedChars = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "!@#%*+"))
+                    let filtered = newValue.unicodeScalars.filter { allowedChars.contains($0) }
+                    password = String(String.UnicodeScalarView(filtered).prefix(60))
                 }
             
             // Button that redirects to the view for change the password
@@ -63,7 +55,7 @@ struct LoginForm: View {
                 action: onLogin
             )
             // Button that redirects to the view for creating a new account
-            Button("¿Nuevo? Crea tu cuenta aquí") {}
+            Button("¿Nuevo? Crea tu cuenta aquí") {onCreateAccount()}
             .font(.footnote)
             .foregroundColor(.gray)
             .padding()
@@ -79,5 +71,5 @@ struct LoginForm: View {
 #Preview {
     @Previewable @State var password = ""
     @Previewable @State var user = ""
-    LoginForm(user: $user, password: $password, onLogin: { })
+    LoginForm(user: $user, password: $password, onLogin: { }, onCreateAccount: { })
 }

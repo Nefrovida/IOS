@@ -13,7 +13,9 @@ struct ContentView: View {
         if viewModel.isLoggedIn {
             mainAppView
         } else {
-            loginView(isLoggedIn: $viewModel.isLoggedIn, loggedUser: $viewModel.loggedUser)
+            NavigationStack {
+                loginView(isLoggedIn: $viewModel.isLoggedIn, loggedUser: $viewModel.loggedUser)
+            }
         }
     }
 
