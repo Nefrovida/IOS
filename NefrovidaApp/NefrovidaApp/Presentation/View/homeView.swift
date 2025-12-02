@@ -62,10 +62,10 @@ struct HomeView: View {
 
                     // --------- SEGMENTED CONTROL ----------
                     Picker("Selector", selection: $vm.selectedAnalysis) {
-                        Text("Analysis")
+                        Text("Análisis")
                             .tag(true)
 
-                        Text("Consultations")
+                        Text("Consultas")
                             .tag(false)
                     }
                     .pickerStyle(.segmented)
