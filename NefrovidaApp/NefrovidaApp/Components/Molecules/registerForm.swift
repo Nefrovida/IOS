@@ -41,7 +41,11 @@ struct RegisterForm: View {
                     isSecure: false,
                     iconName: "person"
                 )
-                .padding(.horizontal, -15)  // Quitar padding horizontal
+                .onChange(of: nombre) { oldValue, newValue in
+                    let filtered = newValue.filter { $0.isLetter || $0.isWhitespace }
+                    nombre = String(filtered.prefix(60))
+                }
+                .padding(.horizontal, -15)
                 
                 textField(
                     placeholder: "Apellido Paterno *",
@@ -49,6 +53,10 @@ struct RegisterForm: View {
                     isSecure: false,
                     iconName: "person"
                 )
+                .onChange(of: apellidoPaterno) { oldValue, newValue in
+                    let filtered = newValue.filter { $0.isLetter || $0.isWhitespace }
+                    apellidoPaterno = String(filtered.prefix(60))
+                }
                 .padding(.horizontal, -15)
                 
                 textField(
@@ -57,6 +65,10 @@ struct RegisterForm: View {
                     isSecure: false,
                     iconName: "person"
                 )
+                .onChange(of: apellidoMaterno) { oldValue, newValue in
+                    let filtered = newValue.filter { $0.isLetter || $0.isWhitespace }
+                    apellidoMaterno = String(filtered.prefix(60))
+                }
                 .padding(.horizontal, -15)
                 
                 textField(
@@ -65,6 +77,10 @@ struct RegisterForm: View {
                     isSecure: false,
                     iconName: "phone"
                 )
+                .onChange(of: telefono) { oldValue, newValue in
+                    let filtered = newValue.filter { $0.isNumber }
+                    telefono = String(filtered.prefix(15))
+                }
                 .padding(.horizontal, -15)
                 
                 nefroDate(
@@ -89,6 +105,10 @@ struct RegisterForm: View {
                     isSecure: false,
                     iconName: "doc.text"
                 )
+                .onChange(of: curp) { oldValue, newValue in
+                    let filtered = newValue.uppercased().filter { $0.isLetter || $0.isNumber }
+                    curp = String(filtered.prefix(18))
+                }
                 .padding(.horizontal, -15)
                 
                 textField(
@@ -97,6 +117,11 @@ struct RegisterForm: View {
                     isSecure: false,
                     iconName: "person.circle"
                 )
+                .onChange(of: username) { oldValue, newValue in
+                    let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "_"))
+                    let filtered = newValue.unicodeScalars.filter { allowed.contains($0) }
+                    username = String(String.UnicodeScalarView(filtered).prefix(60))
+                }
                 .padding(.horizontal, -15)
                 
                 textField(
@@ -105,6 +130,11 @@ struct RegisterForm: View {
                     isSecure: true,
                     iconName: "eye"
                 )
+                .onChange(of: password) { oldValue, newValue in
+                    let allowedChars = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "!@#%*+"))
+                    let filtered = newValue.unicodeScalars.filter { allowedChars.contains($0) }
+                    password = String(String.UnicodeScalarView(filtered).prefix(60))
+                }
                 .padding(.horizontal, -15)
             }
             
