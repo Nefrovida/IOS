@@ -26,8 +26,7 @@ struct NoteCard: View {
             if expanded {
                 VStack(alignment: .leading, spacing: 10) {
 
-                    section(title: "Notas", value: note.content)
-                    section(title: "Diagnóstico", value: note.ailments)
+                    section(title: "Notas", value: note.ailments)
                     section(title: "Observaciones", value: note.generalNotes)
                     section(title: "Tratamiento", value: note.prescription)
                 }
