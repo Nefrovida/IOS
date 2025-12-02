@@ -45,9 +45,7 @@ struct FilterableReportList: View {
                                 recommendations: report.patientAnalysis.analysis.previous_requirements ?? "Sin recomendaciones",
                                 treatment: report.interpretation ?? "Sin tratamiento",
                                 
-                                // Acciones al presionar botones
                                 // Actions when you press the button.
-                                onViewReport: { print("Ver reporte:", report.path) },
                                 onDownloadReport: { 
                                     viewModel.downloadReport(report: report)
                                 }
