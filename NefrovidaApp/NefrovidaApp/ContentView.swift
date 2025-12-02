@@ -13,8 +13,11 @@ struct ContentView: View {
         if viewModel.isLoggedIn {
             mainAppView
         } else {
-            loginView(isLoggedIn: $viewModel.isLoggedIn, loggedUser: $viewModel.loggedUser,
-                isFirstLogin: $viewModel.isFirstLogin)
+
+            NavigationStack {
+                loginView(isLoggedIn: $viewModel.isLoggedIn, loggedUser: $viewModel.loggedUser,
+                    isFirstLogin: $viewModel.isFirstLogin)
+            }
         }
     }
 
@@ -39,6 +42,8 @@ struct ContentView: View {
             NavigationStack {
                 HomeView(user: viewModel.loggedUser)
             }
+        case .servicios:
+            ServicesView(userId: viewModel.loggedUser?.user_id ?? "")
         case .analisis:
             ReportsView(userId: viewModel.loggedUser?.user_id ?? "")
         case .foros:
