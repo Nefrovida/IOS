@@ -28,6 +28,7 @@ struct HomeView: View {
                             .padding(.horizontal, 20)
                             .background(Color.nvBrand)
                         
+                        
                         // // Botón Ver catálogo que activa el tab de servicios
                         // Button(action: {
                         //     selectedTab = 0
@@ -43,13 +44,36 @@ struct HomeView: View {
                         // }
                         // .padding(.bottom, 8)
                     }
+                    
+                    Spacer()
+                    
+                    VStack(spacing: 20) {
+                        Text("Misión y Visión")
+                            .font(.title2).bold()
+                            .foregroundColor(Color(Color.nvBrand))
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.top, 20)
+                        SectionCard(
+                            icon: "heart.circle.fill",
+                            title: "Misión",
+                            description: "Brindar atención y apoyo multidisciplinario en la prevención, detección, control y tratamiento de personas con Enfermedad Renal Crónica, con o sin tratamiento sustitutivo de función renal (hemodiálisis, diálisis) y acompañamiento de protocolo de trasplante por medio de programas y acciones que contribuyan a mejorar su calidad de vida."
+                        )
+                        
+                        SectionCard(
+                            icon: "eye.circle.fill",
+                            title: "Visión",
+                            description: "Ser una organización autosustentable que promueve la prevención y detección oportuna en personas con factores de riesgo de la Enfermedad Renal Crónica (ERC), que se encuentran en situación vulnerable; con el fin de modificar positivamente la evolución natural y así disminuir la letalidad de la ERC."
+                        )
+                    }
+                    .padding(.top, 16)
                     // Servicios
                     VStack(spacing: 24) {
                         Text("Nuestros Servicios")
                             .font(.title2).bold()
                             .foregroundColor(Color(Color.nvBrand))
-                            .multilineTextAlignment(.leading)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity, alignment: .center)
                             .padding(.top, 20)
                         ServiceCardRedesigned(icon: "heart", title: "Tamizaje y Prevención", description: "Detección temprana de Enfermedad Renal Crónica", details: ["Niños (donativo $180.00)", "Adultos (donativo $200.00)", "Embarazadas (donativo $395.00)"])
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -68,6 +92,8 @@ struct HomeView: View {
                             .font(.title2).bold()
                             .foregroundColor(Color.nvBrand)
                             .padding(.bottom, 4)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity, alignment: .center)
                         HStack(alignment: .top, spacing: 12) {
                             Image(systemName: "mappin.and.ellipse")
                                 .foregroundColor(Color.nvBrand)
