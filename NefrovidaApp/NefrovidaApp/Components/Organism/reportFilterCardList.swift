@@ -18,16 +18,17 @@ struct FilterableReportList: View {
                 ProgressView("Cargando reportes…")
                     .padding(.top, 20)
                 
-            } else if let error = viewModel.errorMessage {
-                Text(error)
-                    .foregroundColor(.red)
-                    .padding()
-                
             } else {
                 ScrollView {
                     VStack(spacing: 20) {
-                        
-                        
+                        if let error = viewModel.errorMessage {
+                            ErrorMessage(
+                                message: error,
+                                onDismiss: {
+                                    viewModel.errorMessage = nil
+                                }
+                            )
+                        }
                         // With the for check the reports that the api sends.
                         ForEach(viewModel.reports) { report in
                             
