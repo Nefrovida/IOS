@@ -84,6 +84,7 @@ struct loginView: View {
                     accountCreated = true
                 }
             )
+            .navigationTitle(Text("Registrar Usuario"))
         }
     }
 }
