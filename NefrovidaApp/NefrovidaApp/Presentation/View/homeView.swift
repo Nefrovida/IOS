@@ -2,122 +2,274 @@ import SwiftUI
 
 struct HomeView: View {
     let user: LoginEntity?
-    // ViewModel for the view, initialized with use cases for both analysis and consultation
-    @StateObject private var vm = AnalysisViewModel(
-        getAnalysisUseCase: GetAnalysisUseCase(repository: AnalysisRemoteRepository()),
-        getConsultationUseCase: GetConsultationUseCases(repository: ConsultationRemoteRepository())
-    )
-
-    // Status to control navigation
-    @State private var selectedConsultation: Consultation?
-    @State private var selectedAnalysis: Analysis?
+    @State private var selectedTab = 0
+    @StateObject private var viewModel = ContentViewModel()
     
+    // se quito 2 de nefrovida
     var body: some View {
-        ZStack(alignment: .bottom) {  // Container that lets us overlay views
 
-            // Main scrollable content
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 20) {
+            ScrollView {
+                VStack(spacing: -12) {
+                    UpBar()
+                    VStack(spacing: 0) {
+                        Image("header")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(height: 140)
+                            .frame(maxWidth: .infinity)
+                            .clipped()
 
-                    UpBar() // Top bar (e.g., logo or header)
-
-                    // ---------- SELECTOR ----------
-                    HStack(spacing: 12) {
-                        // Button to toggle to "Analysis" view
-                        nefroButton(
-                            text: "Analysis",
-                            color: vm.selectedAnalysis ? .nvBrand : .white,
-                            textColor: vm.selectedAnalysis ? .white : .nvBrand,
-                            vertical: 10,
-                            horizontal: 22,
-                            hasStroke: !vm.selectedAnalysis, // Unselected button shows border
-                            textSize: 14
-                        ) {
-                            withAnimation { vm.selectedAnalysis = true } // Switch to analysis view
-                        }
-
-                        // Button to toggle to "Consultation" view
-                        nefroButton(
-                            text: "Consultations",
-                            color: !vm.selectedAnalysis ? .nvBrand : .white,
-                            textColor: !vm.selectedAnalysis ? .white : .nvBrand,
-                            vertical: 10,
-                            horizontal: 22,
-                            hasStroke: vm.selectedAnalysis, // Unselected button shows border
-                            textSize: 14
-                        ) {
-                            withAnimation { vm.selectedAnalysis = false } // Switch to consultation view
-                        }
+                        Text("En NefroVida A.C. estamos comprometidos con la salud de nuestros pacientes. Ofrecemos servicios especializados en la detección, prevención y tratamiento de la Enfermedad Renal Crónica, diseñados para proteger tu salud renal y mejorar tu calidad de vida.")
+                            .font(.body)
+                            .multilineTextAlignment(.leading)
+                            .foregroundColor(Color(.white))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .padding(.vertical, 16)
+                            .padding(.horizontal, 20)
+                            .background(Color.nvBrand)
+                        
+                        
+                        // // Botón Ver catálogo que activa el tab de servicios
+                        // Button(action: {
+                        //     selectedTab = 0
+                        // }) {
+                        //     Text("Ver catálogo")
+                        //         .font(.headline)
+                        //         .foregroundColor(.white)
+                        //         .padding(.vertical, 10)
+                        //         .padding(.horizontal, 32)
+                        //         .background(Color.nvBrand)
+                        //         .cornerRadius(8)
+                        //         .shadow(color: Color(.systemGray4), radius: 2, x: 0, y: 1)
+                        // }
+                        // .padding(.bottom, 8)
                     }
-                    .padding(.horizontal)
-
-                    // CONTENT
-                    if vm.isLoading {
-                        // Loading indicator while data is being fetched
-                        ProgressView("Cargando...")
-
-                    } else if let error = vm.errorMessage {
-                        // Display any error that occurred during loading
-                        Text(error).foregroundColor(.red)
-
-                    } else {
-                        VStack(spacing: 16) {
-                            // Show list of analysis cards when in analysis mode
-                            if vm.selectedAnalysis {
-                                ForEach(vm.analyses) { a in
-                                    AnalysisTypeCard(
-                                        title: a.name,
-                                        description: a.description,
-                                        costoComunidad: a.communityCost,
-                                        costoGeneral: a.generalCost,
-                                        isAnalysis: true,
-                                        onSettings: { selectedAnalysis = a }
-                                    )
-                                }
-                                .navigationDestination(item: $selectedAnalysis) { analysis in
-                                    analysisView( // Cambiar a la vista de analysis cuando ya este hecha
-                                        analysisId: analysis.id,
-                                        userId: user?.user_id ?? ""
-                                    )
-                                    .navigationTitle(analysis.name)
-                                }
-                            } else {
-                                // Show list of consultation cards when in consultation mode
-                                ForEach(vm.consultation) { c in
-                                    AnalysisTypeCard(
-                                        title: c.nameConsultation,
-                                        description: "Consult with a specialist",
-                                        costoComunidad: "\(c.communityCost)",
-                                        costoGeneral: "\(c.generalCost)",
-                                        isAnalysis: false,
-                                        onSettings: { selectedConsultation = c }
-                                    )
-                                }
-                                // Programmatic navigation: activated when selectedConsultation is not nil
-                                .navigationDestination(item: $selectedConsultation) { consultation in
-                                    appointmentView(
-                                        appointmentId: consultation.appointmentId,
-                                        userId: user?.user_id ?? ""
-                                    )
-                                    .navigationTitle(consultation.nameConsultation)
-                                }
+                    
+                    Spacer()
+                    
+                    VStack(spacing: 20) {
+                        Text("Misión y Visión")
+                            .font(.title2).bold()
+                            .foregroundColor(Color(Color.nvBrand))
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.top, 20)
+                        SectionCard(
+                            icon: "heart.circle.fill",
+                            title: "Misión",
+                            description: "Brindar atención y apoyo multidisciplinario en la prevención, detección, control y tratamiento de personas con Enfermedad Renal Crónica, con o sin tratamiento sustitutivo de función renal (hemodiálisis, diálisis) y acompañamiento de protocolo de trasplante por medio de programas y acciones que contribuyan a mejorar su calidad de vida."
+                        )
+                        
+                        SectionCard(
+                            icon: "eye.circle.fill",
+                            title: "Visión",
+                            description: "Ser una organización autosustentable que promueve la prevención y detección oportuna en personas con factores de riesgo de la Enfermedad Renal Crónica (ERC), que se encuentran en situación vulnerable; con el fin de modificar positivamente la evolución natural y así disminuir la letalidad de la ERC."
+                        )
+                    }
+                    .padding(.top, 16)
+                    // Servicios
+                    VStack(spacing: 24) {
+                        Text("Nuestros Servicios")
+                            .font(.title2).bold()
+                            .foregroundColor(Color(Color.nvBrand))
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.top, 20)
+                        ServiceCardRedesigned(icon: "heart", title: "Tamizaje y Prevención", description: "Detección temprana de Enfermedad Renal Crónica", details: ["Niños (donativo $180.00)", "Adultos (donativo $200.00)", "Embarazadas (donativo $395.00)"])
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        ServiceCardRedesigned(icon: "stethoscope", title: "Consultas", description: "Atención médica especializada", details: ["Nefrología", "Nefro pediatra", "Urología", "Diabetólogo", "Médico General", "Nutrición", "Psicología"])
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        ServiceCardRedesigned(icon: "viewfinder", title: "Ultrasonidos", description: "Realizados por médico certificado", details: ["Renal", "Abdomen", "Próstata", "Tiroides", "Obstétrico", "Tejidos blandos", "Entre otros más"])
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                    .padding(.bottom, 30)
+                    
+                    // Sección Encuéntranos
+                    VStack(alignment: .leading, spacing: 18) {
+                        Text("Encuéntranos")
+                            .font(.title2).bold()
+                            .foregroundColor(Color.nvBrand)
+                            .padding(.bottom, 4)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                        HStack(alignment: .top, spacing: 12) {
+                            Image(systemName: "mappin.and.ellipse")
+                                .foregroundColor(Color.nvBrand)
+                                .font(.title2)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Dirección")
+                                    .font(.headline)
+                                    .foregroundColor(Color.nvBrand)
+                                Text("Calle Principal #123, Colonia Centro, Ciudad, CP 12345")
+                                    .font(.body)
+                                    .foregroundColor(Color(.label))
                             }
                         }
-                        .padding(.horizontal)     // Horizontal padding for layout
-                        .padding(.bottom, 90)     // Leave space for the BottomBar
+                        HStack(alignment: .top, spacing: 12) {
+                            Image(systemName: "clock")
+                                .foregroundColor(Color.nvBrand)
+                                .font(.title2)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Horario")
+                                    .font(.headline)
+                                    .foregroundColor(Color.nvBrand)
+                                Text("Lunes a Viernes: 8:00 AM - 6:00 PM\nSábados: 9:00 AM - 2:00 PM")
+                                    .font(.body)
+                                    .foregroundColor(Color(.label))
+                            }
+                        }
+                        HStack(alignment: .top, spacing: 12) {
+                            Image(systemName: "phone")
+                                .foregroundColor(Color.nvBrand)
+                                .font(.title2)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Teléfono")
+                                    .font(.headline)
+                                    .foregroundColor(Color.nvBrand)
+                                Text("+52 (123) 456-7890")
+                                    .font(.body)
+                                    .foregroundColor(Color(.label))
+                            }
+                        }
+                        HStack(alignment: .top, spacing: 12) {
+                            Image(systemName: "envelope")
+                                .foregroundColor(Color.nvBrand)
+                                .font(.title2)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Correo")
+                                    .font(.headline)
+                                    .foregroundColor(Color.nvBrand)
+                                Text("contacto@nefrovidaac.com")
+                                    .font(.body)
+                                    .foregroundColor(Color(.label))
+                            }
+                        }
+                    }
+                    .padding(16)
+                    .padding(.bottom, 30)
+                    
+                }
+            }
+        }
+    }
+    
+    
+    struct InfoCard: View {
+        var title: String
+        var subtitle: String
+        var hours: String
+        var body: some View {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(title)
+                    .font(.headline)
+                    .foregroundColor(Color(.label))
+                Text(subtitle)
+                    .font(.subheadline)
+                    .foregroundColor(Color(.systemGray))
+                Text(hours)
+                    .font(.title3)
+                    .bold()
+                    .foregroundColor(Color(.label))
+            }
+            .padding()
+            .background(Color.white)
+            .cornerRadius(16)
+            .shadow(color: Color(.systemGray4), radius: 4, x: 0, y: 2)
+        }
+    }
+    
+    struct ServiceCardRedesigned: View {
+        var icon: String
+        var title: String
+        var description: String
+        var details: [String]
+        var body: some View {
+            VStack(spacing: 8) {
+                ZStack {
+                    Circle().fill(Color(.systemGray6)).frame(width: 60, height: 60)
+                    Image(systemName: icon)
+                        .font(.title)
+                        .foregroundColor(Color.blue)
+                }
+                Text(title)
+                    .font(.headline)
+                    .foregroundColor(Color(.label))
+                Text(description)
+                    .font(.subheadline)
+                    .foregroundColor(Color(.systemGray))
+                    .multilineTextAlignment(.center)
+                    .padding(.bottom, 5)
+                VStack(alignment: .leading, spacing: 2) {
+                    ForEach(details, id: \ .self) { item in
+                        Text("• " + item)
+                            .font(.body)
+                            .foregroundColor(Color(.label))
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
             }
-
-            // Fixed bottom navigation/action bar
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color.white)
+            .cornerRadius(16)
+            .shadow(color: Color(.systemGray4), radius: 4, x: 0, y: 2)
         }
-        .background(Color(.systemGroupedBackground)) // System-like grouped background
-        .onAppear { vm.onAppear() } // Trigger ViewModel load when view appears
     }
-}
+    
+    struct SocialCircleIcon: View {
+        var name: String
+        var color: Color
+        var body: some View {
+            ZStack {
+                Circle().fill(color).frame(width: 56, height: 56)
+                Image(name)
+                    .resizable()
+                    .frame(width: 32, height: 32)
+            }
+        }
+    }
+    
+    struct DoctorCard: View {
+        var name: String
+        var specialty: String
+        var body: some View {
+            VStack {
+                Circle().fill(Color.gray.opacity(0.3)).frame(width: 80, height: 80) // Aquí va la imagen
+                Text(name).font(.subheadline)
+                Text(specialty).font(.caption)
+            }
+            .frame(width: 140)
+            .background(Color(.systemGray6))
+            .cornerRadius(12)
+        }
+    }
+    
+    struct LabInfoCard: View {
+        var body: some View {
+            VStack {
+                Image(systemName: "heart.text.square")
+                    .font(.largeTitle)
+                Text("Estudios de Laboratorio")
+                    .font(.headline)
+                Text("Diagnóstico y seguimiento de patologías. Conoce nuestros servicios aquí.")
+                    .font(.caption)
+            }
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(12)
+        }
+    }
+    
+    struct SocialIcon: View {
+        var name: String
+        var body: some View {
+            Image(name) // Debes agregar los assets de los iconos
+                .resizable()
+                .frame(width: 40, height: 40)
+        }
+    }
 
-#Preview {
-    NavigationStack {
-        HomeView(user: nil)
-    }
-}

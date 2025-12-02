@@ -19,6 +19,10 @@ struct BottomNavigationBar: View {
                 onSelect(.inicio)
             }
             Spacer()
+            NavTabButton(tab: .servicios, isSelected: selectedTab == .servicios) {
+                onSelect(.servicios)
+            }
+            Spacer()
             NavTabButton(tab: .analisis, isSelected: selectedTab == .analisis) {
                 onSelect(.analisis)
             }
@@ -32,7 +36,8 @@ struct BottomNavigationBar: View {
             }
             Spacer()
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 15)
+        .padding(.horizontal, 12) 
         .background(Color.nvBrand)
         .edgesIgnoringSafeArea(.bottom)
     }
