@@ -92,7 +92,7 @@ struct ForumView: View {
                             proxy.scrollTo(last.id, anchor: .bottom)
                         }
                     }
-                    .onChange(of: vm.messages.count) { _ in
+                    .onChange(of: vm.messages.count) {
                         guard let last = vm.messages.last else { return }
                         DispatchQueue.main.async {
                             withAnimation {
