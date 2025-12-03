@@ -102,12 +102,11 @@ struct CalendarView: View {
             }
         }
         .navigationDestination(isPresented: $navigateToReschedule) {
-            if let appointmentId = appointmentIdToReschedule,
+            if let _ = appointmentIdToReschedule,
                let appointment = appointmentToReschedule {
                 RescheduleAppointmentView(
-                    appointmentId: appointmentId,
-                    userId: idUser,
-                    appointmentToCancel: appointment
+                    appointmentToCancel: appointment,
+                    userId: idUser
                 )
             }
         }
