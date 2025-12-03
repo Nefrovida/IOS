@@ -33,4 +33,20 @@ final class GetAppointmentsForDayUseCase {
         // Return the appointment of that selected date.
         return sameDay
     }
+    
+    func CancelAppointment(id:Int) async throws -> Bool {
+        print("cancel in uses cases")
+        let result = try await repository.CancelAppointment(id: id)
+        
+        return result
+    }
+    
+    func CancelAnalysis(id:Int) async throws -> Bool {
+        print("cancel in uses cases")
+        let result = try await repository.CancelAnalysis(id: id)
+        
+        return result
+    }
 }
+
+        
