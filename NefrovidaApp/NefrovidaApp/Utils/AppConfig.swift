@@ -1,7 +1,7 @@
 import Foundation
 
 public enum AppConfig {
-    //public static let apiBaseURL = "https://www.snefrovidaac.com/api"
+    //public static let apiBaseURL = "https://www.snefrovidaac.com/api"  "https://75c9857c7716.ngrok-free.app/api"
     public static let apiBaseURL = "http://localhost:3001/api"
 
     // Toggle to `true` to hit the remote API. Default is false (use MockRepo)
