@@ -12,5 +12,6 @@ public protocol ForumRepository {
     func replyToMessage(forumId: Int, parentMessageId: Int, content: String) async throws -> ForumMessageEntity
     func getFeed(forumId: Int?, page: Int) async throws -> [ForumFeedItem]
     func fetchReplies(forumId: Int, messageId: Int, page: Int?, limit: Int?) async throws -> [ForumMessageEntity]
+    func toggleLike(messageId: Int) async throws
 
 }

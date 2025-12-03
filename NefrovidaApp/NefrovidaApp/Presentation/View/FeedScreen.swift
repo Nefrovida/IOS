@@ -16,7 +16,10 @@ struct ForumFeedScreen: View {
         _path = path
         _vm = StateObject(
             wrappedValue: FeedViewModel(
-                repo: ForumRemoteRepository(baseURL: AppConfig.apiBaseURL),
+                repo: ForumRemoteRepository(
+                    baseURL: AppConfig.apiBaseURL,
+                    tokenProvider: AppConfig.tokenProvider
+                ),
                 forumId: forum.id,
                 forumName: forum.name
             )
@@ -38,6 +41,11 @@ struct ForumFeedScreen: View {
                                         forumId: vm.forumId,
                                         messageId: item.id
                                     ))
+                                },
+                                onLikeTapped: {
+                                    Task {
+                                        await vm.toggleLike(for: item.id)
+                                    }
                                 }
                             )
                             .padding(.horizontal)

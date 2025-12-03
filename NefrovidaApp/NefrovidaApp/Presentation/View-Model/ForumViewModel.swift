@@ -19,13 +19,16 @@ class ForumViewModel: ObservableObject {
 
     private let replyToMessageUC: ReplyToMessageUseCase
     private let getRepliesUC: GetRepliesUseCase
+    private let repo: ForumRepository
 
     init(
         replyToMessageUC: ReplyToMessageUseCase,
-        getRepliesUC: GetRepliesUseCase
+        getRepliesUC: GetRepliesUseCase,
+        repo: ForumRepository
     ) {
         self.replyToMessageUC = replyToMessageUC
         self.getRepliesUC = getRepliesUC
+        self.repo = repo
     }
 
     // ======== VALIDACIÓN ========
@@ -85,6 +88,29 @@ class ForumViewModel: ObservableObject {
         } catch {
             print("❌ Error enviando reply: \(error)")
             errorMessage = "No se pudo enviar la respuesta."
+        }
+    }
+    
+    // ======== LIKES ========
+    func toggleLike(for messageId: Int) async {
+        guard let index = messages.firstIndex(where: { $0.id == messageId }) else { return }
+
+        var item = messages[index]
+        let wasLiked = item.liked
+        let oldLikes = item.likesCount
+
+        item.liked.toggle()
+        item.likesCount += item.liked ? 1 : -1
+        messages[index] = item
+
+        do {
+            try await repo.toggleLike(messageId: messageId)
+        } catch {
+            var reverted = messages[index]
+            reverted.liked = wasLiked
+            reverted.likesCount = oldLikes
+            messages[index] = reverted
+            print("❌ Error al hacer like en hilo:", error)
         }
     }
 }

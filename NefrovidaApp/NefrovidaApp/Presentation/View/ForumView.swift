@@ -23,7 +23,8 @@ struct ForumView: View {
         _vm = StateObject(
             wrappedValue: ForumViewModel(
                 replyToMessageUC: ReplyToMessageUseCase(repository: repo),
-                getRepliesUC: GetRepliesUseCase(repository: repo)
+                getRepliesUC: GetRepliesUseCase(repository: repo),
+                repo: repo
             )
         )
 
@@ -68,13 +69,36 @@ struct ForumView: View {
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 0) {
                             ForEach(vm.messages) { reply in
-                                VStack(alignment: .leading, spacing: 6) {
-                                    Text(reply.createdBy)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
+                                VStack(alignment: .leading, spacing: 8) {
+                                    HStack {
+                                        Text(reply.createdBy)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                        Spacer()
+                                    }
 
                                     Text(reply.content)
                                         .font(.body)
+
+                                    HStack(spacing: 16) {
+                                        Button {
+                                            Task { await vm.toggleLike(for: reply.id) }
+                                        } label: {
+                                            Label(
+                                                "\(reply.likesCount)",
+                                                systemImage: reply.liked ? "hand.thumbsup.fill" : "hand.thumbsup"
+                                            )
+                                            .font(.subheadline)
+                                            .foregroundColor(reply.liked ? .blue : .primary)
+                                        }
+                                        .buttonStyle(.plain)
+
+                                        Label("\(reply.repliesCount)", systemImage: "bubble.left")
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+
+                                        Spacer()
+                                    }
                                 }
                                 .padding(.vertical, 10)
                                 .padding(.horizontal)
