@@ -19,9 +19,9 @@ final class RiskFormViewModel: ObservableObject {
     // General Information Fields (Section 1)
     @Published var nombre = ""
     @Published var telefono = ""
-    @Published var generoSeleccionado: String? = nil
+    @Published var generoSeleccionado: String = ""
     @Published var edad = ""
-    @Published var estadoNacimientoSeleccionado: String? = nil
+    @Published var estadoNacimientoSeleccionado: String = ""
     @Published var fechaNacimiento = Date()
     
     // Error and success messages for UI feedback.
