@@ -140,7 +140,7 @@ struct RescheduleAppointmentContent: View {
                     Task {
                         let success = await vm.confirmSelectedSlot(userId: userId)
                         if success {
-                            let cancelled = await cancelVM.cancelSpecificAppointment(appointmentToCancel)
+                            _ = await cancelVM.cancelSpecificAppointment(appointmentToCancel)
                             showSuccessAlert = true
                         }
                     }
@@ -298,7 +298,7 @@ struct RescheduleAnalysisContent: View {
                             place: appointmentToCancel.place ?? "Laboratorio"
                         )
                         if success {
-                            let cancelled = await cancelVM.cancelSpecificAppointment(appointmentToCancel)
+                            _ = await cancelVM.cancelSpecificAppointment(appointmentToCancel)
                             showSuccessAlert = true
                         }
                     }
