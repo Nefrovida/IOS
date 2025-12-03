@@ -11,7 +11,6 @@ struct ChangePasswordView: View {
     @ObservedObject var viewModel: ProfileViewModel
     @Environment(\.presentationMode) var presentationMode
     
-    @State private var currentPassword = ""
     @State private var newPassword = ""
     @State private var confirmNewPassword = ""
     
@@ -52,13 +51,6 @@ struct ChangePasswordView: View {
                 
                 VStack(spacing: 15) {
                     textField(
-                        placeholder: "Contraseña Actual",
-                        text: $currentPassword,
-                        isSecure: true,
-                        iconName: "eye"
-                    )
-                    
-                    textField(
                         placeholder: "Nueva Contraseña",
                         text: $newPassword,
                         isSecure: true,
@@ -86,14 +78,12 @@ struct ChangePasswordView: View {
                     action: {
                         Task {
                             let success = await viewModel.changePassword(
-                                current: currentPassword,
                                 new: newPassword,
                                 confirm: confirmNewPassword
                             )
                             if success {
                                 // Clear fields or dismiss?
                                 // For now, just clear fields
-                                currentPassword = ""
                                 newPassword = ""
                                 confirmNewPassword = ""
                                 // Delay dismissal to show success message

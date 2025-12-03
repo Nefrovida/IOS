@@ -39,12 +39,10 @@ nonisolated struct UpdateProfileDTO: Encodable, Sendable {
 
 // MARK: - Change Password DTO
 nonisolated struct ChangePasswordDTO: Encodable, Sendable {
-    let currentPassword: String
     let newPassword: String
     let confirmNewPassword: String
     
     enum CodingKeys: String, CodingKey {
-        case currentPassword = "currentPassword"
         case newPassword = "newPassword"
         case confirmNewPassword = "confirmNewPassword"
     }

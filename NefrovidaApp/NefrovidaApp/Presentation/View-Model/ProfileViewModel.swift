@@ -55,7 +55,7 @@ class ProfileViewModel: ObservableObject {
         }
     }
     
-    func changePassword(current: String, new: String, confirm: String) async -> Bool {
+    func changePassword(new: String, confirm: String) async -> Bool {
         isLoading = true
         errorMessage = nil
         successMessage = nil
@@ -68,7 +68,6 @@ class ProfileViewModel: ObservableObject {
         }
         
         let dto = ChangePasswordDTO(
-            currentPassword: current,
             newPassword: new,
             confirmNewPassword: confirm
         )
