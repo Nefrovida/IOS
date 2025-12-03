@@ -13,3 +13,7 @@ protocol AuthRepository {
     func login(username: String, password: String) async throws -> LoginEntity
     func register(request: RegisterRequest) async throws -> RegisterResponse
 }
+
+protocol UserRepository {
+    func fetchFirstLogin(for userId: String) async throws -> Bool
+}

@@ -56,6 +56,7 @@ final class AuthRepositoryD: AuthRepository {
             }
             
             let user = loginResponse.user
+            print(user)
             // Return the users data
             return LoginEntity(
                 user_id: user.user_id,
@@ -121,4 +122,26 @@ final class AuthRepositoryD: AuthRepository {
                 throw error
             }
         }
+}
+
+final class UserRemoteRepository:UserRepository {
+    
+    func fetchFirstLogin(for userId: String) async throws -> Bool {
+        let endpoint = "\(AppConfig.apiBaseURL)/users/first-login/\(userId)"
+        
+        do {
+            // Devuelve directamente FirstLoginResponse (no DataResponse<>)
+            let decoded = try await AF.request(endpoint)
+                .validate()
+                .serializingDecodable(FirstLoginResponse.self)
+                .value
+            
+            print("estado de first-login:",decoded.isFirstLogin)
+            return decoded.isFirstLogin
+            
+        } catch {
+            print("Error fetching first-login:", error)
+            throw error
+        }
+    }
 }

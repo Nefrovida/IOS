@@ -20,3 +20,15 @@ final class LoginUseCase {
         return try await repository.login(username: username, password: password)
     }
 }
+
+final class isLogginUsesCase {
+    private let repository: UserRepository
+    
+    init(repository: UserRepository) {
+        self.repository = repository
+    }
+    
+    func execute(userId: String) async throws -> Bool {
+        return try await repository.fetchFirstLogin(for: userId)
+    }
+}

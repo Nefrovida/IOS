@@ -120,7 +120,7 @@ struct ServicesView: View {
                                 .navigationDestination(item: $selectedAnalysis) { analysis in
                                     analysisView( // Cambiar a la vista de analysis cuando ya este hecha
                                         analysisId: analysis.id,
-                                        userId: userId ?? ""
+                                        userId: userId
                                     )
                                     .navigationTitle(analysis.name)
                                 }
@@ -141,7 +141,7 @@ struct ServicesView: View {
                                 .navigationDestination(item: $selectedConsultation) { consultation in
                                     appointmentView(
                                         appointmentId: consultation.appointmentId,
-                                        userId: userId ?? ""
+                                        userId: userId
                                     )
                                     .navigationTitle(consultation.nameConsultation)
                                 }

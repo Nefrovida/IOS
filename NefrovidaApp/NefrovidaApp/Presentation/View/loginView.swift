@@ -10,14 +10,16 @@ import SwiftUI
 struct loginView: View {
     @Binding var isLoggedIn: Bool
     @Binding var loggedUser: LoginEntity?
-    // Connects to loginViewModel
+    @Binding var isFirstLogin: Bool
+    
     @StateObject private var viewModel = LoginViewModel()
     @State private var goToRegister = false
     @State private var accountCreated = false
+    
     var body: some View {
+        
         NavigationStack {
             ZStack {
-                // The background gradient colors is defined
                 LinearGradient(
                     gradient: Gradient(colors: [
                         Color(red: 219/255, green: 230/255, blue: 237/255),
@@ -27,35 +29,34 @@ struct loginView: View {
                     endPoint: .bottomTrailing
                 )
                 .ignoresSafeArea()
-                VStack() {
-                    // It's called the nefrovida logo
+                
+                VStack {
+                    
                     NefroVidaLogo()
                         .padding(.top, 30)
-                    // Error messages are displayed.
+                    
                     if let error = viewModel.errorMessage {
                         ErrorMessage(
                             message: error,
-                            onDismiss: {
-                                viewModel.errorMessage = nil
-                            })
+                            onDismiss: { viewModel.errorMessage = nil }
+                        )
                     }
-                    // Succed messages are displayed
+                    
                     if accountCreated {
                         SuccessMessage(
                             message: "¡Cuenta creada con éxito!",
                             onDismiss: { accountCreated = false }
                         )
                     }
-                    // The loginForm molecule is used
+                    
                     LoginForm(
                         user: $viewModel.username,
                         password: $viewModel.password,
-                        onLogin: {Task { await viewModel.login() }},
+                        onLogin: { Task { await viewModel.login() }},
                         onCreateAccount: { goToRegister = true }
                     )
                     .frame(maxHeight: .infinity)
                     
-                    // States are defined depending on the login process.
                     if viewModel.isLoading {
                         ProgressView("Iniciando sesión...")
                             .padding(.top, 20)
@@ -66,31 +67,31 @@ struct loginView: View {
             .onTapGesture {
                 UIApplication.shared.hideKeyboard()
             }
-            // Change to logged-in status
-            .onChange(of: viewModel.loggedUser) { oldValue, newValue in
+            
+            // navegación hacia Register
+            .navigationDestination(isPresented: $goToRegister) {
+                RegisterView(
+                    repository: AuthRepositoryD(),
+                    onSuccess: { accountCreated = true }
+                )
+                .navigationTitle("Registrar Usuario")
+            }
+            
+            // Cambio de estado login
+            .onChange(of: viewModel.loggedUser) { _, newValue in
                 if let user = newValue {
                     loggedUser = user
                     isLoggedIn = true
                 }
             }
-            // Redirect to another view after logging in
+            
+            // Full screen para Home
             .fullScreenCover(isPresented: $isLoggedIn) {
                 HomeView(user: viewModel.loggedUser)
             }
         }
-        .navigationDestination(isPresented: $goToRegister) {
-            RegisterView(
-                repository: AuthRepositoryD(),
-                onSuccess: {
-                    accountCreated = true
-                }
-            )
-            .navigationTitle(Text("Registrar Usuario"))
+        .onChange(of: viewModel.isFirstLogin) { _, newValue in
+            isFirstLogin = newValue
         }
     }
-}
-
-// A preview to visualize the view of the loginView
-#Preview {
-    loginView(isLoggedIn: .constant(false), loggedUser: .constant(nil))
 }
