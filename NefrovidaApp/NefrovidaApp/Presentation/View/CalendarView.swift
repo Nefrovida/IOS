@@ -7,6 +7,7 @@ struct CalendarView: View {
     @State private var showDetails = false
     @State private var navigateToReschedule = false
     @State private var appointmentIdToReschedule: Int?
+    @State private var appointmentToReschedule: Appointment?
 
     init(idUser: String) {
         self.idUser = idUser
@@ -92,21 +93,22 @@ struct CalendarView: View {
                         showDetails = false
                     },
                     onReschedule: {
-                        Task {
-                            let ok = await vm.cancelApp()
-                            if ok {
-                                appointmentIdToReschedule = appt.appointmentId
-                                showDetails = false
-                                navigateToReschedule = true
-                            }
-                        }
+                        appointmentIdToReschedule = appt.appointmentId
+                        appointmentToReschedule = appt
+                        showDetails = false
+                        navigateToReschedule = true
                     }
                 )
             }
         }
         .navigationDestination(isPresented: $navigateToReschedule) {
-            if let appointmentId = appointmentIdToReschedule {
-                appointmentView(appointmentId: appointmentId, userId: idUser)
+            if let appointmentId = appointmentIdToReschedule,
+               let appointment = appointmentToReschedule {
+                RescheduleAppointmentView(
+                    appointmentId: appointmentId,
+                    userId: idUser,
+                    appointmentToCancel: appointment
+                )
             }
         }
         .onAppear { vm.onAppear() }

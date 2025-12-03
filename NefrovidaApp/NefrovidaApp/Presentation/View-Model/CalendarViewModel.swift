@@ -138,4 +138,25 @@ final class AgendaViewModel: ObservableObject {
             return false
         }
     }
+    
+    func cancelSpecificAppointment(_ appt: Appointment) async -> Bool {
+        print("🔄 cancelSpecificAppointment called for ID: \(appt.patientAppointmentId), Type: \(appt.appointmentType)")
+        do {
+            if appt.appointmentType.uppercased() == "ANÁLISIS" {
+                print("📋 Canceling analysis appointment...")
+                let result = try await getAppointmentsUC.CancelAnalysis(id: appt.patientAppointmentId)
+                print("✅ Analysis cancellation result: \(result)")
+                return result
+            }
+            
+            print("📅 Canceling regular appointment...")
+            let result = try await getAppointmentsUC.CancelAppointment(id: appt.patientAppointmentId)
+            print("✅ Appointment cancellation result: \(result)")
+            return result
+            
+        } catch {
+            print("❌ Error cancelando: \(error)")
+            return false
+        }
+    }
 }
