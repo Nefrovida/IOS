@@ -237,6 +237,9 @@ struct RiskFormView: View {
                 Task { await vm.loadForm() }
             }
         }
+        .onTapGesture {
+            UIApplication.shared.hideKeyboard()
+        }
 
         // Custom bottom navigation bar.
         BottomBar(idUser: "1212")
