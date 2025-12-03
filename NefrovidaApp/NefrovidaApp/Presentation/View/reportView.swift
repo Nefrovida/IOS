@@ -23,10 +23,6 @@ struct ReportsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            
-            // Top navigation bar
-            UpBar()
-            
             // Scrollable body showing a filterable list of reports
             ScrollView {
                 Spacer()
@@ -45,7 +41,6 @@ struct ReportsView: View {
             
 
         }
-        .background(Color(.systemGroupedBackground)) // Use grouped background style
         .onAppear { vm.onAppear() } // Trigger initial data loading on first display
     }
 }

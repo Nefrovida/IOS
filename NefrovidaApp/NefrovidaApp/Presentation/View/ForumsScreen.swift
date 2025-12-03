@@ -20,7 +20,6 @@ struct ForumsScreen: View {
     var body: some View {
         NavigationStack(path: $path) {
             VStack(spacing: 0) {
-                UpBar()
 
                 Text("Tus Foros")
                     .font(.title)

@@ -19,8 +19,6 @@ struct CalendarView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Top bar (title, user info, etc.)
-            UpBar()
             
             Spacer()
 
