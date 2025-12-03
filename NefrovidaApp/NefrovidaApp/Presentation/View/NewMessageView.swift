@@ -31,6 +31,9 @@ struct NewMessageView: View {
                 
                 Spacer()
             }
+            .onTapGesture {
+                UIApplication.shared.hideKeyboard()
+            }
             .navigationTitle("Nuevo Mensaje")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
