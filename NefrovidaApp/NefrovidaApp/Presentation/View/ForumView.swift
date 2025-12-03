@@ -93,9 +93,15 @@ struct ForumView: View {
                                         }
                                         .buttonStyle(.plain)
 
-                                        Label("\(reply.repliesCount)", systemImage: "bubble.left")
-                                            .font(.subheadline)
-                                            .foregroundColor(.secondary)
+                                        Button {
+                                            vm.replyingTo = reply
+                                            isInputFocused = true
+                                        } label: {
+                                            Label("\(reply.repliesCount)", systemImage: "bubble.left")
+                                                .font(.subheadline)
+                                                .foregroundColor(.secondary)
+                                        }
+                                        .buttonStyle(.plain)
 
                                         Spacer()
                                     }
@@ -134,6 +140,19 @@ struct ForumView: View {
         // --- INPUT BAR ---
         .safeAreaInset(edge: .bottom) {
             VStack(spacing: 6) {
+                if let replyingTo = vm.replyingTo {
+                    HStack {
+                        Text("Respondiendo a \(replyingTo.createdBy)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Button("Cancelar") {
+                            vm.replyingTo = nil
+                        }
+                        .font(.caption)
+                    }
+                }
+
                 VStack(alignment: .trailing, spacing: 4) {
                     TextField(
                         "Escribe una respuesta...",

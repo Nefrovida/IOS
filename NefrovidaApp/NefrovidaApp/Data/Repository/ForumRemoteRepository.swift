@@ -297,10 +297,12 @@ public final class ForumRemoteRepository: ForumRepository {
         parentMessageId: Int,
         content: String
     ) async throws -> ForumMessageEntity {
-        let endpoint = "\(baseURL)/forums/\(forumId)/messages/\(parentMessageId)/replies"
+        let endpoint = "\(baseURL)/forums/\(forumId)/replies"
         let headers = makeHeaders()
+        
         let params: [String: Any] = [
-            "message": content
+            "parent_message_id": parentMessageId,
+            "content": content
         ]
 
         let request = AF.request(
@@ -312,14 +314,23 @@ public final class ForumRemoteRepository: ForumRepository {
         ).validate()
 
         let result = await request.serializingData().response
+
         switch result.result {
         case .success(let data):
+            if let body = String(data: data, encoding: .utf8) {
+                print("DEBUG replyToMessage response:", body)
+            }
+
             let decoder = JSONDecoder()
 
-            if let wrapper = try? decoder.decode(ForumMessageWrapperDTO.self, from: data) {
+            do {
+                let wrapper = try decoder.decode(ForumMessageWrapperDTO.self, from: data)
                 return wrapper.data
+            } catch {
+                print("❌ Error decodificando ForumMessageWrapperDTO:", error)
+                throw error
             }
-            return try decoder.decode(ForumMessageEntity.self, from: data)
+
         case .failure(let error):
             if let data = result.data,
                let body = String(data: data, encoding: .utf8) {

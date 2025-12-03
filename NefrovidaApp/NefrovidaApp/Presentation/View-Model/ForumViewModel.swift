@@ -16,6 +16,7 @@ class ForumViewModel: ObservableObject {
     @Published var replyContent: String = ""
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var replyingTo: ForumMessageEntity?
 
     private let replyToMessageUC: ReplyToMessageUseCase
     private let getRepliesUC: GetRepliesUseCase
@@ -66,27 +67,34 @@ class ForumViewModel: ObservableObject {
 
     // ======== SEND REPLY ========
     func sendReply(forumId: Int, rootId: Int) async {
-        // Seguridad: evitar bypass
         guard isValidReply else { return }
+
+        let parentId = replyingTo?.id ?? rootId
 
         do {
             let newReply = try await replyToMessageUC.execute(
                 forumId: forumId,
-                parentMessageId: rootId,
+                parentMessageId: parentId,
                 content: replyContent
             )
 
             messages.append(newReply)
             replyContent = ""
+            replyingTo = nil
 
-            NotificationCenter.default.post(
-                name: .forumRepliesUpdated,
-                object: nil,
-                userInfo: ["messageId": rootId]
-            )
-            
+            if parentId == rootId {
+                NotificationCenter.default.post(
+                    name: .forumRepliesUpdated,
+                    object: nil,
+                    userInfo: ["messageId": rootId]
+                )
+            } else {
+                if let idx = messages.firstIndex(where: { $0.id == parentId }) {
+                    messages[idx].repliesCount += 1
+                }
+            }
         } catch {
-            print("❌ Error enviando reply: \(error)")
+            print("❌ Error enviando reply:", error)
             errorMessage = "No se pudo enviar la respuesta."
         }
     }

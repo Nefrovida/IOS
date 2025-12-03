@@ -75,16 +75,6 @@ struct ForumFeedScreen: View {
             .padding(.trailing, 16)
             .padding(.bottom, 90)
         }
-        .onReceive(NotificationCenter.default.publisher(for: .forumRepliesUpdated)) { notification in
-            guard
-                let userInfo = notification.userInfo,
-                let messageId = userInfo["messageId"] as? Int
-            else { return }
-
-            if let index = vm.items.firstIndex(where: { $0.id == messageId }) {
-                vm.items[index].replies += 1
-            }
-        }
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle(vm.forumName)
         .sheet(isPresented: $showNewMessageSheet) {
