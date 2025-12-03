@@ -109,6 +109,9 @@ final class analysisViewModel: ObservableObject {
                         slotComps.hour == analysisComps.hour &&
                         slotComps.minute == analysisComps.minute
                         
+                        if isMatch && analysis.status == "CANCELED" {
+                            return false
+                        }
                         if isMatch {
                             print("   ✅ OCUPADO - Coincide con análisis ID: \(analysis.id)")
                         }
