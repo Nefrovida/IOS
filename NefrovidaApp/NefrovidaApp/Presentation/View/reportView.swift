@@ -86,12 +86,9 @@ struct ReportsView: View {
                                     ReportCard(
                                         title: result.patientAnalysis.analysis.name
                                             .trimmingCharacters(in: .whitespaces),
-                                        specialty: "Laboratorio Clínico",
-                                        doctor: "Especialista Nefrólogo",
                                         date: DateFormats.isoTo(result.date, format: "dd/MM/yyyy"),
                                         recommendations: result.patientAnalysis.analysis.description,
-                                        treatment: result.interpretation ?? "Sin tratamiento",
-                                        onViewReport: { print("Ver:", result.path) },
+                                        interpretation: result.interpretation ?? "Sin tratamiento",
                                         onDownloadReport: { print("Descargar:", result.path) }
                                     )
                                 }
