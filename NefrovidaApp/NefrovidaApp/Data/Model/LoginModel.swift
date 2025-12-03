@@ -21,3 +21,7 @@ nonisolated struct LoginModel: Decodable, Sendable {
     let role_id: Int
     let privileges: [String]?
 }
+
+nonisolated struct FirstLoginResponse: Decodable, Sendable {
+    let isFirstLogin: Bool
+}

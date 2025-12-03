@@ -110,4 +110,10 @@ struct AppointmentPopup: View {
             Text("Tu cita actual será cancelada y podrás programar una nueva.")
         }
     }
+
+    private var titleText: String {
+        appt.appointmentInfo?.name.trimmingCharacters(in: .whitespaces)
+        //?? analysis?.name
+        ?? "Sin nombre"
+    }
 }

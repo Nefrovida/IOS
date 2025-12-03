@@ -35,20 +35,38 @@ private struct AuthorDTO: Codable {
 
 // DTO for /forums/myForums endpoint which returns { forumId, name }
 private struct MyForumDTO: Codable {
-    let forumId: Int
-    let name: String
+    let forumId: Int?
+    let forum_id: Int?
+    let name: String?
+    let forum: InnerForumDTO?
+    
+    struct InnerForumDTO: Codable {
+        let forum_id: Int?
+        let forumId: Int?
+        let name: String?
+    }
+    
+    var id: Int {
+        if let f = forum { return f.forum_id ?? f.forumId ?? 0 }
+        return forumId ?? forum_id ?? 0
+    }
+    
+    var resolvedName: String {
+        if let f = forum { return f.name ?? "" }
+        return name ?? ""
+    }
 }
 
 public final class ForumRemoteRepository: ForumRepository {
-
+    
     private let baseURL: String
     private let tokenProvider: () -> String?
-
+    
     public init(baseURL: String, tokenProvider: @escaping () -> String? = { nil }) {
         self.baseURL = baseURL
         self.tokenProvider = tokenProvider
     }
-
+    
     public func fetchForums(page: Int? = nil, limit: Int? = nil, search: String? = nil, isPublic: Bool? = nil) async throws -> [Forum] {
         let endpoint = "\(baseURL)/forums"
         var params: Parameters = [:]
@@ -56,9 +74,9 @@ public final class ForumRemoteRepository: ForumRepository {
         if let limit = limit { params["limit"] = limit }
         if let search = search { params["search"] = search }
         if let isPublic = isPublic { params["isPublic"] = isPublic }
-
+        
         let headers = makeHeaders()
-
+        
         let request = AF.request(endpoint, method: .get, parameters: params, headers: HTTPHeaders(headers)).validate()
         let result = await request.serializingData().response
         switch result.result {
@@ -95,7 +113,7 @@ public final class ForumRemoteRepository: ForumRepository {
             throw error
         }
     }
-
+    
     public func fetchMyForums() async throws -> [Forum] {
         let endpoint = "\(baseURL)/forums/myForums"
         let headers = makeHeaders()
@@ -103,14 +121,62 @@ public final class ForumRemoteRepository: ForumRepository {
         let result = await request.serializingData().response
         switch result.result {
         case .success(let data):
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print("DEBUG: fetchMyForums raw response: \(jsonString)")
+            }
             do {
                 let decoder = JSONDecoder()
-                // The API returns [{ forumId, name }] not full forum objects
-                let myForumsList = try decoder.decode([MyForumDTO].self, from: data)
-                // Convert to Forum objects (with minimal data)
-                return myForumsList.map { dto in
-                    Forum(id: dto.forumId, name: dto.name, description: "", publicStatus: true, active: true, createdAt: nil)
+                var myForumsList: [MyForumDTO] = []
+                
+                // Try plain array
+                if let list = try? decoder.decode([MyForumDTO].self, from: data) {
+                    myForumsList = list
+                } 
+                // Try wrapper with "data"
+                else if let wrapper = try? decoder.decode([String: [MyForumDTO]].self, from: data),
+                        let list = wrapper["data"] ?? wrapper["myForums"] {
+                    myForumsList = list
                 }
+                // Try wrapper with "myForums" (if distinct from above logic)
+                else {
+                    // Attempt to decode as plain array to throw the specific error if it fails
+                    myForumsList = try decoder.decode([MyForumDTO].self, from: data)
+                }
+
+                // Smart Filtering Heuristic:
+                // The backend sometimes returns a mixed array:
+                // 1. Valid memberships wrapped in "forum" object (e.g. { "forum": { "id": 1 ... } })
+                // 2. Noise/Duplicate flat objects (e.g. { "id": 1 ... }, { "id": 2 ... })
+                // If we detect ANY items with the nested "forum" object, we assume those are the correct ones and ignore the flat noise.
+                // If NO items have the nested "forum" object, we assume it's a flat list and use everything.
+                
+                let hasNestedObjects = myForumsList.contains { $0.forum != nil }
+                
+                let filteredList: [MyForumDTO]
+                if hasNestedObjects {
+                    print("DEBUG: Detected nested objects. Filtering out flat noise.")
+                    filteredList = myForumsList.filter { $0.forum != nil }
+                } else {
+                    print("DEBUG: No nested objects found. Using flat list.")
+                    filteredList = myForumsList
+                }
+
+                // Convert to Forum objects (with minimal data)
+                let forums = filteredList.map { dto in
+                    Forum(id: dto.id, name: dto.resolvedName, description: "", publicStatus: true, active: true, createdAt: nil)
+                }
+                
+                // Deduplicate by ID
+                var uniqueForums: [Forum] = []
+                var seenIds: Set<Int> = []
+                for forum in forums {
+                    if !seenIds.contains(forum.id) {
+                        uniqueForums.append(forum)
+                        seenIds.insert(forum.id)
+                    }
+                }
+                
+                return uniqueForums
             } catch {
                 throw error
             }
@@ -118,7 +184,7 @@ public final class ForumRemoteRepository: ForumRepository {
             throw error
         }
     }
-
+    
     public func fetchForum(by id: Int) async throws -> (Forum, [Post]) {
         let endpoint = "\(baseURL)/forums/\(id)"
         let headers = makeHeaders()
@@ -129,25 +195,25 @@ public final class ForumRemoteRepository: ForumRepository {
             do {
                 let decoder = JSONDecoder()
                 // Try to decode a response shaped as { "forum": { ... }, "posts": [...] }
-
+                
                 // Try typed container: {"forum": ForumDTO, "posts": [PostDTO]}
                 if let resp = try? decoder.decode(ForumWithPostsDTO.self, from: data), let forumDTO = resp.forum {
                     let posts = resp.posts?.map { $0.toDomain() } ?? []
                     return (forumDTO.toDomain(), posts)
                 }
-
+                
                 // Try to decode ForumDTO that includes posts property
                 if let forumDTO = try? decoder.decode(ForumDTO.self, from: data) {
                     let posts = forumDTO.posts?.map { $0.toDomain() } ?? []
                     return (forumDTO.toDomain(), posts)
                 }
-
+                
                 // Try to decode container {"posts": [...]}
-                if let postsContainer = try? decoder.decode([String: [PostDTO]].self, from: data), let posts = postsContainer["posts"] {
+                if let postsContainer = try? decoder.decode([String: [PostDTO]].self, from: data), let _ = postsContainer["posts"] {
                     // no forum returned; we can't proceed so throw
                     throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "No forum object found"))
                 }
-
+                
                 throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "Unexpected forum detail response shape"))
             } catch {
                 throw error
@@ -156,7 +222,7 @@ public final class ForumRemoteRepository: ForumRepository {
             throw error
         }
     }
-
+    
     public func joinForum(id: Int) async throws -> Bool {
         let endpoint = "\(baseURL)/forums/\(id)/join"
         let headers = makeHeaders()
@@ -169,9 +235,9 @@ public final class ForumRemoteRepository: ForumRepository {
             throw error
         }
     }
-
+    
     // MARK: - Messages (Merged from develop)
-
+    
     public func getMessages(forumId: Int) async throws -> [ForumMessageEntity] {
         let endpoint = "\(baseURL)/forums/\(forumId)/messages"
         let headers = makeHeaders()
@@ -184,32 +250,30 @@ public final class ForumRemoteRepository: ForumRepository {
             throw error
         }
     }
-
-    public func postMessage(forumId: Int, content: String) async throws -> ForumMessageEntity {
-        let endpoint = "\(baseURL)/forums/\(forumId)/messages"
+    
+    // Posts a new message to the forum
+    // Parameters:
+    // forumId: The ID of the forum to post to
+    // content: The message content
+    // Returns: True if the message was posted successfully
+    public func postMessage(forumId: Int, content: String) async throws -> Bool {
+        let endpoint = "\(baseURL)/forums/\(forumId)"
         let headers = makeHeaders()
-        let params: [String: Any] = ["content": content]
+        // Backend expects "message" field, not "content"
+        let params: [String: Any] = ["message": content]
         let request = AF.request(endpoint, method: .post, parameters: params, encoding: JSONEncoding.default, headers: HTTPHeaders(headers)).validate()
         let result = await request.serializingData().response
         switch result.result {
-        case .success(let data):
-            let decoder = JSONDecoder()
-            if let entity = try? decoder.decode(ForumMessageEntity.self, from: data) {
-                return entity
-            }
-            // Try wrapper
-            if let wrapper = try? decoder.decode([String: ForumMessageEntity].self, from: data), let entity = wrapper["data"] {
-                return entity
-            }
-            // Throw original error or generic
-            return try decoder.decode(ForumMessageEntity.self, from: data)
+        case .success:
+            return true
         case .failure(let error):
             throw error
         }
     }
-
+    
+    
     public func replyToMessage(forumId: Int, parentMessageId: Int, content: String) async throws -> ForumMessageEntity {
-        let endpoint = "\(baseURL)/forums/\(forumId)/replies"
+        let endpoint = "\(AppConfig.apiBaseURL)/forums/\(forumId)/replies"
         let headers = makeHeaders()
         let params: [String: Any] = [
             "parent_message_id": parentMessageId,
@@ -231,9 +295,9 @@ public final class ForumRemoteRepository: ForumRepository {
             throw error
         }
     }
-
+    
     public func fetchReplies(forumId: Int, messageId: Int, page: Int?, limit: Int?) async throws -> [ForumMessageEntity] {
-        let endpoint = "\(baseURL)/forums/\(forumId)/messages/\(messageId)/replies"
+        let endpoint = "\(AppConfig.apiBaseURL)/forums/\(forumId)/messages/\(messageId)/replies"
         var params: Parameters = [:]
         if let page = page { params["page"] = page }
         if let limit = limit { params["limit"] = limit }
@@ -251,7 +315,7 @@ public final class ForumRemoteRepository: ForumRepository {
             }
             // Fallback: try decoding array directly just in case
             if let list = try? decoder.decode([ForumMessageEntity].self, from: data) {
-                 return list
+                return list
             }
             // If both fail, try one more time to let it throw and print error
             return try decoder.decode([ForumMessageEntity].self, from: data)
@@ -260,7 +324,7 @@ public final class ForumRemoteRepository: ForumRepository {
             throw error
         }
     }
-
+    
     private func makeHeaders() -> [String: String] {
         var headers: [String: String] = ["Content-Type": "application/json"]
         if let token = tokenProvider() {
@@ -268,13 +332,44 @@ public final class ForumRemoteRepository: ForumRepository {
         }
         return headers
     }
-
+    
     // Helper DTO for responses shaped as { "forum": {...}, "posts": [...] }
     private struct ForumWithPostsDTO: Codable {
         let forum: ForumDTO?
         let posts: [PostDTO]?
     }
     
+    
+    // MARK: - get the message from the forum
+    public func getFeed(forumId: Int?, page: Int) async throws -> [ForumFeedItem] {
+        var params: [String: Any] = ["page": page]
+        
+        if let forumId = forumId {
+            params["forumId"] = forumId
+        }
+        
+        let endpoint = "\(AppConfig.apiBaseURL)/forums/feed"
+        
+        let response = await AF.request(
+            endpoint,
+            method: .get,
+            parameters: params,
+            encoding: URLEncoding.default,
+            headers: HTTPHeaders(makeHeaders())
+        ).serializingData().response
+        
+        print(response.result)
+        switch response.result {
+        case .success(let data):
+            let decoder = JSONDecoder()
+            let dtoList = try decoder.decode([FeedDTO].self, from: data)
+            return dtoList.map {$0.toDomain()}
+            
+        case .failure(let error):
+            throw error
+        }
+    }
+}
     // Helper DTO for wrapped message responses
     private struct ForumMessageWrapperDTO: Codable {
         let data: ForumMessageEntity
@@ -284,4 +379,4 @@ public final class ForumRemoteRepository: ForumRepository {
     private struct RepliesResponseDTO: Codable {
         let data: [ForumMessageEntity]
     }
-}
+    

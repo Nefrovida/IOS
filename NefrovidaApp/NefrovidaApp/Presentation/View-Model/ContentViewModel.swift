@@ -13,4 +13,5 @@ final class ContentViewModel: ObservableObject {
     @Published var isLoggedIn = false
     @Published var loggedUser: LoginEntity?
     @Published var selectedTab: Tab = .inicio
+    @Published var isFirstLogin: Bool = false
 }

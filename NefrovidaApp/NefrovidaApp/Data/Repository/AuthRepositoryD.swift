@@ -56,6 +56,7 @@ final class AuthRepositoryD: AuthRepository {
             }
             
             let user = loginResponse.user
+            print(user)
             // Return the users data
             return LoginEntity(
                 user_id: user.user_id,
@@ -71,6 +72,75 @@ final class AuthRepositoryD: AuthRepository {
                 throw NSError(domain: "", code: response.response?.statusCode ?? 500,
                               userInfo: [NSLocalizedDescriptionKey: message])
             }
+            throw error
+        }
+    }
+    
+    func register(request: RegisterRequest) async throws -> RegisterResponse {
+            let url = "\(AppConfig.apiBaseURL)/auth/register"
+            
+            // Session configuration igual que en login
+            let session: Session = {
+                let configuration = URLSessionConfiguration.default
+                configuration.httpCookieStorage = .shared
+                configuration.httpCookieAcceptPolicy = .always
+                configuration.httpShouldSetCookies = true
+                configuration.timeoutIntervalForRequest = 10
+                return Session(configuration: configuration)
+            }()
+            
+            // The POST request is made with all the registration data
+            let response = await session.request(
+                url,
+                method: .post,
+                parameters: request,
+                encoder: JSONParameterEncoder.default
+            )
+            .validate(statusCode: 200..<300)
+            .serializingDecodable(RegisterResponse.self)
+            .response
+            
+            switch response.result {
+            case .success(let registerResponse):
+                // Si el backend devuelve cookies de autenticación después del registro
+                if let cookies = HTTPCookieStorage.shared.cookies {
+                    for cookie in cookies {
+                        if ["token", "access_token", "accessToken", "jwt"].contains(cookie.name) {
+                            UserDefaults.standard.set(cookie.value, forKey: "jwt_token")
+                        }
+                    }
+                }
+                
+                return registerResponse
+                
+            case .failure(let error):
+                if let data = response.data,
+                   let message = String(data: data, encoding: .utf8) {
+                    throw NSError(domain: "", code: response.response?.statusCode ?? 500,
+                                  userInfo: [NSLocalizedDescriptionKey: message])
+                }
+                throw error
+            }
+        }
+}
+
+final class UserRemoteRepository:UserRepository {
+    
+    func fetchFirstLogin(for userId: String) async throws -> Bool {
+        let endpoint = "\(AppConfig.apiBaseURL)/users/first-login/\(userId)"
+        
+        do {
+            // Devuelve directamente FirstLoginResponse (no DataResponse<>)
+            let decoded = try await AF.request(endpoint)
+                .validate()
+                .serializingDecodable(FirstLoginResponse.self)
+                .value
+            
+            print("estado de first-login:",decoded.isFirstLogin)
+            return decoded.isFirstLogin
+            
+        } catch {
+            print("Error fetching first-login:", error)
             throw error
         }
     }
