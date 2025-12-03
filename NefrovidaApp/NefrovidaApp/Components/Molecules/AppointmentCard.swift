@@ -2,11 +2,12 @@ import SwiftUI
 
 struct AppointmentCard: View {
     let appt: Appointment
+    //let analysis: Analysis?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             
-            Text("Cita: \(appt.appointmentInfo?.name.trimmingCharacters(in: .whitespaces) ?? "Sin nombre")")
+            Text("Cita: \(titleText)")
                 .font(.nvSemibold)
                 .foregroundColor(.primary)
             
@@ -31,5 +32,11 @@ struct AppointmentCard: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(Color.statusColor(for: appt.appointmentStatus).opacity(0.8), lineWidth: 2)
         )
+    }
+
+    private var titleText: String {
+        appt.appointmentInfo?.name.trimmingCharacters(in: .whitespaces)
+        //?? analysis?.name
+        ?? "Sin nombre"
     }
 }

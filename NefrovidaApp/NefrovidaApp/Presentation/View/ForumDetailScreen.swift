@@ -6,7 +6,7 @@ struct ForumDetailScreen: View {
     init(forumId: Int) {
         let repo: ForumRepository
         if AppConfig.useRemoteForums {
-            repo = ForumRemoteRepository(baseURL: AppConfig.apiBaseURL, tokenProvider: AppConfig.tokenProvider)
+            repo = ForumRemoteRepository(baseURL: AppConfig.apiBaseURL)
         } else {
             repo = MockForumRepository()
         }
@@ -16,8 +16,9 @@ struct ForumDetailScreen: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            UpBar()
+        UpBar()
+        VStack() {
+            
 
             Text(vm.forum?.name ?? "Foro")
                 .font(.title)

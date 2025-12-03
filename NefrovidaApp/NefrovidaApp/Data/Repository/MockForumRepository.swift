@@ -1,19 +1,30 @@
+
 import Foundation
 
+
 public final class MockForumRepository: ForumRepository {
+    
     public init() {}
 
+    public func getFeed(forumId: Int?, page: Int) async throws -> [ForumFeedItem] {
+        return [
+//            ForumFeedItem(id: 1, content: "Bienvenidos al foro 👋", likes: 12, replies: 5, forumName: "General"),
+//            ForumFeedItem(id: 2, content: "Recuerden hidratarse 💧", likes: 5, replies: 1, forumName: "Tips de salud"),
+//            ForumFeedItem(id: 3, content: "¿Dudas sobre medicamentos?", likes: 8, replies: 3, forumName: "Consultas")
+        ]
+    }
+        
     public func fetchForums(page: Int? = nil, limit: Int? = nil, search: String? = nil, isPublic: Bool? = nil) async throws -> [Forum] {
         // Return 4 mock forums as per spec
         return (1...4).map { i in
             Forum(id: i, name: "Foro \(i)", description: "Foro para los pacientes de nefrovida", publicStatus: true, active: true, createdAt: Date())
         }
     }
-
+    
     public func fetchMyForums() async throws -> [Forum] {
         return [Forum(id: 1, name: "Foro 1", description: "Foro para los pacientes de nefrovida", publicStatus: true, active: true, createdAt: Date())]
     }
-
+    
     public func fetchForum(by id: Int) async throws -> (Forum, [Post]) {
         let forum = Forum(id: id, name: "Foro 1", description: "Foro para los pacientes de nefrovida", publicStatus: true, active: true, createdAt: Date())
         let posts = [
@@ -23,12 +34,12 @@ public final class MockForumRepository: ForumRepository {
         ]
         return (forum, posts)
     }
-
+    
     public func joinForum(id: Int) async throws -> Bool {
         // Simulate join success
         return true
     }
-
+    
     // MARK: - Messages
     public func getMessages(forumId: Int) async throws -> [ForumMessageEntity] {
         // Return some mock messages
@@ -39,15 +50,16 @@ public final class MockForumRepository: ForumRepository {
         ]
     }
 
-    public func postMessage(forumId: Int, content: String) async throws -> ForumMessageEntity {
-        // Simulate creating a new message
-        return ForumMessageEntity(id: Int.random(in: 100...999), forumId: forumId, parentMessageId: nil, content: content, createdBy: "CurrentUser", createdAt: Date().ISO8601Format())
+    public func postMessage(forumId: Int, content: String) async throws -> Bool {
+        // Simulate creating a new message - just return success
+        return true
     }
-
+    
     public func replyToMessage(forumId: Int, parentMessageId: Int, content: String) async throws -> ForumMessageEntity {
         // Simulate creating a new reply
         return ForumMessageEntity(id: Int.random(in: 100...999), forumId: forumId, parentMessageId: parentMessageId, content: content, createdBy: "CurrentUser", createdAt: Date().ISO8601Format())
     }
+
 
     public func fetchReplies(forumId: Int, messageId: Int, page: Int?, limit: Int?) async throws -> [ForumMessageEntity] {
         // Return mock replies
@@ -56,3 +68,5 @@ public final class MockForumRepository: ForumRepository {
         ]
     }
 }
+
+

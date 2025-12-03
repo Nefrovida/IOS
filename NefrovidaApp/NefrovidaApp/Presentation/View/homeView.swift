@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct HomeView: View {
-    let user: LoginEntity?
     @State private var selectedTab = 0
     @StateObject private var viewModel = ContentViewModel()
     

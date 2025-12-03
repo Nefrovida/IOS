@@ -1,58 +1,52 @@
 import SwiftUI
 
+enum MessageRoute: Hashable {
+    case feed(forum: Forum)
+    case replies(forumId: Int, messageId: Int)
+}
+
 struct ForumsScreen: View {
     @StateObject private var vm: ForumsViewModel
-    @State private var path: [Int] = []
+    @State private var path: [MessageRoute] = []
 
     init() {
         let repo: ForumRepository
         if AppConfig.useRemoteForums {
-            repo = ForumRemoteRepository(baseURL: AppConfig.apiBaseURL, tokenProvider: AppConfig.tokenProvider)
+            repo = ForumRemoteRepository(baseURL: AppConfig.apiBaseURL)
         } else {
             repo = MockForumRepository()
         }
-        let getForumsUC = GetForumsUseCase(repository: repo)
-        let getMyForumsUC = GetMyForumsUseCase(repository: repo)
-        let joinForumUC = JoinForumUseCase(repository: repo)
-        _vm = StateObject(wrappedValue: ForumsViewModel(getForumsUC: getForumsUC, getMyForumsUC: getMyForumsUC, joinForumUC: joinForumUC))
+        _vm = StateObject(
+            wrappedValue: ForumsViewModel(
+                getForumsUC: GetForumsUseCase(repository: repo),
+                getMyForumsUC: GetMyForumsUseCase(repository: repo),
+                joinForumUC: JoinForumUseCase(repository: repo)
+            ))
     }
 
     var body: some View {
         NavigationStack(path: $path) {
+            
             VStack(spacing: 0) {
                 UpBar()
 
                 Text("Tus Foros")
                     .font(.title)
                     .fontWeight(.bold)
-                    .foregroundColor(.primary)
-                    .multilineTextAlignment(.center)
                     .padding(.top, 8)
 
                 if vm.isLoading {
                     ProgressView()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if let err = vm.errorMessage {
-                    VStack(spacing: 10) {
-                        Text(err).foregroundStyle(.red)
-                        Button("Reintentar") { vm.onAppear() }
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     ScrollView {
                         VStack(spacing: 12) {
                             ForEach(vm.forums) { forum in
                                 ForumCard(forum: forum, isMember: vm.isMember(of: forum)) {
                                     Task {
-                                        // If not a member, join first
                                         if !vm.isMember(of: forum) {
-                                            let success = await vm.joinForum(forum.id)
-                                            if !success {
-                                                return // Don't navigate if join failed
-                                            }
+                                            if !(await vm.joinForum(forum.id)) { return }
                                         }
-                                        // Navigate to forum detail
-                                        path.append(forum.id)
+                                        path.append(.feed(forum: forum))
                                     }
                                 }
                                 .padding(.horizontal)
@@ -60,16 +54,22 @@ struct ForumsScreen: View {
                         }
                         .padding(.vertical)
                     }
-                    .navigationDestination(for: Int.self) { id in
-                        ForumView(forumId: id)
-                    }
                 }
             }
             .onAppear { vm.onAppear() }
+
+            // DESTINOS
+            .navigationDestination(for: MessageRoute.self) { route in
+                switch route {
+                case .feed(let forum):
+                    ForumFeedScreen(forum: forum, path: $path)
+
+                case .replies(let forumId, let rootId):
+                    ForumView(forumId: forumId, rootMessageId: rootId)
+                }
+            }
         }
     }
 }
 
-#Preview {
-    ForumsScreen()
-}
+#Preview { ForumsScreen() }
