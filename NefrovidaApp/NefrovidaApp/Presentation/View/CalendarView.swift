@@ -54,14 +54,12 @@ struct CalendarView: View {
                             onDismiss: {
                                 withAnimation {
                                     showSuccessMessage = false
-                                    // Opcional: cerrar hoja de reagendar y limpiar selección
-                                    showRescheduleSheet = false
-                                    selectedAppointment = nil
                                 }
                             }
                         )
                         .transition(.move(edge: .top).combined(with: .opacity))
                     }
+                    
                     if let err = vm.errorMessage {
                         VStack(spacing: 8) {
                             ErrorMessage(
@@ -140,6 +138,10 @@ struct CalendarView: View {
                                 showDetails = false
                                 selectedAppointment = nil
                                 vm.select(date: vm.selectedDate)
+                                successMessageText = "Cita cancelada correctamente"
+                                withAnimation {
+                                    showSuccessMessage = true
+                                }
                             }
                         }
                     }
