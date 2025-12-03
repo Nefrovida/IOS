@@ -8,6 +8,7 @@ enum MessageRoute: Hashable {
 struct ForumsScreen: View {
     @StateObject private var vm: ForumsViewModel
     @State private var path: [MessageRoute] = []
+    @State private var selectedTab = 0
 
     init() {
         let repo: ForumRepository
@@ -30,29 +31,50 @@ struct ForumsScreen: View {
             VStack(spacing: 0) {
                 UpBar()
 
-                Text("Tus Foros")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .padding(.top, 8)
 
                 if vm.isLoading {
                     ProgressView()
                 } else {
-                    ScrollView {
-                        VStack(spacing: 12) {
-                            ForEach(vm.forums) { forum in
-                                ForumCard(forum: forum, isMember: vm.isMember(of: forum)) {
-                                    Task {
-                                        if !vm.isMember(of: forum) {
-                                            if !(await vm.joinForum(forum.id)) { return }
+                    VStack(spacing: 0) {
+                        Picker("Filtro", selection: $selectedTab) {
+                            Text("Mis Foros").tag(0)
+                            Text("Todos los Foros").tag(1)
+                        }
+                        .pickerStyle(.segmented)
+                        .padding()
+
+                        ScrollView {
+                            VStack(spacing: 12) {
+                                let forumsToShow = selectedTab == 0 ? vm.myForums : vm.forums
+                                
+                                if forumsToShow.isEmpty {
+                                    Text(selectedTab == 0 ? "No te has unido a ningún foro aún" : "No hay foros disponibles")
+                                        .foregroundColor(.gray)
+                                        .padding(.top, 40)
+                                } else {
+                                    ForEach(forumsToShow) { forum in
+                                        ForumCard(forum: forum, isMember: vm.isMember(of: forum)) {
+                                            Task {
+                                                // If not a member, join first
+                                                if !vm.isMember(of: forum) {
+                                                    let success = await vm.joinForum(forum.id)
+                                                    if !success {
+                                                        return // Don't navigate if join failed
+                                                    }
+                                                }
+                                                // Navigate to forum detail
+                                                path.append(.feed(forum: forum))
+                                            }
                                         }
-                                        path.append(.feed(forum: forum))
+                                        .padding(.horizontal)
                                     }
                                 }
-                                .padding(.horizontal)
                             }
+                            .padding(.vertical)
                         }
-                        .padding(.vertical)
+                        .refreshable {
+                            vm.refresh()
+                        }
                     }
                 }
             }

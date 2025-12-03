@@ -35,8 +35,26 @@ private struct AuthorDTO: Codable {
 
 // DTO for /forums/myForums endpoint which returns { forumId, name }
 private struct MyForumDTO: Codable {
-    let forumId: Int
-    let name: String
+    let forumId: Int?
+    let forum_id: Int?
+    let name: String?
+    let forum: InnerForumDTO?
+    
+    struct InnerForumDTO: Codable {
+        let forum_id: Int?
+        let forumId: Int?
+        let name: String?
+    }
+    
+    var id: Int {
+        if let f = forum { return f.forum_id ?? f.forumId ?? 0 }
+        return forumId ?? forum_id ?? 0
+    }
+    
+    var resolvedName: String {
+        if let f = forum { return f.name ?? "" }
+        return name ?? ""
+    }
 }
 
 public final class ForumRemoteRepository: ForumRepository {
@@ -103,14 +121,62 @@ public final class ForumRemoteRepository: ForumRepository {
         let result = await request.serializingData().response
         switch result.result {
         case .success(let data):
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print("DEBUG: fetchMyForums raw response: \(jsonString)")
+            }
             do {
                 let decoder = JSONDecoder()
-                // The API returns [{ forumId, name }] not full forum objects
-                let myForumsList = try decoder.decode([MyForumDTO].self, from: data)
-                // Convert to Forum objects (with minimal data)
-                return myForumsList.map { dto in
-                    Forum(id: dto.forumId, name: dto.name, description: "", publicStatus: true, active: true, createdAt: nil)
+                var myForumsList: [MyForumDTO] = []
+                
+                // Try plain array
+                if let list = try? decoder.decode([MyForumDTO].self, from: data) {
+                    myForumsList = list
+                } 
+                // Try wrapper with "data"
+                else if let wrapper = try? decoder.decode([String: [MyForumDTO]].self, from: data),
+                        let list = wrapper["data"] ?? wrapper["myForums"] {
+                    myForumsList = list
                 }
+                // Try wrapper with "myForums" (if distinct from above logic)
+                else {
+                    // Attempt to decode as plain array to throw the specific error if it fails
+                    myForumsList = try decoder.decode([MyForumDTO].self, from: data)
+                }
+
+                // Smart Filtering Heuristic:
+                // The backend sometimes returns a mixed array:
+                // 1. Valid memberships wrapped in "forum" object (e.g. { "forum": { "id": 1 ... } })
+                // 2. Noise/Duplicate flat objects (e.g. { "id": 1 ... }, { "id": 2 ... })
+                // If we detect ANY items with the nested "forum" object, we assume those are the correct ones and ignore the flat noise.
+                // If NO items have the nested "forum" object, we assume it's a flat list and use everything.
+                
+                let hasNestedObjects = myForumsList.contains { $0.forum != nil }
+                
+                let filteredList: [MyForumDTO]
+                if hasNestedObjects {
+                    print("DEBUG: Detected nested objects. Filtering out flat noise.")
+                    filteredList = myForumsList.filter { $0.forum != nil }
+                } else {
+                    print("DEBUG: No nested objects found. Using flat list.")
+                    filteredList = myForumsList
+                }
+
+                // Convert to Forum objects (with minimal data)
+                let forums = filteredList.map { dto in
+                    Forum(id: dto.id, name: dto.resolvedName, description: "", publicStatus: true, active: true, createdAt: nil)
+                }
+                
+                // Deduplicate by ID
+                var uniqueForums: [Forum] = []
+                var seenIds: Set<Int> = []
+                for forum in forums {
+                    if !seenIds.contains(forum.id) {
+                        uniqueForums.append(forum)
+                        seenIds.insert(forum.id)
+                    }
+                }
+                
+                return uniqueForums
             } catch {
                 throw error
             }
@@ -143,7 +209,7 @@ public final class ForumRemoteRepository: ForumRepository {
                 }
                 
                 // Try to decode container {"posts": [...]}
-                if let postsContainer = try? decoder.decode([String: [PostDTO]].self, from: data), let posts = postsContainer["posts"] {
+                if let postsContainer = try? decoder.decode([String: [PostDTO]].self, from: data), let _ = postsContainer["posts"] {
                     // no forum returned; we can't proceed so throw
                     throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "No forum object found"))
                 }
