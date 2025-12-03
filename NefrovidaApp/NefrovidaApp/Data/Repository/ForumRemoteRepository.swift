@@ -209,7 +209,7 @@ public final class ForumRemoteRepository: ForumRepository {
                 }
                 
                 // Try to decode container {"posts": [...]}
-                if let postsContainer = try? decoder.decode([String: [PostDTO]].self, from: data), let posts = postsContainer["posts"] {
+                if let postsContainer = try? decoder.decode([String: [PostDTO]].self, from: data), let _ = postsContainer["posts"] {
                     // no forum returned; we can't proceed so throw
                     throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "No forum object found"))
                 }
