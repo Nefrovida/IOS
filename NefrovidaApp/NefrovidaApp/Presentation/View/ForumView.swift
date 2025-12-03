@@ -77,6 +77,20 @@ struct ForumView: View {
                                         Spacer()
                                     }
 
+                                    if let parentId = reply.parentMessageId,
+                                       parentId != rootMessageId,
+                                       let parent = vm.messages.first(where: { $0.id == parentId }) {
+
+                                        Text("Respondió a \(parent.createdBy)")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                            .padding(6)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 8)
+                                                    .fill(Color.gray.opacity(0.1))
+                                            )
+                                    }
+
                                     Text(reply.content)
                                         .font(.body)
 
@@ -99,7 +113,6 @@ struct ForumView: View {
                                         } label: {
                                             Label("\(reply.repliesCount)", systemImage: "bubble.left")
                                                 .font(.subheadline)
-                                                .foregroundColor(.secondary)
                                         }
                                         .buttonStyle(.plain)
 

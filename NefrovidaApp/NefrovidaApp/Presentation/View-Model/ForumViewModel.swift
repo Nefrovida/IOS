@@ -54,14 +54,56 @@ class ForumViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
-            messages = try await getRepliesUC.execute(
+            var allMessages: [ForumMessageEntity] = []
+            let rootReplies = try await getRepliesUC.execute(
                 forumId: forumId,
                 messageId: rootId,
                 page: 1,
                 limit: 20
             )
+
+            allMessages.append(contentsOf: rootReplies)
+
+            var queue: [ForumMessageEntity] = rootReplies
+
+            while !queue.isEmpty {
+                let current = queue.removeFirst()
+
+                guard current.repliesCount > 0 else { continue }
+
+                let children = try await getRepliesUC.execute(
+                    forumId: forumId,
+                    messageId: current.id,
+                    page: 1,
+                    limit: 20
+                )
+
+                allMessages.append(contentsOf: children)
+                queue.append(contentsOf: children)
+            }
+
+            var seen = Set<Int>()
+            let unique = allMessages.filter { msg in
+                if seen.contains(msg.id) { return false }
+                seen.insert(msg.id)
+                return true
+            }
+
+            messages = unique.sorted { lhs, rhs in
+                if let lDateStr = lhs.createdAt,
+                   let rDateStr = rhs.createdAt,
+                   let lDate = ISO8601DateFormatter().date(from: lDateStr),
+                   let rDate = ISO8601DateFormatter().date(from: rDateStr) {
+                    return lDate < rDate
+                } else {
+                    return lhs.id < rhs.id
+                }
+            }
+
         } catch {
+            print("Error cargando hilo:", error)
             errorMessage = "No se pudieron cargar las respuestas."
+            messages = []
         }
     }
 
