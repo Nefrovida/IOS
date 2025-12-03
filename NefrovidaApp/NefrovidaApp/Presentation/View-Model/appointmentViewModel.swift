@@ -133,6 +133,9 @@ final class appointmentViewModel: ObservableObject {
                         slotComps.hour == aptComps.hour &&
                         slotComps.minute == aptComps.minute
                         
+                        if isMatch && appointment.status == "CANCELED" {
+                            return false
+                        }
                         if isMatch {
                             print("   ✅ OCUPADO - Coincide con cita ID: \(appointment.id)")
                         }
