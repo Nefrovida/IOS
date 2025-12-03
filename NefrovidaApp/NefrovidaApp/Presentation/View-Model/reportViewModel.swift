@@ -4,62 +4,55 @@ import Combine
 @MainActor
 final class ReportsViewModel: ObservableObject {
 
-    // Published UI State
-    @Published var reports: [Report] = []          // Array of fetched reports to be shown in the UI
-    @Published var isLoading: Bool = false         // Indicates whether data is being loaded
-    @Published var isDownloading: Bool = false     // Indicates whether a report is being downloaded
-    @Published var errorMessage: String? = nil     // Stores an error message to display in the UI if needed
-    @Published var downloadedFileURL: URL? = nil   // Stores the URL of the downloaded file to trigger the share sheet
+    // UI state
+    @Published var analysisResults: [AnalysisResult] = []
+    @Published var appointmentNotes: [AppointmentNote] = []
 
-    // Dependencies
-    let userId: String                          // ID of the patient whose reports need to be loaded
-    private let getReportsUseCase: GetReportsUseCaseProtocol // Use case responsible for fetching reports
-    private let downloadReportUseCase: DownloadReportUseCaseProtocol // Use case responsible for downloading reports
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String? = nil
+    
+    // Download state
+    @Published var isDownloading: Bool = false
+    @Published var downloadedFileURL: URL? = nil
 
-    // Initialization
+    private let userId: String
+    private let getReportsUseCase: GetReportsUseCaseProtocol
+    private let downloadReportUseCase: DownloadReportUseCaseProtocol
+
     init(userId: String, 
          getReportsUseCase: GetReportsUseCaseProtocol,
          downloadReportUseCase: DownloadReportUseCaseProtocol) {
-        self.userId = userId                 // Assign the patient ID passed by the previous screen
-        self.getReportsUseCase = getReportsUseCase // Inject the use case that fetches the data
-        self.downloadReportUseCase = downloadReportUseCase // Inject the use case that downloads the report
+        self.userId = userId
+        self.getReportsUseCase = getReportsUseCase
+        self.downloadReportUseCase = downloadReportUseCase
     }
 
-    // Lifecycle
+
     func onAppear() {
-        // Called when the view appears — starts the asynchronous loading
         Task { await loadReports() }
     }
 
-    // Data Loading
     private func loadReports() async {
-        isLoading = true                           // Show loading indicator in UI
-        errorMessage = nil                         // Reset previous error
-        
+        isLoading = true
+        errorMessage = nil
+
         do {
-            let result = try await getReportsUseCase.execute(userId: userId)
-           
-            if result.isEmpty{
-                self.reports = []
-                isLoading = false
-                return
-            }
-            self.reports = result                  // Save the list of reports returned by the repository
-            
+            let data = try await getReportsUseCase.execute(userId: userId)
+
+            self.analysisResults = data.analysisResults
+            self.appointmentNotes = data.appointmentNotes
         } catch {
-            // If something goes wrong, save a generic error message for the UI
-  
             errorMessage = "No se pudieron cargar los reportes."
             print("Error loading reports:", error)
         }
 
-        isLoading = false                          // Hide loading indicator
+        isLoading = false
     }
     
     // Download Report
-    func downloadReport(report: Report) {
+    func downloadReport(id: Int) {
         Task {
-            await downloadReportAsync(id: report.resultId)
+            await downloadReportAsync(id: id)
         }
     }
     
@@ -78,4 +71,6 @@ final class ReportsViewModel: ObservableObject {
         
         isDownloading = false
     }
+    
+
 }
