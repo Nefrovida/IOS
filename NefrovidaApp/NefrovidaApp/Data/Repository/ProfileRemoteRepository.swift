@@ -21,7 +21,7 @@ final class ProfileRemoteRepository: ProfileRepository {
     }
     
     func getMyProfile() async throws -> ProfileEntity {
-        let url = "\(AppConfig.apiBaseURL)/profile/me"
+        let url = "\(await AppConfig.apiBaseURL)/profile/me"
         
         let response = await AF.request(
             url,
@@ -51,7 +51,7 @@ final class ProfileRemoteRepository: ProfileRepository {
     }
     
     func updateMyProfile(data: UpdateProfileDTO) async throws -> ProfileEntity {
-        let url = "\(AppConfig.apiBaseURL)/profile/me"
+        let url = "\(await AppConfig.apiBaseURL)/profile/me"
         
         let response = await AF.request(
             url,
@@ -84,7 +84,7 @@ final class ProfileRemoteRepository: ProfileRepository {
     }
     
     func changePassword(data: ChangePasswordDTO) async throws -> Bool {
-        let url = "\(AppConfig.apiBaseURL)/profile/change-password"
+        let url = "\(await AppConfig.apiBaseURL)/profile/change-password"
         
         let response = await AF.request(
             url,

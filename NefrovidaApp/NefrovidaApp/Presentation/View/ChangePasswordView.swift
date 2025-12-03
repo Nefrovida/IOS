@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ChangePasswordView: View {
     @ObservedObject var viewModel: ProfileViewModel
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) var dismiss
     
     @State private var newPassword = ""
     @State private var confirmNewPassword = ""
@@ -88,7 +88,7 @@ struct ChangePasswordView: View {
                                 confirmNewPassword = ""
                                 // Delay dismissal to show success message
                                 try? await Task.sleep(nanoseconds: 1_500_000_000)
-                                presentationMode.wrappedValue.dismiss()
+                                dismiss()
                             }
                         }
                     }
