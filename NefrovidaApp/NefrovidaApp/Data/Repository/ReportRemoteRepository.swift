@@ -29,4 +29,43 @@ final class ReportsRemoteRepository: ReportsRepositoryProtocol {
             throw error
         }
     }
+
+    // Downloads a report PDF from the backend.
+    // Returns the local URL of the downloaded file.
+    func downloadReport(id: Int) async throws -> URL {
+        
+        // Endpoint for downloading the report
+        let endpoint = "\(AppConfig.apiBaseURL)/analysis/download-report"
+        
+        // Parameters for the request
+        let parameters: [String: String] = ["id": String(id)]
+        
+        // Destination closure to determine where to save the file
+        let destination: DownloadRequest.Destination = { _, response in
+            let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            let fileURL = documentsURL.appendingPathComponent(response.suggestedFilename ?? "report.pdf")
+            
+            // Overwrite if exists
+            return (fileURL, [.removePreviousFile, .createIntermediateDirectories])
+        }
+        
+        // Perform the download
+        return try await withCheckedThrowingContinuation { continuation in
+            AF.download(endpoint, parameters: parameters, to: destination)
+                .validate()
+                .response { response in
+                    switch response.result {
+                    case .success(let fileURL):
+                        if let fileURL = fileURL {
+                            continuation.resume(returning: fileURL)
+                        } else {
+                            continuation.resume(throwing: URLError(.badServerResponse))
+                        }
+                    case .failure(let error):
+                        print("Error downloading report:", error)
+                        continuation.resume(throwing: error)
+                    }
+                }
+        }
+    }
 }
