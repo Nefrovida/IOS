@@ -60,13 +60,20 @@ final class RemoteAppointmentRepository: AppointmentRepository {
     
     func CancelAnalysis(id: Int) async throws -> Bool {
         let endpoint = "\(AppConfig.apiBaseURL)/agenda/analysis/\(id)/cancel"
-        print(endpoint)
-        let result = await AF.request(endpoint, method: .post)
-            .validate()
+        
+        guard let token = AppConfig.tokenProvider() else {
+            return false
+        }
+        
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(token)"
+        ]
+        
+        let result = await AF.request(endpoint, method: .post, headers: headers)
+            .validate(statusCode: 200..<300)
             .serializingData()
             .response
         
-        print("analisis cancelado")
         switch result.result {
         case .success:
             return true
@@ -77,17 +84,24 @@ final class RemoteAppointmentRepository: AppointmentRepository {
     
     func CancelAppointment(id: Int) async throws -> Bool {
         let endpoint = "\(AppConfig.apiBaseURL)/agenda/appointments/\(id)/cancel"
-        print(endpoint)
-        let result = await AF.request(endpoint, method: .post)
+        
+        guard let token = AppConfig.tokenProvider() else {
+            return false
+        }
+        
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(token)"
+        ]
+        
+        let result = await AF.request(endpoint, method: .post, headers: headers)
             .validate()
             .serializingData()
             .response
         
-        print("cita cancelada")
         switch result.result {
         case .success:
             return true
-        case.failure:
+        case .failure:
             return false
         }
     }

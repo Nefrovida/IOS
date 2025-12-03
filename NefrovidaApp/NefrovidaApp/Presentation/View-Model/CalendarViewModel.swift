@@ -124,7 +124,9 @@ final class AgendaViewModel: ObservableObject {
     
     
     func cancelApp() async -> Bool {
-        guard let appt = SelectedAppointment else { return false }
+        guard let appt = SelectedAppointment else { 
+            return false 
+        }
         
         do {
             if appt.appointmentType.uppercased() == "ANÁLISIS" {
@@ -134,28 +136,19 @@ final class AgendaViewModel: ObservableObject {
             return try await getAppointmentsUC.CancelAppointment(id: appt.patientAppointmentId)
             
         } catch {
-            print("Error cancelando:", error)
             return false
         }
     }
     
     func cancelSpecificAppointment(_ appt: Appointment) async -> Bool {
-        print("🔄 cancelSpecificAppointment called for ID: \(appt.patientAppointmentId), Type: \(appt.appointmentType)")
         do {
             if appt.appointmentType.uppercased() == "ANÁLISIS" {
-                print("📋 Canceling analysis appointment...")
-                let result = try await getAppointmentsUC.CancelAnalysis(id: appt.patientAppointmentId)
-                print("✅ Analysis cancellation result: \(result)")
-                return result
+                return try await getAppointmentsUC.CancelAnalysis(id: appt.patientAppointmentId)
             }
             
-            print("📅 Canceling regular appointment...")
-            let result = try await getAppointmentsUC.CancelAppointment(id: appt.patientAppointmentId)
-            print("✅ Appointment cancellation result: \(result)")
-            return result
+            return try await getAppointmentsUC.CancelAppointment(id: appt.patientAppointmentId)
             
         } catch {
-            print("❌ Error cancelando: \(error)")
             return false
         }
     }
