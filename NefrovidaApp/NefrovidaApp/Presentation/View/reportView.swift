@@ -71,14 +71,6 @@ struct ReportsView: View {
                     ProgressView("Cargando…")
                         .padding(.top, 40)
 
-                } else if let err = vm.errorMessage {
-                    VStack(spacing: 10) {
-                        Text(err)
-                            .foregroundStyle(.red)
-                        Button("Reintentar") { vm.onAppear() }
-                    }
-                    .padding(.top, 40)
-
                 } else {
                     // View depending of the selection
                     switch selectedTab {
@@ -88,6 +80,13 @@ struct ReportsView: View {
                             EmptyState(text: "No hay resultados de análisis.")
                         } else {
                             VStack(spacing: 14) {
+                                if let err = vm.errorMessage {
+                                    ErrorMessage(
+                                        message: err,
+                                        onDismiss: {
+                                            vm.errorMessage = nil
+                                        })
+                                }
                                 ForEach(vm.analysisResults) { result in
                                     ReportCard(
                                         title: result.patientAnalysis.analysis.name
