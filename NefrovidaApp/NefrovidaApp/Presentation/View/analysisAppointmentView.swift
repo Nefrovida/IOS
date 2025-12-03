@@ -14,6 +14,7 @@ struct analysisView: View {
     
     @StateObject private var vm: analysisViewModel
     @State private var showSuccessAlert = false
+    @Environment(\.dismiss) var dismiss
     
     init(analysisId: Int, userId: String, onConfirm: (() -> Void)? = nil) {
         self.analysisId = analysisId
@@ -124,7 +125,9 @@ struct analysisView: View {
             Task { await vm.loadSlots() }
         }
         .alert("¡Análisis Solicitado!", isPresented: $showSuccessAlert) {
-            Button("Aceptar", role: .cancel) { }
+            Button("Aceptar", role: .cancel) {
+                dismiss()
+            }
         } message: {
             if let confirmed = vm.lastConfirmedSlot {
                 Text("Tu análisis ha sido solicitado para el \(formatFull(date: confirmed))")
