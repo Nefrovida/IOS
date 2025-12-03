@@ -54,6 +54,24 @@ struct FilterableReportList: View {
                         .background(Color.white)
                         .cornerRadius(10)
                 }
+                .sheet(item: Binding(
+                    get: { viewModel.downloadedFileURL.map { IdentifiableURL(url: $0) } },
+                    set: { _ in viewModel.downloadedFileURL = nil }
+                )) { identifiableURL in
+                    ShareSheet(activityItems: [identifiableURL.url])
+                }
+                .overlay {
+                    if viewModel.isDownloading {
+                        ZStack {
+                            Color.black.opacity(0.4)
+                                .ignoresSafeArea()
+                            ProgressView("Descargando...")
+                                .padding()
+                                .background(Color.white)
+                                .cornerRadius(10)
+                        }
+                    }
+                }
             }
         }
     }

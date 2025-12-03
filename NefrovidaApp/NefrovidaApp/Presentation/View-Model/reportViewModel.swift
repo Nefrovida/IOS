@@ -41,7 +41,6 @@ final class ReportsViewModel: ObservableObject {
 
             self.analysisResults = data.analysisResults
             self.appointmentNotes = data.appointmentNotes
-
         } catch {
             errorMessage = "No se pudieron cargar los reportes."
             print("Error loading reports:", error)
@@ -72,4 +71,6 @@ final class ReportsViewModel: ObservableObject {
         
         isDownloading = false
     }
+    
+
 }
