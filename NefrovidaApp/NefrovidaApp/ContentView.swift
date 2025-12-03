@@ -43,7 +43,9 @@ struct ContentView: View {
                 HomeView(user: viewModel.loggedUser)
             }
         case .servicios:
-            ServicesView(userId: viewModel.loggedUser?.user_id ?? "")
+            NavigationStack {
+                ServicesView(userId: viewModel.loggedUser?.user_id ?? "")
+            }
         case .analisis:
             ReportsView(userId: viewModel.loggedUser?.user_id ?? "")
         case .foros:
