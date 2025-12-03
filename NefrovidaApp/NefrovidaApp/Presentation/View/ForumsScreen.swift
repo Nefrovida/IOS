@@ -1,44 +1,43 @@
 import SwiftUI
 
+enum MessageRoute: Hashable {
+    case feed(forum: Forum)
+    case replies(forumId: Int, messageId: Int)
+}
+
 struct ForumsScreen: View {
     @StateObject private var vm: ForumsViewModel
-    @State private var path: [Int] = []
+    @State private var path: [MessageRoute] = []
     @State private var selectedTab = 0
 
     init() {
         let repo: ForumRepository
         if AppConfig.useRemoteForums {
-            repo = ForumRemoteRepository(baseURL: AppConfig.apiBaseURL, tokenProvider: AppConfig.tokenProvider)
+            repo = ForumRemoteRepository(baseURL: AppConfig.apiBaseURL)
         } else {
             repo = MockForumRepository()
         }
-        let getForumsUC = GetForumsUseCase(repository: repo)
-        let getMyForumsUC = GetMyForumsUseCase(repository: repo)
-        let joinForumUC = JoinForumUseCase(repository: repo)
-        _vm = StateObject(wrappedValue: ForumsViewModel(getForumsUC: getForumsUC, getMyForumsUC: getMyForumsUC, joinForumUC: joinForumUC))
+        _vm = StateObject(
+            wrappedValue: ForumsViewModel(
+                getForumsUC: GetForumsUseCase(repository: repo),
+                getMyForumsUC: GetMyForumsUseCase(repository: repo),
+                joinForumUC: JoinForumUseCase(repository: repo)
+            ))
     }
 
     var body: some View {
         NavigationStack(path: $path) {
+            
             VStack(spacing: 0) {
                 UpBar()
 
                 Text("Tus Foros")
                     .font(.title)
                     .fontWeight(.bold)
-                    .foregroundColor(.primary)
-                    .multilineTextAlignment(.center)
                     .padding(.top, 8)
 
                 if vm.isLoading {
                     ProgressView()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if let err = vm.errorMessage {
-                    VStack(spacing: 10) {
-                        Text(err).foregroundStyle(.red)
-                        Button("Reintentar") { vm.onAppear() }
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     VStack(spacing: 0) {
                         Picker("Filtro", selection: $selectedTab) {
@@ -48,49 +47,55 @@ struct ForumsScreen: View {
                         .pickerStyle(.segmented)
                         .padding()
 
-                    ScrollView {
-                        VStack(spacing: 12) {
-                            let forumsToShow = selectedTab == 0 ? vm.myForums : vm.forums
-                            
-                            if forumsToShow.isEmpty {
-                                Text(selectedTab == 0 ? "No te has unido a ningún foro aún" : "No hay foros disponibles")
-                                    .foregroundColor(.gray)
-                                    .padding(.top, 40)
-                            } else {
-                                ForEach(forumsToShow) { forum in
-                                    ForumCard(forum: forum, isMember: vm.isMember(of: forum)) {
-                                        Task {
-                                            // If not a member, join first
-                                            if !vm.isMember(of: forum) {
-                                                let success = await vm.joinForum(forum.id)
-                                                if !success {
-                                                    return // Don't navigate if join failed
+                        ScrollView {
+                            VStack(spacing: 12) {
+                                let forumsToShow = selectedTab == 0 ? vm.myForums : vm.forums
+                                
+                                if forumsToShow.isEmpty {
+                                    Text(selectedTab == 0 ? "No te has unido a ningún foro aún" : "No hay foros disponibles")
+                                        .foregroundColor(.gray)
+                                        .padding(.top, 40)
+                                } else {
+                                    ForEach(forumsToShow) { forum in
+                                        ForumCard(forum: forum, isMember: vm.isMember(of: forum)) {
+                                            Task {
+                                                // If not a member, join first
+                                                if !vm.isMember(of: forum) {
+                                                    let success = await vm.joinForum(forum.id)
+                                                    if !success {
+                                                        return // Don't navigate if join failed
+                                                    }
                                                 }
+                                                // Navigate to forum detail
+                                                path.append(.feed(forum: forum))
                                             }
-                                            // Navigate to forum detail
-                                            path.append(forum.id)
                                         }
+                                        .padding(.horizontal)
                                     }
-                                    .padding(.horizontal)
                                 }
                             }
+                            .padding(.vertical)
                         }
-                        .padding(.vertical)
-                    }
-                    .refreshable {
-                        vm.refresh()
-                    }
-                    }
-                    .navigationDestination(for: Int.self) { id in
-                        ForumView(forumId: id)
+                        .refreshable {
+                            vm.refresh()
+                        }
                     }
                 }
             }
             .onAppear { vm.onAppear() }
+
+            // DESTINOS
+            .navigationDestination(for: MessageRoute.self) { route in
+                switch route {
+                case .feed(let forum):
+                    ForumFeedScreen(forum: forum, path: $path)
+
+                case .replies(let forumId, let rootId):
+                    ForumView(forumId: forumId, rootMessageId: rootId)
+                }
+            }
         }
     }
 }
 
-#Preview {
-    ForumsScreen()
-}
+#Preview { ForumsScreen() }

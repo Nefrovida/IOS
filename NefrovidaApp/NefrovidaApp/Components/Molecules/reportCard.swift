@@ -3,12 +3,10 @@ import SwiftUI
 struct ReportCard: View {
 
     let title: String
-    let specialty: String
-    let doctor: String
     let date: String
 
     let recommendations: String
-    let treatment: String
+    let interpretation: String
 
     let onDownloadReport: () -> Void
 
@@ -24,13 +22,6 @@ struct ReportCard: View {
 
                     Title(text: title)
 
-                    Text("Especialidad: \(specialty)")
-                        .font(.nvBody)
-                        .foregroundStyle(.secondary)
-
-                    Text(doctor)
-                        .font(.nvBody)
-                        .foregroundStyle(.secondary)
                 }
 
                 Spacer()
@@ -71,6 +62,14 @@ struct ReportCard: View {
             //──────── INFO BOX (READ ONLY) ────────────────
             if expanded {
                 VStack(alignment: .leading, spacing: 12) {
+                    
+                    Text("Interpretación")
+                        .font(.system(size: 15, weight: .bold))
+
+                    Text(interpretation)
+                        .font(.nvBody)
+                        .foregroundColor(.black.opacity(0.85))
+                        .fixedSize(horizontal: false, vertical: true)
 
                     Text("Recomendaciones")
                         .font(.system(size: 15, weight: .bold))
@@ -80,13 +79,6 @@ struct ReportCard: View {
                         .foregroundColor(.black.opacity(0.85))
                         .fixedSize(horizontal: false, vertical: true)
 
-                    Text("Tratamiento")
-                        .font(.system(size: 15, weight: .bold))
-
-                    Text(treatment)
-                        .font(.nvBody)
-                        .foregroundColor(.black.opacity(0.85))
-                        .fixedSize(horizontal: false, vertical: true)
 
                 }
                 .padding()
@@ -108,11 +100,9 @@ struct ReportCard: View {
 #Preview {
     ReportCard(
         title: "Evaluación Riñón",
-        specialty: "Nefrología",
-        doctor: "Dr. Gilberto Mora",
         date: "12/10/2025",
         recommendations: "Tomar 2L de agua al día",
-        treatment: "Control cada 3 meses",
-        onDownloadReport: { print("Descargar PDF") },
+        interpretation: "Control cada 3 meses",
+        onDownloadReport: { print("Descargar PDF") }
     )
 }
