@@ -97,3 +97,12 @@ struct ReportCard: View {
     }
 }
 
+#Preview {
+    ReportCard(
+        title: "Evaluación Riñón",
+        date: "12/10/2025",
+        recommendations: "Tomar 2L de agua al día",
+        interpretation: "Control cada 3 meses",
+        onDownloadReport: { print("Descargar PDF") }
+    )
+}

@@ -10,14 +10,23 @@ final class ReportsViewModel: ObservableObject {
 
     @Published var isLoading: Bool = false
     @Published var errorMessage: String? = nil
+    
+    // Download state
+    @Published var isDownloading: Bool = false
+    @Published var downloadedFileURL: URL? = nil
 
     private let userId: String
     private let getReportsUseCase: GetReportsUseCaseProtocol
+    private let downloadReportUseCase: DownloadReportUseCaseProtocol
 
-    init(userId: String, getReportsUseCase: GetReportsUseCaseProtocol) {
+    init(userId: String, 
+         getReportsUseCase: GetReportsUseCaseProtocol,
+         downloadReportUseCase: DownloadReportUseCaseProtocol) {
         self.userId = userId
         self.getReportsUseCase = getReportsUseCase
+        self.downloadReportUseCase = downloadReportUseCase
     }
+
 
     func onAppear() {
         Task { await loadReports() }
@@ -39,5 +48,28 @@ final class ReportsViewModel: ObservableObject {
         }
 
         isLoading = false
+    }
+    
+    // Download Report
+    func downloadReport(id: Int) {
+        Task {
+            await downloadReportAsync(id: id)
+        }
+    }
+    
+    private func downloadReportAsync(id: Int) async {
+        isDownloading = true
+        errorMessage = nil
+        downloadedFileURL = nil
+        
+        do {
+            let url = try await downloadReportUseCase.execute(id: id)
+            downloadedFileURL = url
+        } catch {
+            errorMessage = "Error al descargar el reporte."
+            print("Error downloading report:", error)
+        }
+        
+        isDownloading = false
     }
 }

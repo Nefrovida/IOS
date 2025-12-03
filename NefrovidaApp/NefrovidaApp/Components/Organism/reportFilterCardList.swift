@@ -22,7 +22,7 @@ struct FilterableReportList: View {
                             date: DateFormats.isoTo(result.date, format: "dd/MM/yyyy"),
                             recommendations: result.patientAnalysis.analysis.description,
                             interpretation: result.interpretation ?? "Sin tratamiento",
-                            onDownloadReport: { print("Descargar:", result.path) }
+                            onDownloadReport: { viewModel.downloadReport(id: result.id) }
                         )
                     }
                 }
@@ -38,5 +38,28 @@ struct FilterableReportList: View {
                 }
             }
         }
+        .sheet(item: Binding(
+            get: { viewModel.downloadedFileURL.map { IdentifiableURL(url: $0) } },
+            set: { _ in viewModel.downloadedFileURL = nil }
+        )) { identifiableURL in
+            ShareSheet(activityItems: [identifiableURL.url])
+        }
+        .overlay {
+            if viewModel.isDownloading {
+                ZStack {
+                    Color.black.opacity(0.4)
+                        .ignoresSafeArea()
+                    ProgressView("Descargando...")
+                        .padding()
+                        .background(Color.white)
+                        .cornerRadius(10)
+                }
+            }
+        }
     }
+}
+
+struct IdentifiableURL: Identifiable {
+    let id = UUID()
+    let url: URL
 }

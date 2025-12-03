@@ -29,9 +29,15 @@ struct ReportsView: View {
     // Custom initializer to inject the idUser
     // and initialize the ViewModel
     init(userId: String) {
+        // Initialize the ViewModel with dependency injection:
+        // - userId to fetch their reports
+        // - GetReportsUseCase that contains the business logic
+        // - DownloadReportUseCase to handle downloads
+        let repository = ReportsRemoteRepository()
         _vm = StateObject(wrappedValue: ReportsViewModel(
             userId: userId,
-            getReportsUseCase: GetReportsUseCase(repository: ReportsRemoteRepository())
+            getReportsUseCase: GetReportsUseCase(repository: repository),
+            downloadReportUseCase: DownloadReportUseCase(repository: repository)
         ))
         self.userId = userId
     }
@@ -89,7 +95,7 @@ struct ReportsView: View {
                                         date: DateFormats.isoTo(result.date, format: "dd/MM/yyyy"),
                                         recommendations: result.patientAnalysis.analysis.description,
                                         interpretation: result.interpretation ?? "Sin tratamiento",
-                                        onDownloadReport: { print("Descargar:", result.path) }
+                                        onDownloadReport: { vm.downloadReport(id: result.id) }
                                     )
                                 }
                             }
@@ -113,6 +119,24 @@ struct ReportsView: View {
 
         }
         .background(Color(.systemGroupedBackground))
+        .sheet(item: Binding(
+            get: { vm.downloadedFileURL.map { IdentifiableURL(url: $0) } },
+            set: { _ in vm.downloadedFileURL = nil }
+        )) { identifiableURL in
+            ShareSheet(activityItems: [identifiableURL.url])
+        }
+        .overlay {
+            if vm.isDownloading {
+                ZStack {
+                    Color.black.opacity(0.4)
+                        .ignoresSafeArea()
+                    ProgressView("Descargando...")
+                        .padding()
+                        .background(Color.white)
+                        .cornerRadius(10)
+                }
+            }
+        }
         .onAppear { vm.onAppear() }
     }
 }
