@@ -65,7 +65,7 @@ final class RiskFormViewModel: ObservableObject {
             errorMessage = "El teléfono debe tener al menos 8 dígitos y no contener letras."
             return false
         }
-        if generoSeleccionado == nil {
+        if generoSeleccionado.isEmpty {
             errorMessage = "Selecciona un género."
             return false
         }
@@ -73,7 +73,7 @@ final class RiskFormViewModel: ObservableObject {
             errorMessage = "La edad tiene que coincidir con el año de nacimiento."
             return false
         }
-        if estadoNacimientoSeleccionado == nil {
+        if estadoNacimientoSeleccionado.isEmpty {
             errorMessage = "Selecciona un estado de nacimiento."
             return false
         }
@@ -106,9 +106,9 @@ final class RiskFormViewModel: ObservableObject {
         let fieldMap: [String: Any] = [
             "Nombre": nombre,
             "Teléfono": telefono,
-            "Género": generoSeleccionado ?? "",
+            "Género": generoSeleccionado,
             "Edad": edad,
-            "Estado de nacimiento": estadoNacimientoSeleccionado ?? "",
+            "Estado de nacimiento": estadoNacimientoSeleccionado,
             "Fecha de nacimiento": formatter.string(from: fechaNacimiento)
         ]
         
