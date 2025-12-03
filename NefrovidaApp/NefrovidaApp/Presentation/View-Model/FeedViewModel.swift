@@ -59,7 +59,9 @@ final class FeedViewModel: ObservableObject {
             items.append(contentsOf: new)
             page += 1
         } catch {
+            #if DEBUG
             print("Error loading feed:", error)
+            #endif
         }
     }
 
@@ -90,7 +92,9 @@ final class FeedViewModel: ObservableObject {
             reverted.likes += wasLiked ? 1 : -1
             items[index] = reverted
 
+            #if DEBUG
             print("❌ Error al hacer like/dislike:", error)
+            #endif
         }
     }
 }

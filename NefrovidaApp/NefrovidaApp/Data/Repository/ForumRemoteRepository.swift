@@ -121,9 +121,11 @@ public final class ForumRemoteRepository: ForumRepository {
         let result = await request.serializingData().response
         switch result.result {
         case .success(let data):
+            #if DEBUG
             if let jsonString = String(data: data, encoding: .utf8) {
                 print("DEBUG: fetchMyForums raw response: \(jsonString)")
             }
+            #endif
             do {
                 let decoder = JSONDecoder()
                 var myForumsList: [MyForumDTO] = []
@@ -144,20 +146,18 @@ public final class ForumRemoteRepository: ForumRepository {
                 }
 
                 // Smart Filtering Heuristic:
-                // The backend sometimes returns a mixed array:
-                // 1. Valid memberships wrapped in "forum" object (e.g. { "forum": { "id": 1 ... } })
-                // 2. Noise/Duplicate flat objects (e.g. { "id": 1 ... }, { "id": 2 ... })
-                // If we detect ANY items with the nested "forum" object, we assume those are the correct ones and ignore the flat noise.
-                // If NO items have the nested "forum" object, we assume it's a flat list and use everything.
-                
                 let hasNestedObjects = myForumsList.contains { $0.forum != nil }
                 
                 let filteredList: [MyForumDTO]
                 if hasNestedObjects {
+                    #if DEBUG
                     print("DEBUG: Detected nested objects. Filtering out flat noise.")
+                    #endif
                     filteredList = myForumsList.filter { $0.forum != nil }
                 } else {
+                    #if DEBUG
                     print("DEBUG: No nested objects found. Using flat list.")
+                    #endif
                     filteredList = myForumsList
                 }
 
@@ -210,7 +210,6 @@ public final class ForumRemoteRepository: ForumRepository {
                 
                 // Try to decode container {"posts": [...]}
                 if let postsContainer = try? decoder.decode([String: [PostDTO]].self, from: data), let _ = postsContainer["posts"] {
-                    // no forum returned; we can't proceed so throw
                     throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "No forum object found"))
                 }
                 
@@ -265,7 +264,7 @@ public final class ForumRemoteRepository: ForumRepository {
 
         switch result.result {
         case .success:
-            return  // no necesitamos nada del body
+            return
         case .failure(let error):
             throw error
         }
@@ -279,7 +278,6 @@ public final class ForumRemoteRepository: ForumRepository {
     public func postMessage(forumId: Int, content: String) async throws -> Bool {
         let endpoint = "\(baseURL)/forums/\(forumId)"
         let headers = makeHeaders()
-        // Backend expects "message" field, not "content"
         let params: [String: Any] = ["message": content]
         let request = AF.request(endpoint, method: .post, parameters: params, encoding: JSONEncoding.default, headers: HTTPHeaders(headers)).validate()
         let result = await request.serializingData().response
@@ -317,9 +315,11 @@ public final class ForumRemoteRepository: ForumRepository {
 
         switch result.result {
         case .success(let data):
+            #if DEBUG
             if let body = String(data: data, encoding: .utf8) {
                 print("DEBUG replyToMessage response:", body)
             }
+            #endif
 
             let decoder = JSONDecoder()
 
@@ -327,16 +327,20 @@ public final class ForumRemoteRepository: ForumRepository {
                 let wrapper = try decoder.decode(ForumMessageWrapperDTO.self, from: data)
                 return wrapper.data
             } catch {
+                #if DEBUG
                 print("❌ Error decodificando ForumMessageWrapperDTO:", error)
+                #endif
                 throw error
             }
 
         case .failure(let error):
+            #if DEBUG
             if let data = result.data,
                let body = String(data: data, encoding: .utf8) {
                 print("❌ Body de error replyToMessage:", body)
             }
             print("❌ Error respuesta replyToMessage:", error)
+            #endif
             throw error
         }
     }

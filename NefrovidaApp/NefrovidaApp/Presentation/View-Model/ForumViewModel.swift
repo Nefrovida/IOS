@@ -101,7 +101,9 @@ class ForumViewModel: ObservableObject {
             }
 
         } catch {
+            #if DEBUG
             print("Error cargando hilo:", error)
+            #endif
             errorMessage = "No se pudieron cargar las respuestas."
             messages = []
         }
@@ -136,7 +138,9 @@ class ForumViewModel: ObservableObject {
                 }
             }
         } catch {
+            #if DEBUG
             print("❌ Error enviando reply:", error)
+            #endif
             errorMessage = "No se pudo enviar la respuesta."
         }
     }
@@ -160,7 +164,9 @@ class ForumViewModel: ObservableObject {
             reverted.liked = wasLiked
             reverted.likesCount = oldLikes
             messages[index] = reverted
+            #if DEBUG
             print("❌ Error al hacer like en hilo:", error)
+            #endif
         }
     }
 }
