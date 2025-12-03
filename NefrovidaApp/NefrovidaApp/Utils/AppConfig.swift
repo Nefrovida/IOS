@@ -2,7 +2,7 @@ import Foundation
 
 public enum AppConfig {
     //public static let apiBaseURL = "https://www.snefrovidaac.com/api"
-    public static let apiBaseURL = "http://10.25.104.149:3001/api"
+    public static let apiBaseURL = "http://localhost:3001/api"
 
     // Toggle to `true` to hit the remote API. Default is false (use MockRepo)
     public static let useRemoteForums = true
