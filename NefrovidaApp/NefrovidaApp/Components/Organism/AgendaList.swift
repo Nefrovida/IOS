@@ -4,6 +4,9 @@ import SwiftUI
 struct AgendaList: View {
     //List of dates to show.
     let appointments: [Appointment]
+    /// callback para cuando se toca una cita
+    let onAppointmentTap: (Appointment) -> Void
+    
     // The organization's working hours.
     private let hours = Array(7...17)
 
@@ -13,7 +16,8 @@ struct AgendaList: View {
             ForEach(hours, id: \.self) { hour in
                 HourRow(
                     hour: hour,
-                    items: appointmentsFor(hour: hour) //Get the dates for that hour.
+                    items: appointmentsFor(hour: hour), //Get the dates for that hour.
+                    onAppointmentTap: onAppointmentTap
                 )
             }
         }
@@ -39,14 +43,16 @@ struct AgendaList: View {
 private struct HourRow: View {
     let hour: Int
     let items: [Appointment]
+    /// callback
+    let onAppointmentTap: (Appointment) -> Void
 
-    //Chnage to a format of 12 hours.
+    //Change to a format of 12 hours.
     var label: String {
         if hour == 12 { return "12 pm" }
         if hour == 0  { return "12 am" }
         if hour < 12  { return "\(hour) am" }
         if hour == 24 { return "12 am" }
-        return "\(hour == 12 ? 12 : hour - 12) pm"
+        return "\(hour - 12) pm"
     }
 
     var body: some View {
@@ -62,7 +68,9 @@ private struct HourRow: View {
                     //if there are appointments, show them.
                     VStack(spacing: 8) {
                         ForEach(items) { a in
-                            AppointmentCard(appt: a)
+                            AppointmentCard(appt: a, onTap: {
+                                onAppointmentTap(a)
+                            })
                         }
                     }
                 }
@@ -78,5 +86,5 @@ private struct HourRow: View {
 }
 
 #Preview {
-    HourRow(hour: 14, items: [])
+    HourRow(hour: 14, items: [], onAppointmentTap: { _ in })
 }

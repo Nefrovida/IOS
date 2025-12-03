@@ -15,6 +15,8 @@ struct appointmentView: View {
     @StateObject private var vm: appointmentViewModel
     // Controls the display of the success alert
     @State private var showSuccessAlert = false
+    // Environment variable to dismiss the view
+    @Environment(\.dismiss) var dismiss
 
     init(appointmentId: Int, userId: String) {
         self.appointmentId = appointmentId
@@ -149,7 +151,9 @@ struct appointmentView: View {
         
         // Success appointment alert
         .alert("¡Cita Solicitada!", isPresented: $showSuccessAlert) {
-            Button("Aceptar", role: .cancel) { }
+            Button("Aceptar", role: .cancel) { 
+                dismiss()
+            }
         } message: {
             if let confirmed = vm.lastConfirmedSlot {
                 Text("Tu cita ha sido solicitada para el \(formatFull(date: confirmed))")

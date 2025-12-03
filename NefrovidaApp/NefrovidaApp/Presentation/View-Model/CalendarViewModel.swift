@@ -5,10 +5,12 @@ import Combine
 // ViewModel responsible for managing the agenda (calendar) logic and state.
 @MainActor
 final class AgendaViewModel: ObservableObject {
-
+    
     // The currently selected date in the agenda.
     @Published var selectedDate: Date
     
+    @Published var SelectedAppointment: Appointment?
+        
     // List of appointments for the selected day.
     @Published private(set) var appointments: [Appointment] = []
     
@@ -17,7 +19,7 @@ final class AgendaViewModel: ObservableObject {
     
     // Optional error message displayed when a data request fails.
     @Published private(set) var errorMessage: String?
-
+    
     // Use case responsible for retrieving appointments from the repository layer.
     private let getAppointmentsUC: GetAppointmentsForDayUseCase
     
@@ -26,7 +28,7 @@ final class AgendaViewModel: ObservableObject {
     
     // The ID of the currently authenticated user.
     let idUser: String
-
+    
     // Creates a new instance of the CalendarViewModel.
     // Parameters: selectedDate: The initial date shown in the agenda (defaults to today).
     // getAppointmentsUC: The use case responsible for retrieving appointments.
@@ -40,13 +42,13 @@ final class AgendaViewModel: ObservableObject {
         self.getAppointmentsUC = getAppointmentsUC
         self.idUser = idUser
     }
-
+    
     // Called when the view appears for the first time.
     // Triggers the initial loading of appointments for the current date.
     func onAppear() {
         Task { await loadIfNeeded(for: selectedDate) }
     }
-
+    
     // Updates the selected date and reloads the corresponding appointments.
     // Parameter date: The new date selected by the user.
     func select(date: Date) {
@@ -55,7 +57,7 @@ final class AgendaViewModel: ObservableObject {
         }
         Task { await loadIfNeeded(for: date) }
     }
-
+    
     // Loads appointments for a specific date if necessary.
     // Parameter date: The target date to fetch appointments for.
     private func loadIfNeeded(for date: Date) async {
@@ -63,7 +65,7 @@ final class AgendaViewModel: ObservableObject {
         let key = DateFormats.apiDay.string(from: date)
         await fetch(forKey: key)
     }
-
+    
     //Performs the asynchronous call to fetch appointments from the use case.
     //Parameter key: The date key (formatted as `"yyyy-MM-dd"`) used for the API query.
     // idUser: the id of the user when he audenticate.
@@ -79,7 +81,7 @@ final class AgendaViewModel: ObservableObject {
             self.errorMessage = "Error al obtener citas."
         }
     }
-
+    
     // Moves the selected date one week forward.
     func goNextWeek() {
         if let newDate = calendar.date(byAdding: .day, value: 7, to: selectedDate) {
@@ -97,7 +99,7 @@ final class AgendaViewModel: ObservableObject {
             }
         }
     }
-
+    
     //Returns the list of days for the current week.
     // The week starts from the first weekday (e.g., Monday) and includes five consecutive days.
     func currentWeekDays() -> [Date] {
@@ -114,9 +116,40 @@ final class AgendaViewModel: ObservableObject {
     func monthYearTitle() -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "es_MX")
-        formatter.dateFormat = "LLLL yyyy" // Ej: "noviembre 2025"
-
+        formatter.dateFormat = "LLLL yyyy" 
+        
         let raw = formatter.string(from: selectedDate)
         return raw.prefix(1).capitalized + raw.dropFirst()
+    }
+    
+    
+    func cancelApp() async -> Bool {
+        guard let appt = SelectedAppointment else { 
+            return false 
+        }
+        
+        do {
+            if appt.appointmentType.uppercased() == "ANÁLISIS" {
+                return try await getAppointmentsUC.CancelAnalysis(id: appt.patientAppointmentId)
+            }
+            
+            return try await getAppointmentsUC.CancelAppointment(id: appt.patientAppointmentId)
+            
+        } catch {
+            return false
+        }
+    }
+    
+    func cancelSpecificAppointment(_ appt: Appointment) async -> Bool {
+        do {
+            if appt.appointmentType.uppercased() == "ANÁLISIS" {
+                return try await getAppointmentsUC.CancelAnalysis(id: appt.patientAppointmentId)
+            }
+            
+            return try await getAppointmentsUC.CancelAppointment(id: appt.patientAppointmentId)
+            
+        } catch {
+            return false
+        }
     }
 }
