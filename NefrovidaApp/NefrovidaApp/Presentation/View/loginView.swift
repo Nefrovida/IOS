@@ -87,7 +87,7 @@ struct loginView: View {
             
             // Full screen para Home
             .fullScreenCover(isPresented: $isLoggedIn) {
-                HomeView(user: viewModel.loggedUser)
+                HomeView()
             }
         }
         .onChange(of: viewModel.isFirstLogin) { _, newValue in
