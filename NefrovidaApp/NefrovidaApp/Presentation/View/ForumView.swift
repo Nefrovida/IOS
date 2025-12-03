@@ -34,16 +34,19 @@ struct ForumView: View {
     var body: some View {
         VStack(spacing: 0) {
             UpBar()
+            if let error = vm.errorMessage {
+                ErrorMessage(
+                    message: error,
+                    onDismiss: {}
+                )
+            }
 
             // --- Replies list ---
             if vm.isLoading {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let error = vm.errorMessage {
+            } else if vm.errorMessage != nil {
                 VStack(spacing: 8) {
-                    Text(error)
-                        .foregroundColor(.red)
-                        .multilineTextAlignment(.center)
                     Button("Reintentar") {
                         Task {
                             await vm.loadThread(forumId: forumId, rootId: rootMessageId)

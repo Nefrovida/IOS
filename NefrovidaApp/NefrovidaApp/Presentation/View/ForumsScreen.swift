@@ -31,10 +31,6 @@ struct ForumsScreen: View {
             VStack(spacing: 0) {
                 UpBar()
 
-                Text("Tus Foros")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .padding(.top, 8)
 
                 if vm.isLoading {
                     ProgressView()
