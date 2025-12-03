@@ -10,6 +10,7 @@ import SwiftUI
 struct appointmentView: View {
     let appointmentId: Int
     let userId: String
+    var onConfirm: (() -> Void)? = nil
     
     // ViewModel instance that manages appointment logic and state
     @StateObject private var vm: appointmentViewModel
@@ -18,9 +19,10 @@ struct appointmentView: View {
     // Environment variable to dismiss the view
     @Environment(\.dismiss) var dismiss
 
-    init(appointmentId: Int, userId: String) {
+    init(appointmentId: Int, userId: String, onConfirm: (() -> Void)? = nil) {
         self.appointmentId = appointmentId
         self.userId = userId
+        self.onConfirm = onConfirm
         // Creates repository and use cases, injecting dependencies manually
         let repo = AppointmentRepositoryD()
         let getUC = GetAppointmentsUseCase(repository: repo)
@@ -129,6 +131,7 @@ struct appointmentView: View {
                     Task {
                         let success = await vm.confirmSelectedSlot(userId: userId)
                         if success {
+                            onConfirm?()
                             showSuccessAlert = true
                         }
                     }

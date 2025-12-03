@@ -10,13 +10,16 @@ import SwiftUI
 struct analysisView: View {
     let analysisId: Int
     let userId: String
+    var onConfirm: (() -> Void)? = nil
     
     @StateObject private var vm: analysisViewModel
     @State private var showSuccessAlert = false
+    @Environment(\.dismiss) var dismiss
     
-    init(analysisId: Int, userId: String) {
+    init(analysisId: Int, userId: String, onConfirm: (() -> Void)? = nil) {
         self.analysisId = analysisId
         self.userId = userId
+        self.onConfirm = onConfirm
         
         let repo = AnalysisRepositoryD()
         let getUC = getAnalysisUseCase(repository: repo)
@@ -104,6 +107,7 @@ struct analysisView: View {
                     Task {
                         let success = await vm.confirmSelectedSlot(userId: userId, place: "Laboratorio")
                         if success {
+                            onConfirm?()
                             showSuccessAlert = true
                         }
                     }
@@ -121,7 +125,9 @@ struct analysisView: View {
             Task { await vm.loadSlots() }
         }
         .alert("¡Análisis Solicitado!", isPresented: $showSuccessAlert) {
-            Button("Aceptar", role: .cancel) { }
+            Button("Aceptar", role: .cancel) {
+                dismiss()
+            }
         } message: {
             if let confirmed = vm.lastConfirmedSlot {
                 Text("Tu análisis ha sido solicitado para el \(formatFull(date: confirmed))")
