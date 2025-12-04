@@ -161,27 +161,26 @@ struct ProfileView: View {
                                     .padding(.leading)
                                 
                                 nefroDate(
-                                    text: "Fecha de naciemiento",
+                                    text: "Fecha de naciemiento        ",
                                     placeholder: "Fecha de nacimiento",
                                     date: $birthday
                                 )
+                                .padding(.horizontal, 0)
                             }
                             
                             // Messages
                             if let error = viewModel.errorMessage {
-                                Text(error)
-                                    .foregroundColor(.red)
-                                    .font(.caption)
-                                    .multilineTextAlignment(.center)
-                                    .padding(.horizontal)
+                                ErrorMessage(
+                                    message: error,
+                                    onDismiss: { viewModel.errorMessage = nil }
+                                )
                             }
                             
                             if let success = viewModel.successMessage {
-                                Text(success)
-                                    .foregroundColor(.green)
-                                    .font(.caption)
-                                    .multilineTextAlignment(.center)
-                                    .padding(.horizontal)
+                                SuccessMessage(
+                                    message: success,
+                                    onDismiss: { viewModel.successMessage = nil }
+                                )
                             }
                             
                             // Actions
