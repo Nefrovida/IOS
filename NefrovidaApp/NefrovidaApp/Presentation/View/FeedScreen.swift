@@ -73,7 +73,6 @@ struct ForumFeedScreen: View {
                 onEditTapped: {}
             )
             .padding(.trailing, 16)
-            .padding(.bottom, 90)
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle(vm.forumName)

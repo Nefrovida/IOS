@@ -29,7 +29,6 @@ struct ForumsScreen: View {
         NavigationStack(path: $path) {
             
             VStack(spacing: 0) {
-                UpBar()
 
 
                 if vm.isLoading {

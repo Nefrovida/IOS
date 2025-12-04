@@ -1,11 +1,11 @@
 import SwiftUI
 
-struct ProfileView: View {
+struct ProfileIconView: View {
     var body: some View {
         Label("", systemImage: "person.crop.circle")
     }
 }
 
 #Preview {
-    ProfileView()
+    ProfileIconView()
 }

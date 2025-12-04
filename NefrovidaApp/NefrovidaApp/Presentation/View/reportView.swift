@@ -44,12 +44,6 @@ struct ReportsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            
-            //─────────────────────────
-            // Top navigation bar
-            //─────────────────────────
-            UpBar()
-            
             //─────────────────────────
             // Selector
             //─────────────────────────

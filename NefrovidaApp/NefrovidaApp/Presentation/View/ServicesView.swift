@@ -60,9 +60,6 @@ struct ServicesView: View {
             // Main scrollable content
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 20) {
-
-                    UpBar() // Top bar (e.g., logo or header)
-
                     // ---------- SELECTOR ----------
                     HStack(spacing: 12) {
                         // Button to toggle to "Analysis" view
