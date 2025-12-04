@@ -79,7 +79,7 @@ struct loginView: View {
             
             .onChange(of: viewModel.loggedUser) {
                 if let user = viewModel.loggedUser {
-                    if user.role_id == 3 {
+                    if user.role_id == 3 || user.role_id == 5 {
                         loggedUser = user
                         isLoggedIn = true
                     } else {
