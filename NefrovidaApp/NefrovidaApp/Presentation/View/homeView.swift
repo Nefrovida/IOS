@@ -6,10 +6,8 @@ struct HomeView: View {
     
     // se quito 2 de nefrovida
     var body: some View {
-
             ScrollView {
                 VStack(spacing: -12) {
-                    UpBar()
                     VStack(spacing: 0) {
                         Image("header")
                             .resizable()
@@ -17,7 +15,7 @@ struct HomeView: View {
                             .frame(height: 140)
                             .frame(maxWidth: .infinity)
                             .clipped()
-
+                        
                         Text("En NefroVida A.C. estamos comprometidos con la salud de nuestros pacientes. Ofrecemos servicios especializados en la detección, prevención y tratamiento de la Enfermedad Renal Crónica, diseñados para proteger tu salud renal y mejorar tu calidad de vida.")
                             .font(.body)
                             .multilineTextAlignment(.leading)

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct infoCard: View {
     @State var asistio = false
-    var image = ProfileView()
+    var image = ProfileIconView()
     var name: String
     var typeOfExam: String
     // The button atom is used

@@ -65,7 +65,6 @@ struct ForumFeedScreen: View {
                 onEditTapped: {}
             )
             .padding(.trailing, 16)
-            .padding(.bottom, 90)
         }
         .onReceive(NotificationCenter.default.publisher(for: .forumRepliesUpdated)) { notification in
             guard

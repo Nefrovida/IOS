@@ -52,7 +52,6 @@ struct RiskFormView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            UpBar()  // Top navigation bar
 
             ScrollView {
                 VStack(spacing: 20) {
