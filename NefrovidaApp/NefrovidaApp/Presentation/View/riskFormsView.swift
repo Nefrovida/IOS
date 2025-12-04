@@ -3,14 +3,19 @@ import SwiftUI
 struct RiskFormView: View {
     let idUser: String
     
+    /// 👉 Avisa al padre que el cuestionario ya fue enviado
+    @Binding var didSubmitRiskForm: Bool
+    
     @StateObject private var vm: RiskFormViewModel
     
     @State private var showSuccessAlert = false
     @State private var showingQuestions = false
     
-    @Environment(\.dismiss) var dismiss   // 👈 Para cerrar vistas hacia atrás
+    @Environment(\.dismiss) var dismiss
     
-    init(idUser: String) {
+    init(idUser: String, didSubmitRiskForm: Binding<Bool>) {
+        _didSubmitRiskForm = didSubmitRiskForm
+        
         _vm = StateObject(wrappedValue:
             RiskFormViewModel(
                 idUser: idUser,
@@ -108,7 +113,6 @@ struct RiskFormView: View {
                         }
                         .padding(.horizontal)
                         
-                        // 👉 ENVIAR FORMULARIO
                         Button {
                             Task {
                                 await vm.submitForm()
@@ -134,12 +138,10 @@ struct RiskFormView: View {
         .onAppear { Task { await vm.loadForm() } }
         .onTapGesture { UIApplication.shared.hideKeyboard() }
         
-        // 🟢 ALERT CON 3 DISMISS HACIA LA PRIMERA VISTA
         .alert("Formulario enviado", isPresented: $showSuccessAlert) {
             Button("Aceptar") {
-                for _ in  0..<3{
-                    dismiss()
-                }
+                didSubmitRiskForm = true    /// 👉 Avisamos al padre
+                dismiss()                   /// 👉 Regresamos solo 1 nivel
             }
         } message: {
             Text(vm.successMessage ?? "Tu cuestionario se ha enviado correctamente.")

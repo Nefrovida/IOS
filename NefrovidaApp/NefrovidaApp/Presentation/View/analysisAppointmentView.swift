@@ -14,7 +14,11 @@ struct analysisView: View {
     
     @StateObject private var vm: analysisViewModel
     @State private var showSuccessAlert = false
-    @State private var goToRiskForm = false  
+    @State private var goToRiskForm = false
+    
+    /// 👉 Se actualiza al regresar del RiskForm
+    @State private var didSubmitRiskForm = false
+    
     @Environment(\.dismiss) var dismiss
     
     init(analysisId: Int, userId: String, onConfirm: (() -> Void)? = nil) {
@@ -41,8 +45,7 @@ struct analysisView: View {
             
             HStack {
                 Text(vm.monthYearTitle())
-                    .font(.title)
-                    .fontWeight(.bold)
+                    .font(.title).bold()
             }
             .padding(.horizontal)
             
@@ -60,7 +63,7 @@ struct analysisView: View {
                 DragGesture()
                     .onEnded { value in
                         if value.translation.width < -40 { vm.goNextWeek() }
-                        if value.translation.width > 40 { vm.goPrevWeek()  }
+                        if value.translation.width > 40  { vm.goPrevWeek()  }
                     }
             )
             
@@ -84,7 +87,7 @@ struct analysisView: View {
                                 state: slot.isOccupied ? .occupied : .available,
                                 isSelected: vm.selectedSlot == slot.date
                             ) {
-                                if !slot.isOccupied {
+                                if !slot.isOccupied && !didSubmitRiskForm {
                                     vm.selectedSlot = (vm.selectedSlot == slot.date ? nil : slot.date)
                                 }
                             }
@@ -98,7 +101,11 @@ struct analysisView: View {
             Spacer()
             
             VStack(spacing: 12) {
-                if let selected = vm.selectedSlot {
+                if didSubmitRiskForm {
+                    Text("Ya no puedes cambiar tu horario después de llenar el formulario.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                } else if let selected = vm.selectedSlot {
                     Text("Seleccionado: \(format(date: selected))")
                 } else {
                     Text("Selecciona un horario")
@@ -117,23 +124,23 @@ struct analysisView: View {
                     Text("Confirmar análisis")
                         .frame(maxWidth: .infinity)
                 }
-                .disabled(vm.selectedSlot == nil || vm.isLoading)
+                .disabled(vm.selectedSlot == nil || vm.isLoading || didSubmitRiskForm)
                 .buttonStyle(.borderedProminent)
                 .padding(.horizontal)
             }
             .padding(.bottom)
         }
-        .onAppear {
-            Task { await vm.loadSlots() }
-        }
+        .onAppear { Task { await vm.loadSlots() } }
         
+        /// 🧭 Navegación con binding
         .navigationDestination(isPresented: $goToRiskForm) {
-            RiskFormView(idUser: userId)
+            RiskFormView(idUser: userId, didSubmitRiskForm: $didSubmitRiskForm)
         }
         
+        /// 🎉 Alerta
         .alert("¡Análisis Solicitado!", isPresented: $showSuccessAlert) {
             Button("Aceptar") {
-                if analysisId == 1 {
+                if analysisId == 1 {   // 👈 Solo si requiere formulario
                     goToRiskForm = true
                 } else {
                     dismiss()
@@ -159,11 +166,5 @@ struct analysisView: View {
         f.dateFormat = "EEEE d 'de' MMMM 'a las' hh:mm a"
         f.locale = Locale(identifier: "es_MX")
         return f.string(from: date)
-    }
-}
-
-#Preview {
-    NavigationStack {
-        analysisView(analysisId: 1, userId: "12345-ABCDE")
     }
 }
