@@ -57,11 +57,12 @@ struct RegisterView: View {
                             isLoading: vm.isLoading,
                             errorMessage: vm.errorMessage
                         )
+                        .padding(.bottom, 20)
                     }
                 }
-                
-                .padding(20)
+                .padding(.horizontal, 20)
             }
+            .ignoresSafeArea(.keyboard)
             .onTapGesture {
                 UIApplication.shared.hideKeyboard()
             }
