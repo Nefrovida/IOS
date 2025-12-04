@@ -1,168 +1,159 @@
-
-    import SwiftUI
+import SwiftUI
 
 struct ServicesView: View {
     let userId: String
-    // ViewModel for the view, initialized with use cases for both analysis and consultation
+    
+    enum ServiceFilter: Hashable {
+        case analysis
+        case consultations
+    }
+    
+    @State private var selectedFilter: ServiceFilter = .analysis
+    
     @StateObject private var vm = AnalysisViewModel(
         getAnalysisUseCase: GetAnalysisUseCase(repository: AnalysisRemoteRepository()),
         getConsultationUseCase: GetConsultationUseCases(repository: ConsultationRemoteRepository())
     )
     
-    // State variables for popup management
+    // POPUP
     @State private var showNefroPop = false
     @State private var selectedItem: Any?
     @State private var popupTitle = ""
     @State private var popupDescription = ""
     @State private var popupIndication = ""
     
-    // Function to handle analysis selection
-    private func selectAnalysis(_ analysis: Any) {
-        selectedItem = analysis
-        if let a = analysis as? Analysis {
-            popupTitle = "¡Importante!"
-            popupDescription = """
-            ¿Para qué sirve este estudio?
-            \(a.description)
-            """
-            popupIndication = a.previousRequirements.isEmpty ? "No se requieren preparaciones especiales." : a.previousRequirements
-        } else if let c = analysis as? Consultation {
-            popupTitle = "¡Confirmar Consulta!"
-            popupDescription = """
-            Tipo de consulta: \(c.nameConsultation)
-            
-            Esta consulta te permitirá recibir atención médica especializada para tu condición.
-            """
-            popupIndication = "Asegúrate de tener toda la documentación médica necesaria y llegar 15 minutos antes de tu cita."
+    // NAVIGATION
+    @State private var selectedAnalysis: Analysis?
+    @State private var selectedConsultation: Consultation?
+    
+    // ==================================
+    // ONLY ANALYSIS SHOW POPUP
+    // ==================================
+    private func showInfo(for item: Any) {
+        
+        // CONSULTATION → navega directo
+        if let c = item as? Consultation {
+            selectedConsultation = c
+            return
         }
-        showNefroPop = true
+        
+        // ANALYSIS → popup
+        if let a = item as? Analysis {
+            selectedItem = a
+            popupTitle = "Sobre este análisis"
+            popupDescription = a.description
+            popupIndication = a.previousRequirements.isEmpty
+                ? "No requiere preparación especial."
+                : a.previousRequirements
+            
+            showNefroPop = true
+        }
     }
     
-    // Function to handle continue action from popup
     private func continueAction() {
         showNefroPop = false
-        if let analysis = selectedItem as? Analysis {
-             selectedAnalysis = analysis 
-            print("Redirecting to analysis details:", analysis.name)
-        } else if let consultation = selectedItem as? Consultation {
-            print("Redirecting to consultation booking:", consultation.nameConsultation)
-
+        
+        if let a = selectedItem as? Analysis {
+            selectedAnalysis = a
         }
     }
-
-    // Status to control navigation
-    @State private var selectedConsultation: Consultation?
-    @State private var selectedAnalysis: Analysis?
+    
+    
+    // =========================
+    // LISTAS SEPARADAS
+    // =========================
+    private var analysisListView: some View {
+        ForEach(vm.analyses) { item in
+            AnalysisTypeCard(
+                title: item.name,
+                description: item.description,
+                costoComunidad: item.communityCost,
+                costoGeneral: item.generalCost,
+                isAnalysis: true,
+                onSettings: { showInfo(for: item) }
+            )
+        }
+        .navigationDestination(item: $selectedAnalysis) { a in
+            analysisView(
+                analysisId: a.id,
+                userId: userId
+            )
+            .navigationTitle(a.name)
+        }
+    }
+    
+    private var consultationListView: some View {
+        ForEach(vm.consultation) { item in
+            AnalysisTypeCard(
+                title: item.nameConsultation,
+                description: "Consulta con un especialista",
+                costoComunidad: "\(item.communityCost)",
+                costoGeneral: "\(item.generalCost)",
+                isAnalysis: false,
+                onSettings: { showInfo(for: item) }  // → Navega directo
+            )
+        }
+        .navigationDestination(item: $selectedConsultation) { c in
+            appointmentView(
+                appointmentId: c.appointmentId,
+                userId: userId
+            )
+            .navigationTitle(c.nameConsultation)
+        }
+    }
+    
+    // =========================
+    // BODY
+    // =========================
     
     var body: some View {
-        ZStack(alignment: .bottom) {  // Container that lets us overlay views
-
-            // Main scrollable content
+        ZStack {
             ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 20) {
-
-                    UpBar() // Top bar (e.g., logo or header)
-
-                    // ---------- SELECTOR ----------
-                    HStack(spacing: 12) {
-                        // Button to toggle to "Analysis" view
-                        nefroButton(
-                            text: "Analysis",
-                            color: vm.selectedAnalysis ? .nvBrand : .white,
-                            textColor: vm.selectedAnalysis ? .white : .nvBrand,
-                            vertical: 10,
-                            horizontal: 22,
-                            hasStroke: !vm.selectedAnalysis, // Unselected button shows border
-                            textSize: 14
-                        ) {
-                            withAnimation { vm.selectedAnalysis = true } // Switch to analysis view
-                        }
-
-                        // Button to toggle to "Consultation" view
-                        nefroButton(
-                            text: "Consultations",
-                            color: !vm.selectedAnalysis ? .nvBrand : .white,
-                            textColor: !vm.selectedAnalysis ? .white : .nvBrand,
-                            vertical: 10,
-                            horizontal: 22,
-                            hasStroke: vm.selectedAnalysis, // Unselected button shows border
-                            textSize: 14
-                        ) {
-                            withAnimation { vm.selectedAnalysis = false } // Switch to consultation view
-                        }
+                VStack(alignment: .leading, spacing: 18) {
+                    
+                    UpBar()
+                    
+                    // Picker
+                    Picker("Tipo", selection: $selectedFilter) {
+                        Text("Análisis").tag(ServiceFilter.analysis)
+                        Text("Consultas").tag(ServiceFilter.consultations)
                     }
+                    .pickerStyle(.segmented)
                     .padding(.horizontal)
-
-                    // CONTENT
+                    
                     if vm.isLoading {
-                        // Loading indicator while data is being fetched
                         ProgressView("Cargando...")
-
-                    } else if let error = vm.errorMessage {
-                        // Display any error that occurred during loading
-                        Text(error).foregroundColor(.red)
-
+                            .padding(.top, 30)
+                        
+                    } else if let err = vm.errorMessage {
+                        Text(err)
+                            .foregroundColor(.red)
+                            .padding()
+                        
                     } else {
-                        VStack(spacing: 16) {
-                            // Show list of analysis cards when in analysis mode
-                            if vm.selectedAnalysis {
-                                ForEach(vm.analyses) { a in
-                                    AnalysisTypeCard(
-                                        title: a.name,
-                                        description: a.description,
-                                        costoComunidad: a.communityCost,
-                                        costoGeneral: a.generalCost,
-                                        isAnalysis: true,
-
-                                        onSettings: { selectAnalysis(a) }
-                                    )
-                                }
-                                .navigationDestination(item: $selectedAnalysis) { analysis in
-                                    analysisView( // Cambiar a la vista de analysis cuando ya este hecha
-                                        analysisId: analysis.id,
-                                        userId: userId
-                                    )
-                                    .navigationTitle(analysis.name)
-                                }
+                        VStack(spacing: 14) {
+                            
+                            if selectedFilter == .analysis {
+                                analysisListView
                             } else {
-                                // Show list of consultation cards when in consultation mode
-                                ForEach(vm.consultation) { c in
-                                    AnalysisTypeCard(
-                                        title: c.nameConsultation,
-                                        description: "Consult with a specialist",
-                                        costoComunidad: "\(c.communityCost)",
-                                        costoGeneral: "\(c.generalCost)",
-                                        isAnalysis: false,
-                                        onSettings: { selectedConsultation = c }
-
-                                    )
-                                }
-                                // Programmatic navigation: activated when selectedConsultation is not nil
-                                .navigationDestination(item: $selectedConsultation) { consultation in
-                                    appointmentView(
-                                        appointmentId: consultation.appointmentId,
-                                        userId: userId
-                                    )
-                                    .navigationTitle(consultation.nameConsultation)
-                                }
+                                consultationListView
                             }
                         }
-                        .padding(.horizontal)     // Horizontal padding for layout
-                        .padding(.bottom, 90)     // Leave space for the BottomBar
+                        .padding(.horizontal)
+                        .padding(.bottom, 90)
                     }
                 }
             }
-
-            // Fixed bottom navigation/action bar
         }
-        .background(Color(.systemGroupedBackground)) // System-like grouped background
-        .onAppear { vm.onAppear() } // Trigger ViewModel load when view appears
+        .background(Color(.systemGroupedBackground))
+        .onAppear { vm.onAppear() }
+        
+        // POPUP SOLO ANALISIS
         .overlay(
-            // NefroPop overlay
-            showNefroPop ? 
+            showNefroPop ?
             ZStack {
-                Color.black.opacity(0.4)
-                    .edgesIgnoringSafeArea(.all)
+                Color.black.opacity(0.45)
+                    .ignoresSafeArea()
                     .onTapGesture { showNefroPop = false }
                 
                 nefroPop(
@@ -174,9 +165,7 @@ struct ServicesView: View {
                     buttonAction: continueAction,
                     closeAction: { showNefroPop = false }
                 )
-            }
-            : nil
+            } : nil
         )
     }
 }
-

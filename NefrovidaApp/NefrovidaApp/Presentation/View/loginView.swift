@@ -53,7 +53,8 @@ struct loginView: View {
                         user: $viewModel.username,
                         password: $viewModel.password,
                         onLogin: { Task { await viewModel.login() }},
-                        onCreateAccount: { goToRegister = true }
+                        onCreateAccount: { goToRegister = true },
+                        onForgotPassword: { viewModel.forgotPassword = true }
                     )
                     .frame(maxHeight: .infinity)
                     
@@ -68,7 +69,6 @@ struct loginView: View {
                 UIApplication.shared.hideKeyboard()
             }
             
-            // navegación hacia Register
             .navigationDestination(isPresented: $goToRegister) {
                 RegisterView(
                     repository: AuthRepositoryD(),
@@ -77,7 +77,6 @@ struct loginView: View {
                 .navigationTitle("Registrar Usuario")
             }
             
-            // Cambio de estado login
             .onChange(of: viewModel.loggedUser) { _, newValue in
                 if let user = newValue {
                     loggedUser = user
@@ -85,13 +84,16 @@ struct loginView: View {
                 }
             }
             
-            // Full screen para Home
             .fullScreenCover(isPresented: $isLoggedIn) {
                 HomeView()
             }
         }
         .onChange(of: viewModel.isFirstLogin) { _, newValue in
             isFirstLogin = newValue
+        }
+
+        .fullScreenCover(isPresented: $viewModel.forgotPassword) {
+            RecoverPasswordView(viewModel: viewModel)
         }
     }
 }
