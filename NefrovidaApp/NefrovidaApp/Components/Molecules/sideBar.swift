@@ -52,7 +52,7 @@ struct Sidebar<Content: View>: View {
                                 .fontWeight(.bold)
                                 .foregroundStyle(.primary)
                             
-                            Text("Menú Principal")
+                            Text("By: VitalSoft")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
