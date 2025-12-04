@@ -37,10 +37,14 @@ final class ProfileRemoteRepository: ProfileRepository {
             return ProfileEntity(
                 id: dto.id,
                 name: dto.name,
+                parentLastName: dto.parentLastName,
+                maternalLastName: dto.maternalLastName,
                 username: dto.username,
                 email: dto.email,
                 phoneNumber: dto.phoneNumber,
-                roleName: dto.roleName
+                roleName: dto.roleName,
+                gender: dto.gender,
+                birthday: dto.birthday
             )
         case .failure(let error):
             if let data = response.data, let message = String(data: data, encoding: .utf8) {
@@ -70,10 +74,14 @@ final class ProfileRemoteRepository: ProfileRepository {
             return ProfileEntity(
                 id: dto.id,
                 name: dto.name,
+                parentLastName: dto.parentLastName,
+                maternalLastName: dto.maternalLastName,
                 username: dto.username,
                 email: dto.email,
                 phoneNumber: dto.phoneNumber,
-                roleName: dto.roleName
+                roleName: dto.roleName,
+                gender: dto.gender,
+                birthday: dto.birthday
             )
         case .failure(let error):
             if let data = response.data, let message = String(data: data, encoding: .utf8) {

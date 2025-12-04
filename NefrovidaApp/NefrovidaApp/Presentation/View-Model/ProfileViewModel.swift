@@ -39,13 +39,20 @@ class ProfileViewModel: ObservableObject {
         }
     }
     
-    func updateProfile(name: String, phoneNumber: String) async {
+    func updateProfile(name: String, parentLastName: String, maternalLastName: String?, phoneNumber: String, gender: String?, birthday: String?) async {
         isLoading = true
         errorMessage = nil
         successMessage = nil
         defer { isLoading = false }
         
-        let dto = UpdateProfileDTO(name: name, phoneNumber: phoneNumber)
+        let dto = UpdateProfileDTO(
+            name: name.isEmpty ? nil : name,
+            parentLastName: parentLastName.isEmpty ? nil : parentLastName,
+            maternalLastName: maternalLastName?.isEmpty == true ? nil : maternalLastName,
+            phoneNumber: phoneNumber.isEmpty ? nil : phoneNumber,
+            gender: gender?.isEmpty == true ? nil : gender,
+            birthday: birthday?.isEmpty == true ? nil : birthday
+        )
         
         do {
             self.profile = try await updateMyProfileUC.execute(data: dto)
