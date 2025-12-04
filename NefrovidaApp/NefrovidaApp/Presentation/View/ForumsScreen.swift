@@ -40,7 +40,9 @@ struct ForumsScreen: View {
                             Text("Todos los Foros").tag(1)
                         }
                         .pickerStyle(.segmented)
-                        .padding()
+                        .padding(.horizontal)
+                        .padding(.top, 8)
+                        .padding(.bottom, 8)
 
                         ScrollView {
                             VStack(spacing: 12) {
