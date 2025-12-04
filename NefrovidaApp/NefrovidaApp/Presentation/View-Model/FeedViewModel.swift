@@ -5,7 +5,6 @@
 
 import SwiftUI
 import Combine
-import Observation
 
 @MainActor
 final class FeedViewModel: ObservableObject {
@@ -27,15 +26,20 @@ final class FeedViewModel: ObservableObject {
         NotificationCenter.default.addObserver(
             forName: .forumRepliesUpdated,
             object: nil,
-            queue: .main
+            queue: nil
         ) { [weak self] notification in
-            guard
-                let self,
-                let messageId = notification.userInfo?["messageId"] as? Int,
-                let index = self.items.firstIndex(where: { $0.id == messageId })
-            else { return }
+            guard let self else { return }
+            
+            guard let messageId = notification.userInfo?["messageId"] as? Int else { return }
+            
+            Task { @MainActor [weak self] in
+                guard
+                    let self,
+                    let index = self.items.firstIndex(where: { $0.id == messageId })
+                else { return }
 
-            self.items[index].replies += 1
+                self.items[index].replies += 1
+            }
         }
     }
 
