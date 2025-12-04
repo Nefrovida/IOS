@@ -13,6 +13,7 @@ struct ForumView: View {
     let rootMessageId: Int
 
     @FocusState private var isInputFocused: Bool
+    @State private var highlightedMessageId: Int? = nil
 
     init(forumId: Int, rootMessageId: Int) {
         let repo = ForumRemoteRepository(
@@ -23,7 +24,8 @@ struct ForumView: View {
         _vm = StateObject(
             wrappedValue: ForumViewModel(
                 replyToMessageUC: ReplyToMessageUseCase(repository: repo),
-                getRepliesUC: GetRepliesUseCase(repository: repo)
+                getRepliesUC: GetRepliesUseCase(repository: repo),
+                repo: repo
             )
         )
 
@@ -68,16 +70,79 @@ struct ForumView: View {
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 0) {
                             ForEach(vm.messages) { reply in
-                                VStack(alignment: .leading, spacing: 6) {
-                                    Text(reply.createdBy)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
+                                VStack(alignment: .leading, spacing: 8) {
+                                    HStack {
+                                        Text(reply.createdBy)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                        Spacer()
+                                    }
+
+                                    if let parentId = reply.parentMessageId,
+                                       parentId != rootMessageId,
+                                       let parent = vm.messages.first(where: { $0.id == parentId }) {
+
+                                        Text("Respondió a \(parent.createdBy)")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                            .padding(6)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 8)
+                                                    .fill(Color.gray.opacity(0.1))
+                                            )
+                                            .onTapGesture {
+                                                withAnimation {
+                                                    proxy.scrollTo(parent.id, anchor: .center)
+                                                    highlightedMessageId = parent.id
+                                                }
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                                                    if highlightedMessageId == parent.id {
+                                                        withAnimation {
+                                                            highlightedMessageId = nil
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                    }
 
                                     Text(reply.content)
                                         .font(.body)
+
+                                    HStack(spacing: 16) {
+                                        Button {
+                                            Task { await vm.toggleLike(for: reply.id) }
+                                        } label: {
+                                            Label(
+                                                "\(reply.likesCount)",
+                                                systemImage: reply.liked ? "hand.thumbsup.fill" : "hand.thumbsup"
+                                            )
+                                            .font(.subheadline)
+                                            .foregroundColor(reply.liked ? .blue : .primary)
+                                        }
+                                        .buttonStyle(.plain)
+
+                                        Button {
+                                            vm.replyingTo = reply
+                                            isInputFocused = true
+                                        } label: {
+                                            Label("\(reply.repliesCount)", systemImage: "bubble.left")
+                                                .font(.subheadline)
+                                        }
+                                        .buttonStyle(.plain)
+
+                                        Spacer()
+                                    }
                                 }
                                 .padding(.vertical, 10)
                                 .padding(.horizontal)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(
+                                            highlightedMessageId == reply.id
+                                            ? Color.yellow.opacity(0.15)  // highlight suave
+                                            : Color.clear
+                                        )
+                                )
                                 .id(reply.id)
 
                                 Divider()
@@ -110,6 +175,19 @@ struct ForumView: View {
         // --- INPUT BAR ---
         .safeAreaInset(edge: .bottom) {
             VStack(spacing: 6) {
+                if let replyingTo = vm.replyingTo {
+                    HStack {
+                        Text("Respondiendo a \(replyingTo.createdBy)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Button("Cancelar") {
+                            vm.replyingTo = nil
+                        }
+                        .font(.caption)
+                    }
+                }
+
                 VStack(alignment: .trailing, spacing: 4) {
                     TextField(
                         "Escribe una respuesta...",

@@ -40,7 +40,7 @@ final class ForgetPasswordUseCase {
         self.repository = repository
     }
     
-    func execute(userId: String, userName: String) async throws -> Bool{
-        return try await repository.forgetPassword(userId: userId, userName: userName)
+    func execute(userName: String) async throws -> Bool{
+        return try await repository.forgetPassword(userName: userName)
     }
 }

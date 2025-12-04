@@ -52,7 +52,7 @@ final class LoginViewModel: ObservableObject {
     
     // FORGET PASSWORD → llama al use case
     func sendForgotPasswordRequest(username: String) async throws -> Bool {
-        try await forgetPasswordUseCase.execute(userId: username, userName: username)
+        try await forgetPasswordUseCase.execute(userName: username)
     }
     
     // ERRORES LOGIN

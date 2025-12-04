@@ -110,9 +110,7 @@ struct ServicesView: View {
         ZStack {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 18) {
-                    
-                    UpBar()
-                    
+                                        
                     // Picker
                     Picker("Tipo", selection: $selectedFilter) {
                         Text("Análisis").tag(ServiceFilter.analysis)
@@ -120,6 +118,8 @@ struct ServicesView: View {
                     }
                     .pickerStyle(.segmented)
                     .padding(.horizontal)
+                    .padding(.top, 8)
+                    .padding(.bottom, 8)
                     
                     if vm.isLoading {
                         ProgressView("Cargando...")

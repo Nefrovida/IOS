@@ -23,7 +23,6 @@ struct CalendarView: View {
         NavigationStack {
             ZStack {
                 VStack(spacing: 0) {
-                    UpBar()
                     Spacer()
                     
                     HStack(spacing: 12) {

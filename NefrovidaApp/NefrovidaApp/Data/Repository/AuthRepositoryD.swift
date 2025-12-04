@@ -148,15 +148,23 @@ final class UserRemoteRepository:UserRepository {
 
 final class ForgetPasswordRemoteRepository: ForgetPasswordRepository {
     
-    func forgetPassword(userId: String, userName: String) async throws -> Bool {
-        let endpoint = "\(AppConfig.apiBaseURL)\(userId)/reset-password"
-        let parameters: [String: String] = ["userName": userName]
+    func forgetPassword(userName: String) async throws -> Bool {
+        let endpoint = "\(AppConfig.apiBaseURL)/auth/forgot-password"
+        let parameters: [String: String] = ["username": userName]
+        print(parameters)
         
+        print("llego al back")
         do {
-            let response = try await AF.request(endpoint, method: .post, parameters: parameters)
-                .validate()
-                .serializingData()
-                .value
+            _ = try await AF.request(
+                endpoint,
+                method: .post,
+                parameters: parameters,
+                encoding: JSONEncoding.default,
+                headers: ["Content-Type": "application/json"]
+            )
+            .validate()
+            .serializingData()
+            .value
             
             return true
         } catch {

@@ -12,6 +12,7 @@ struct FeedDTO: Decodable {
     let replies: Int
     let forums: ForumFeedInfoDTO
     let userName: String?
+    let liked: Int?
 }
 
 struct ForumFeedInfoDTO: Decodable {
@@ -23,11 +24,13 @@ extension FeedDTO {
     func toDomain() -> ForumFeedItem {
         ForumFeedItem(
             id: messageId,
+            forumId: forums.forumId,
             content: content,
             likes: likes,
             replies: replies,
             forumName: forums.name,
-            authorName: userName ?? "Usuario"
+            authorName: userName ?? "Usuario",
+            liked: (liked ?? 0) == 1
         )
         
     }

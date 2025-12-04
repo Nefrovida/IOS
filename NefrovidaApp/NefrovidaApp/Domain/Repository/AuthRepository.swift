@@ -19,5 +19,5 @@ protocol UserRepository {
 }
 
 protocol ForgetPasswordRepository{
-    func forgetPassword(userId: String, userName: String) async throws -> Bool
+    func forgetPassword(userName: String) async throws -> Bool
 }
