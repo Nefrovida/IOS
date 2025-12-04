@@ -16,7 +16,10 @@ struct ForumFeedScreen: View {
         _path = path
         _vm = StateObject(
             wrappedValue: FeedViewModel(
-                repo: ForumRemoteRepository(baseURL: AppConfig.apiBaseURL),
+                repo: ForumRemoteRepository(
+                    baseURL: AppConfig.apiBaseURL,
+                    tokenProvider: AppConfig.tokenProvider
+                ),
                 forumId: forum.id,
                 forumName: forum.name
             )
@@ -38,6 +41,11 @@ struct ForumFeedScreen: View {
                                         forumId: vm.forumId,
                                         messageId: item.id
                                     ))
+                                },
+                                onLikeTapped: {
+                                    Task {
+                                        await vm.toggleLike(for: item.id)
+                                    }
                                 }
                             )
                             .padding(.horizontal)
@@ -65,16 +73,6 @@ struct ForumFeedScreen: View {
                 onEditTapped: {}
             )
             .padding(.trailing, 16)
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .forumRepliesUpdated)) { notification in
-            guard
-                let userInfo = notification.userInfo,
-                let messageId = userInfo["messageId"] as? Int
-            else { return }
-
-            if let index = vm.items.firstIndex(where: { $0.id == messageId }) {
-                vm.items[index].replies += 1
-            }
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle(vm.forumName)

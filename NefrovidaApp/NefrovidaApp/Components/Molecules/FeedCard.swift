@@ -9,7 +9,8 @@ import SwiftUI
 struct FeedCard: View {
     let item: ForumFeedItem
     let onRepliesTapped: () -> Void
-    
+    let onLikeTapped: () -> Void
+
     @State private var isExpanded = false
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -32,13 +33,21 @@ struct FeedCard: View {
                 .lineLimit(isExpanded ? nil : 4)
 
             HStack(spacing: 18) {
-                Label("\(item.likes)", systemImage: "hand.thumbsup")
+                Button(action: onLikeTapped) {
+                    Label("\(item.likes)", systemImage: item.liked ? "hand.thumbsup.fill" : "hand.thumbsup")
+                        .font(.subheadline)
+                        .foregroundColor(item.liked ? .blue : .primary)
+                }
+                .buttonStyle(.plain)
 
                 Button {
                     onRepliesTapped()
                 } label: {
                     Label("\(item.replies)", systemImage: "bubble.left")
+                        .font(.subheadline)
                 }
+                .buttonStyle(.plain)
+
                 Spacer()
 
                 if item.content.count > 200 && !isExpanded {

@@ -163,21 +163,27 @@ class NewMessageViewModel: ObservableObject {
         isSuccess = false
         errorMessage = nil
         
+        #if DEBUG
         print("📤 Enviando mensaje al foro \(selectedForumId)")
         print("📝 Contenido: \(messageText.prefix(50))...")
+        #endif
         
         do {
             let success = try await repository.postMessage(
                 forumId: selectedForumId,
                 content: messageText
             )
+            #if DEBUG
             print("✅ Mensaje enviado: \(success)")
+            #endif
             if success {
                 isSuccess = true
                 showSuccess = true
             }
         } catch {
+            #if DEBUG
             print("❌ Error al enviar mensaje: \(error)")
+            #endif
             setError("Error al enviar el mensaje: \(error.localizedDescription)")
         }
         

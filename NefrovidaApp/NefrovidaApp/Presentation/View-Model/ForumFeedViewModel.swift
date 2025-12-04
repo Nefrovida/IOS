@@ -67,15 +67,21 @@ class ForumFeedViewModel: ObservableObject {
     
     // MARK: - Actions (Placeholder)
     func toggleLike(for message: ForumMessageEntity) {
+        #if DEBUG
         print("Like toggled for message: \(message.id)")
+        #endif
     }
     
     func openComments(for message: ForumMessageEntity) {
+        #if DEBUG
         print("Open comments for message: \(message.id)")
+        #endif
     }
     
     func showMoreOptions(for message: ForumMessageEntity) {
+        #if DEBUG
         print("Show options for message: \(message.id)")
+        #endif
     }
     
     // MARK: - Private Helpers

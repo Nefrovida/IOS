@@ -19,9 +19,11 @@ public struct Post: Identifiable {
 
 public struct ForumFeedItem: Identifiable {
     public let id: Int
-    let content: String
-    let likes: Int
-    var replies: Int
-    let forumName: String
-    let authorName: String
+    public let forumId: Int
+    public let content: String
+    public var likes: Int
+    public var replies: Int
+    public let forumName: String
+    public let authorName: String
+    public var liked: Bool
 }
