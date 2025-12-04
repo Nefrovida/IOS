@@ -14,6 +14,7 @@ struct analysisView: View {
     
     @StateObject private var vm: analysisViewModel
     @State private var showSuccessAlert = false
+    @State private var goToRiskForm = false   // 👈 para navegar al historial
     @Environment(\.dismiss) var dismiss
     
     init(analysisId: Int, userId: String, onConfirm: (() -> Void)? = nil) {
@@ -38,14 +39,17 @@ struct analysisView: View {
             
             Spacer()
             
-            HStack(spacing: 0) {
+            // Título mes / año
+            HStack {
                 Text(vm.monthYearTitle())
-                    .font(.title).fontWeight(.bold)
+                    .font(.title)
+                    .fontWeight(.bold)
             }
             .padding(.horizontal)
             
             Spacer()
             
+            // Tira de semana + swipe
             WeekStrip(
                 days: vm.generateWeekDays(from: vm.selectedDate),
                 selected: vm.selectedDate,
@@ -58,12 +62,13 @@ struct analysisView: View {
                 DragGesture()
                     .onEnded { value in
                         if value.translation.width < -40 { vm.goNextWeek() }
-                        if value.translation.width > 40 { vm.goPrevWeek() }
+                        if value.translation.width > 40 { vm.goPrevWeek()  }
                     }
             )
             
             Divider()
             
+            // Slots
             if vm.isLoading {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -95,6 +100,7 @@ struct analysisView: View {
             
             Spacer()
             
+            // Zona inferior
             VStack(spacing: 12) {
                 if let selected = vm.selectedSlot {
                     Text("Seleccionado: \(format(date: selected))")
@@ -124,9 +130,22 @@ struct analysisView: View {
         .onAppear {
             Task { await vm.loadSlots() }
         }
+        
+        // 🔗 Navegación invisible hacia Historia Clínica
+        .navigationDestination(isPresented: $goToRiskForm) {
+            RiskFormView(idUser: userId)
+        }
+        
+        // 🔔 Alert de éxito
         .alert("¡Análisis Solicitado!", isPresented: $showSuccessAlert) {
-            Button("Aceptar", role: .cancel) {
-                dismiss()
+            Button("Aceptar") {
+                if analysisId == 1 {
+                    // 👉 SI ES HISTORIA CLÍNICA, PASA AL FORMULARIO
+                    goToRiskForm = true
+                } else {
+                    // 👉 Si es cualquier otro análisis, solo cierra
+                    dismiss()
+                }
             }
         } message: {
             if let confirmed = vm.lastConfirmedSlot {
@@ -152,5 +171,7 @@ struct analysisView: View {
 }
 
 #Preview {
-    analysisView(analysisId: 1, userId: "12345-ABCDE")
+    NavigationStack {
+        analysisView(analysisId: 1, userId: "12345-ABCDE")
+    }
 }

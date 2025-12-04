@@ -1,16 +1,17 @@
 import SwiftUI
 
-// Main view responsible for rendering the Risk Form flow.
-// It contains two sections: general user info and dynamic risk questions.
 struct RiskFormView: View {
 
-    // User ID received from the previous screen.
     let idUser: String
-
-    // ViewModel that holds all logic and state for the form.
     @StateObject private var vm: RiskFormViewModel
 
-    // Custom initializer to inject dependencies into the ViewModel.
+    // 👇 Alert de éxito
+    @State private var showSuccessAlert = false
+    // 👇 Disparador para ir al calendario
+    @State private var goToCalendar = false
+    
+    @Environment(\.dismiss) var dismiss
+
     init(idUser: String) {
         _vm = StateObject(wrappedValue:
             RiskFormViewModel(
@@ -23,13 +24,10 @@ struct RiskFormView: View {
         self.idUser = idUser
     }
 
-    // Controls whether the user is on the General Info screen or the Questions screen.
     @State private var showingQuestions = false
 
-    // Static list of gender options.
     let generos = ["Masculino", "Femenino", "Otro"]
 
-    // Static list of Mexican states for the birth place dropdown.
     let estados = [
         "Aguascalientes","Baja California","Baja California Sur","Campeche",
         "Chiapas","Chihuahua","Ciudad de México","Coahuila","Colima",
@@ -40,15 +38,8 @@ struct RiskFormView: View {
         "Yucatán","Zacatecas"
     ]
 
-    // Switches to the dynamic questions section.
-    func goToQuestions() {
-        withAnimation { showingQuestions = true }
-    }
-
-    // Returns to the general information section.
-    func goToGeneralInfo() {
-        withAnimation { showingQuestions = false }
-    }
+    func goToQuestions() { withAnimation { showingQuestions = true } }
+    func goToGeneralInfo() { withAnimation { showingQuestions = false } }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -58,54 +49,22 @@ struct RiskFormView: View {
 
                     Title(text: "Cuestionario de Factor de Riesgo")
 
-                    // General info question
+                    // 📌 DATOS GENERALES
                     if !showingQuestions {
+                        textField(placeholder: "Nombre", text: $vm.nombre, iconName: "xmark")
 
-                        // User name field.
-                        textField(
-                            placeholder: "Nombre",
-                            text: $vm.nombre,
-                            iconName: "xmark"
-                        )
+                        textField(placeholder: "Teléfono", text: $vm.telefono, iconName: "xmark")
 
-                        // Phone number field.
-                        textField(
-                            placeholder: "Teléfono",
-                            text: $vm.telefono,
-                            iconName: "xmark"
-                        )
+                        nefroSelect(placeholder: "Género", selection: $vm.generoSeleccionado, options: generos)
 
-                        // Gender selection dropdown.
-                        nefroSelect(
-                            placeholder: "Género",
-                            selection: $vm.generoSeleccionado,
-                            options: generos
-                        )
+                        textField(placeholder: "Edad", text: $vm.edad, iconName: "xmark")
+                            .keyboardType(.numberPad)
 
-                        // Age field.
-                        textField(
-                            placeholder: "Edad",
-                            text: $vm.edad,
-                            iconName: "xmark"
-                        )
-                        .keyboardType(.numberPad)
+                        nefroSelect(placeholder: "Estado de nacimiento", selection: $vm.estadoNacimientoSeleccionado, options: estados)
 
-                        // Birth state selection dropdown.
-                        nefroSelect(
-                            placeholder: "Estado de nacimiento",
-                            selection: $vm.estadoNacimientoSeleccionado,
-                            options: estados
-                        )
+                        DatePicker("Fecha de nacimiento", selection: $vm.fechaNacimiento, displayedComponents: .date)
+                            .padding(.horizontal)
 
-                        // Birth date picker.
-                        DatePicker(
-                            "Fecha de nacimiento",
-                            selection: $vm.fechaNacimiento,
-                            displayedComponents: .date
-                        )
-                        .padding(.horizontal)
-
-                        // Button to navigate to the dynamic questions.
                         Button {
                             goToQuestions()
                         } label: {
@@ -119,93 +78,40 @@ struct RiskFormView: View {
                         }
                         .padding(.horizontal)
 
-                        //Risk Question part.
+                    // 📌 PREGUNTAS DINÁMICAS
                     } else {
 
                         ForEach(vm.questions) { q in
-
                             switch q.type {
-
-                            // Renders a simple text input question.
                             case "text":
-                                textField(
-                                    placeholder: q.description,
-                                    text: Binding(
-                                        get: { vm.answers[q.id] ?? "" },
-                                        set: { vm.answers[q.id] = $0 }
-                                    ),
-                                    iconName: "square.and.pencil"
-                                )
-
-                            // Renders a number input question.
+                                textField(placeholder: q.description,
+                                          text: Binding(get: { vm.answers[q.id] ?? "" },
+                                                        set: { vm.answers[q.id] = $0 }),
+                                          iconName: "square.and.pencil")
                             case "number":
-                                textField(
-                                    placeholder: q.description,
-                                    text: Binding(
-                                        get: { vm.answers[q.id] ?? "" },
-                                        set: { vm.answers[q.id] = $0 }
-                                    ),
-                                    iconName: "number"
-                                )
+                                textField(placeholder: q.description,
+                                          text: Binding(get: { vm.answers[q.id] ?? "" },
+                                                        set: { vm.answers[q.id] = $0 }),
+                                          iconName: "number")
                                 .keyboardType(.numberPad)
-
-                            // Renders a date input question.
-                            case "date":
-                                DatePicker(
-                                    q.description,
-                                    selection: Binding(
-                                        get: {
-                                            let f = DateFormatter()
-                                            f.dateFormat = "yyyy-MM-dd"
-                                            return f.date(from: vm.answers[q.id] ?? "") ?? Date()
-                                        },
-                                        set: { newDate in
-                                            let f = DateFormatter()
-                                            f.dateFormat = "yyyy-MM-dd"
-                                            vm.answers[q.id] = f.string(from: newDate)
-                                        }
-                                    ),
-                                    displayedComponents: .date
-                                )
-                                .padding(.horizontal)
-
-                            // Renders a multiple-choice question.
-                            case "choice":
-                                let ops = q.options?.map { $0.description } ?? []
-                                questionField(
-                                    question: q.description,
-                                    type: .choice(options: ops),
-                                    answer: Binding<String>(
-                                        get: { vm.answers[q.id] ?? "" },
-                                        set: { vm.answers[q.id] = $0 }
-                                    )
-                                )
-
+                            case "choice", "select":
+                                questionField(question: q.description,
+                                              type: .choice(options: q.options?.map { $0.description } ?? []),
+                                              answer: Binding(get: { vm.answers[q.id] ?? "" },
+                                                              set: { vm.answers[q.id] = $0 }))
                             default:
                                 EmptyView()
                             }
                         }
 
-                        // Validation errors shown to the user.
                         if let error = vm.errorMessage {
-                            Text(error)
-                                .foregroundColor(.red)
-                                .padding(.horizontal)
-                        }
-                        
-                        // Success message shown after submission.
-                        if let ok = vm.successMessage {
-                            Text(ok)
-                                .foregroundColor(.green)
-                                .padding(.bottom)
+                            Text(error).foregroundColor(.red).padding(.horizontal)
                         }
 
-                        // Button to go back to general info.
                         Button {
                             goToGeneralInfo()
                         } label: {
                             Text("Regresar")
-                                .fontWeight(.semibold)
                                 .frame(maxWidth: .infinity)
                                 .padding()
                                 .background(Color.gray.opacity(0.3))
@@ -213,9 +119,13 @@ struct RiskFormView: View {
                         }
                         .padding(.horizontal)
 
-                        // Button to send all data to backend.
                         Button {
-                            Task { await vm.submitForm() }
+                            Task {
+                                await vm.submitForm()
+                                if vm.successMessage != nil {
+                                    showSuccessAlert = true
+                                }
+                            }
                         } label: {
                             Text("Enviar formulario")
                                 .fontWeight(.semibold)
@@ -227,25 +137,27 @@ struct RiskFormView: View {
                         }
                         .padding(.horizontal)
                     }
-
                 }
                 .padding(.top, 20)
             }
             .onAppear {
-                // Load questions and options when the view appears.
                 Task { await vm.loadForm() }
             }
         }
-        .onTapGesture {
-            UIApplication.shared.hideKeyboard()
+        // ... (todo tu código igual)
+
+        .onTapGesture { UIApplication.shared.hideKeyboard() }
+
+        // 🆕 FULL SCREEN (no se puede volver atrás al formulario)
+        .fullScreenCover(isPresented: $goToCalendar) {
+            CalendarView(idUser: idUser, fromRiskForm: true)
         }
 
-        // Custom bottom navigation bar.
-        BottomBar(idUser: "1212")
+        // 🟢 Alert de éxito
+        .alert("Formulario enviado", isPresented: $showSuccessAlert) {
+            Button("Aceptar") { goToCalendar = true }
+        } message: {
+            Text(vm.successMessage ?? "Tu cuestionario se ha enviado correctamente.")
+        }
     }
-}
-
-// Preview for SwiftUI canvas.
-#Preview {
-    RiskFormView(idUser: "06276f33-a1ca-4c71-a400-8e4fa0ce9ece")
 }

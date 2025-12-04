@@ -2,6 +2,8 @@ import SwiftUI
 
 struct CalendarView: View {
     var idUser: String
+    var fromRiskForm: Bool = false   // 👈 NUEVO, detecta si viene del formulario
+
     @StateObject private var vm: AgendaViewModel
     
     @State private var showDetails = false
@@ -12,8 +14,12 @@ struct CalendarView: View {
     @State private var showSuccessMessage = false
     @State private var successMessageText = ""
 
-    init(idUser: String) {
+    @Environment(\.dismiss) var dismiss  // 👈 Para cerrar normal
+
+    init(idUser: String, fromRiskForm: Bool = false) {
         self.idUser = idUser
+        self.fromRiskForm = fromRiskForm
+
         let repo = RemoteAppointmentRepository()
         let uc = GetAppointmentsForDayUseCase(repository: repo)
         _vm = StateObject(wrappedValue: AgendaViewModel(getAppointmentsUC: uc, idUser: idUser))
@@ -23,6 +29,10 @@ struct CalendarView: View {
         NavigationStack {
             ZStack {
                 VStack(spacing: 0) {
+                    
+                    // ----------------------------------------------------
+                    //                     HEADER
+                    // ----------------------------------------------------
                     Spacer()
                     
                     HStack(spacing: 12) {
@@ -34,6 +44,9 @@ struct CalendarView: View {
                     
                     Spacer()
                     
+                    // ----------------------------------------------------
+                    //               WEEK STRIP + SWIPE
+                    // ----------------------------------------------------
                     WeekStrip(
                         days: vm.currentWeekDays(),
                         selected: vm.selectedDate,
@@ -47,6 +60,9 @@ struct CalendarView: View {
                             }
                     )
                     
+                    // ----------------------------------------------------
+                    //          MESSAGES SUCCESS / ERROR
+                    // ----------------------------------------------------
                     if showSuccessMessage {
                         SuccessMessage(
                             message: successMessageText,
@@ -60,21 +76,20 @@ struct CalendarView: View {
                     }
                     
                     if let err = vm.errorMessage {
-                        VStack(spacing: 8) {
-                            ErrorMessage(
-                                message: err,
-                                onDismiss: { }
-                            )
-                        }
-                        .padding(.horizontal)
-                        .transition(.move(edge: .top).combined(with: .opacity))
+                        ErrorMessage(message: err, onDismiss: { })
+                            .padding(.horizontal)
+                            .transition(.move(edge: .top).combined(with: .opacity))
                     }
                     
                     Spacer()
                     
+                    // ----------------------------------------------------
+                    //               LIST OF APPOINTMENTS
+                    // ----------------------------------------------------
                     if vm.isLoading {
                         ProgressView()
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        
                     } else if vm.errorMessage != nil {
                         VStack(spacing: 10) {
                             Button("Reintentar") {
@@ -82,6 +97,7 @@ struct CalendarView: View {
                             }
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        
                     } else {
                         ScrollView {
                             if vm.appointments.isEmpty {
@@ -102,13 +118,13 @@ struct CalendarView: View {
                     }
                 }
                 
-                // Popup overlay
+                // ----------------------------------------------------
+                //                     POPUP DETAIL
+                // ----------------------------------------------------
                 if showDetails, let appointment = selectedAppointment {
                     Color.black.opacity(0.4)
                         .edgesIgnoringSafeArea(.all)
-                        .onTapGesture {
-                            showDetails = false
-                        }
+                        .onTapGesture { showDetails = false }
                     
                     AppointmentPopUp(
                         appointment: appointment,
@@ -126,7 +142,14 @@ struct CalendarView: View {
                     .transition(.scale.combined(with: .opacity))
                 }
             }
+            // ------------------------------------------------------------
+            // ANIMACIONES
+            // ------------------------------------------------------------
             .animation(.spring(response: 0.3), value: showDetails)
+            
+            // ------------------------------------------------------------
+            //   ALERT CANCELAR CITA
+            // ------------------------------------------------------------
             .alert("Cancelar Cita", isPresented: $showCancelAlert) {
                 Button("Cancelar Cita", role: .destructive) {
                     Task {
@@ -138,9 +161,7 @@ struct CalendarView: View {
                                 selectedAppointment = nil
                                 vm.select(date: vm.selectedDate)
                                 successMessageText = "Cita cancelada correctamente"
-                                withAnimation {
-                                    showSuccessMessage = true
-                                }
+                                withAnimation { showSuccessMessage = true }
                             }
                         }
                     }
@@ -149,6 +170,10 @@ struct CalendarView: View {
             } message: {
                 Text("¿Estás seguro que deseas cancelar esta cita?")
             }
+            
+            // ------------------------------------------------------------
+            //   SHEET REAGENDAR
+            // ------------------------------------------------------------
             .sheet(isPresented: $showRescheduleSheet) {
                 if let appointment = selectedAppointment {
                     NavigationView {
@@ -160,12 +185,8 @@ struct CalendarView: View {
                                     onConfirm: {
                                         Task {
                                             await cancelPreviousAppointment(appointment)
-                                            
-                                            successMessageText = "Analisis reagendado correctamente"
-                                            withAnimation {
-                                                showSuccessMessage = true
-                                            }
-                                            
+                                            successMessageText = "Análisis reagendado correctamente"
+                                            withAnimation { showSuccessMessage = true }
                                             vm.select(date: vm.selectedDate)
                                         }
                                     }
@@ -177,12 +198,8 @@ struct CalendarView: View {
                                     onConfirm: {
                                         Task {
                                             await cancelPreviousAppointment(appointment)
-                                            
                                             successMessageText = "Cita reagendada correctamente"
-                                            withAnimation {
-                                                showSuccessMessage = true
-                                            }
-                                            
+                                            withAnimation { showSuccessMessage = true }
                                             vm.select(date: vm.selectedDate)
                                         }
                                     }
@@ -202,10 +219,31 @@ struct CalendarView: View {
                     .presentationDetents([.large])
                 }
             }
+            
+            // ------------------------------------------------------------
+            // ON APPEAR LOAD
+            // ------------------------------------------------------------
             .onAppear { vm.onAppear() }
+            
+            // ------------------------------------------------------------
+            // TOOLBAR: BACK BUTTON CONTROLADO
+            // ------------------------------------------------------------
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Regresar") {
+                        if fromRiskForm {
+                            // 👈 SI VIENE DEL FORMULARIO, REGRESA AL HOME (ContentView)
+                            UIApplication.shared.windows.first?.rootViewController?.dismiss(animated: true)
+                        } else {
+                            dismiss() // 👈 SOLO cierra esta vista
+                        }
+                    }
+                }
+            }
         }
     }
     
+    // Eliminación de cita anterior al reagendar
     private func cancelPreviousAppointment(_ appointment: Appointment) async {
         let calendarRepo = RemoteAppointmentRepository()
         let calendarUC = GetAppointmentsForDayUseCase(repository: calendarRepo)
@@ -214,6 +252,7 @@ struct CalendarView: View {
     }
 }
 
+// Preview
 #Preview {
-    CalendarView(idUser: "4b74425f-6c7a-4cf6-ac19-18372ac9854a")
+    CalendarView(idUser: "4b74425f-6c7a-4cf6-ac19-18372ac9854a", fromRiskForm: true)
 }
