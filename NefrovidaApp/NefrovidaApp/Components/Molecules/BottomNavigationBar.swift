@@ -11,36 +11,49 @@ import SwiftUI
 struct BottomNavigationBar: View {
     @Binding var selectedTab: Tab
     @Binding var isFirstLogin: Bool
+    var userRole: Int
     let onSelect: (Tab) -> Void
 
     var body: some View {
         HStack {
-            Spacer()
-            NavTabButton(tab: .inicio, isSelected: selectedTab == .inicio) {
-                onSelect(.inicio)
-            }
-            Spacer()
-            NavTabButton(tab: .servicios, isSelected: selectedTab == .servicios) {
-                onSelect(.servicios)
-            }
-            Spacer()
-            NavTabButton(tab: .analisis, isSelected: selectedTab == .analisis) {
-                onSelect(.analisis)
-            }
-            if !isFirstLogin{
+            if userRole == 5 {
+                Spacer()
+                NavTabButton(tab: .inicio, isSelected: selectedTab == .inicio) {
+                    onSelect(.inicio)
+                }
                 Spacer()
                 NavTabButton(tab: .foros, isSelected: selectedTab == .foros) {
                     onSelect(.foros)
                 }
+                Spacer()
+            } else {
+                Spacer()
+                NavTabButton(tab: .inicio, isSelected: selectedTab == .inicio) {
+                    onSelect(.inicio)
+                }
+                Spacer()
+                NavTabButton(tab: .servicios, isSelected: selectedTab == .servicios) {
+                    onSelect(.servicios)
+                }
+                Spacer()
+                NavTabButton(tab: .analisis, isSelected: selectedTab == .analisis) {
+                    onSelect(.analisis)
+                }
+                if !isFirstLogin {
+                    Spacer()
+                    NavTabButton(tab: .foros, isSelected: selectedTab == .foros) {
+                        onSelect(.foros)
+                    }
+                }
+                Spacer()
+                NavTabButton(tab: .agenda, isSelected: selectedTab == .agenda) {
+                    onSelect(.agenda)
+                }
+                Spacer()
             }
-            Spacer()
-            NavTabButton(tab: .agenda, isSelected: selectedTab == .agenda) {
-                onSelect(.agenda)
-            }
-            Spacer()
         }
         .padding(.vertical, 15)
-        .padding(.horizontal, 12) 
+        .padding(.horizontal, 12)
         .background(Color.nvBrand)
         .edgesIgnoringSafeArea(.bottom)
     }
