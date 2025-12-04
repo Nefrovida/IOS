@@ -147,22 +147,11 @@ struct ProfileView: View {
                                     .foregroundColor(.gray)
                                     .padding(.leading)
                                 
-                                Picker("Género", selection: $gender) {
-                                    Text("Seleccionar").tag("")
-                                    Text("Masculino").tag("MALE")
-                                    Text("Femenino").tag("FEMALE")
-                                    Text("Otro").tag("OTHER")
-                                }
-                                .pickerStyle(.menu)
-                                .padding()
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color.white)
-                                .cornerRadius(22)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 22)
-                                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                nefroSelect(
+                                    placeholder: "Selecciona tu género",
+                                    selection: $gender,
+                                    options: ["Masculino", "Femenino"]
                                 )
-                                .padding(.horizontal)
                             }
                             
                             VStack(alignment: .leading, spacing: 5) {
@@ -171,23 +160,11 @@ struct ProfileView: View {
                                     .foregroundColor(.gray)
                                     .padding(.leading)
                                 
-                                DatePicker(
-                                    "",
-                                    selection: $birthday,
-                                    in: ...Date(),
-                                    displayedComponents: .date
+                                nefroDate(
+                                    text: "Fecha de naciemiento",
+                                    placeholder: "Fecha de nacimiento",
+                                    date: $birthday
                                 )
-                                .datePickerStyle(.compact)
-                                .labelsHidden()
-                                .padding()
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color.white)
-                                .cornerRadius(22)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 22)
-                                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                                )
-                                .padding(.horizontal)
                             }
                             
                             // Messages
