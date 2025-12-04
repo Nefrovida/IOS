@@ -13,6 +13,7 @@ struct ForumView: View {
     let rootMessageId: Int
 
     @FocusState private var isInputFocused: Bool
+    @State private var highlightedMessageId: Int? = nil
 
     init(forumId: Int, rootMessageId: Int) {
         let repo = ForumRemoteRepository(
@@ -89,6 +90,19 @@ struct ForumView: View {
                                                 RoundedRectangle(cornerRadius: 8)
                                                     .fill(Color.gray.opacity(0.1))
                                             )
+                                            .onTapGesture {
+                                                withAnimation {
+                                                    proxy.scrollTo(parent.id, anchor: .center)
+                                                    highlightedMessageId = parent.id
+                                                }
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                                                    if highlightedMessageId == parent.id {
+                                                        withAnimation {
+                                                            highlightedMessageId = nil
+                                                        }
+                                                    }
+                                                }
+                                            }
                                     }
 
                                     Text(reply.content)
@@ -121,6 +135,14 @@ struct ForumView: View {
                                 }
                                 .padding(.vertical, 10)
                                 .padding(.horizontal)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(
+                                            highlightedMessageId == reply.id
+                                            ? Color.yellow.opacity(0.15)  // highlight suave
+                                            : Color.clear
+                                        )
+                                )
                                 .id(reply.id)
 
                                 Divider()
