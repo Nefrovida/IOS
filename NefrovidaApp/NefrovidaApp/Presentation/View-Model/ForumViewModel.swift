@@ -1,94 +1,90 @@
+//
+//  ForumViewModel.swift
+//  NefrovidaApp
+//
+
 import SwiftUI
 import Combine
 
+extension Notification.Name {
+    static let forumRepliesUpdated = Notification.Name("forumRepliesUpdated")
+}
+
 @MainActor
 class ForumViewModel: ObservableObject {
-    // Observable state for the viewField
     @Published var messages: [ForumMessageEntity] = []
-    @Published var newMessageContent: String = ""
     @Published var replyContent: String = ""
-    @Published var selectedParentMessageId: Int? = nil
-    @Published var forum: Forum?
     @Published var isLoading = false
     @Published var errorMessage: String?
 
-    // Dependencias (casos de uso)
-    private let getMessagesUC: GetMessagesUseCase
-    private let postMessageUC: PostMessageUseCase
     private let replyToMessageUC: ReplyToMessageUseCase
-    private let getForumDetailsUC: GetForumDetailsUseCase
     private let getRepliesUC: GetRepliesUseCase
 
-    // Dependencies (use cases)
-    init(getMessagesUC: GetMessagesUseCase,
-         postMessageUC: PostMessageUseCase,
-         replyToMessageUC: ReplyToMessageUseCase,
-         getForumDetailsUC: GetForumDetailsUseCase,
-         getRepliesUC: GetRepliesUseCase) {
-        self.getMessagesUC = getMessagesUC
-        self.postMessageUC = postMessageUC
+    init(
+        replyToMessageUC: ReplyToMessageUseCase,
+        getRepliesUC: GetRepliesUseCase
+    ) {
         self.replyToMessageUC = replyToMessageUC
-        self.getForumDetailsUC = getForumDetailsUC
         self.getRepliesUC = getRepliesUC
     }
 
-    // MARK: - Funciones de negocio
+    // ======== VALIDACIÓN ========
+    var isValidReply: Bool {
+        !replyContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        && replyContent.count <= 1000
+    }
 
-    // Load all messages from a forum
-    func loadMessages(forumId: Int) async {
+    var characterCountColor: Color {
+        if replyContent.count > 700 {
+            return .red
+        } else if replyContent.count > 650 {
+            return .orange
+        } else {
+            return .gray
+        }
+    }
+
+    // ======== LOAD THREAD ========
+    func loadThread(forumId: Int, rootId: Int) async {
         isLoading = true
-        errorMessage = nil
         defer { isLoading = false }
-        
+
         do {
-            // Fetch forum details and messages in parallel
-            async let fetchedMessages = getMessagesUC.execute(forumId: forumId)
-            async let (fetchedForum, _) = getForumDetailsUC.execute(forumId: forumId)
-            
-            self.messages = try await fetchedMessages
-            self.forum = try await fetchedForum
+            messages = try await getRepliesUC.execute(
+                forumId: forumId,
+                messageId: rootId,
+                page: 1,
+                limit: 20
+            )
         } catch {
-            self.errorMessage = "No se pudo cargar el foro."
-        }
-    }
-    
-    // Send a new root message
-    func sendMessage(forumId: Int) async {
-        guard !newMessageContent.isEmpty else { return }
-        do {
-            let message = try await postMessageUC.execute(forumId: forumId, content: newMessageContent)
-            messages.append(message)
-            newMessageContent = ""
-        } catch {
+            errorMessage = "No se pudieron cargar las respuestas."
         }
     }
 
-    // Reply to an existing message
-    func sendReply(forumId: Int) async {
-        guard let parentId = selectedParentMessageId, !replyContent.isEmpty else { return }
+    // ======== SEND REPLY ========
+    func sendReply(forumId: Int, rootId: Int) async {
+        // Seguridad: evitar bypass
+        guard isValidReply else { return }
+
         do {
-            let reply = try await replyToMessageUC.execute(
+            let newReply = try await replyToMessageUC.execute(
                 forumId: forumId,
-                parentMessageId: parentId,
+                parentMessageId: rootId,
                 content: replyContent
             )
-            messages.append(reply)
+
+            messages.append(newReply)
             replyContent = ""
-            selectedParentMessageId = nil
+
+            NotificationCenter.default.post(
+                name: .forumRepliesUpdated,
+                object: nil,
+                userInfo: ["messageId": rootId]
+            )
+            
         } catch {
-        }
-    }
-    
-    // Fetch replies for a specific message
-    func fetchReplies(forumId: Int, messageId: Int) async {
-        do {
-            let replies = try await getRepliesUC.execute(forumId: forumId, messageId: messageId, page: 1, limit: 20)
-            // Append new replies, avoiding duplicates
-            let existingIds = Set(messages.map { $0.id })
-            let newReplies = replies.filter { !existingIds.contains($0.id) }
-            messages.append(contentsOf: newReplies)
-        } catch {
-            print("Error fetching replies: \(error)")
+            print("❌ Error enviando reply: \(error)")
+            errorMessage = "No se pudo enviar la respuesta."
         }
     }
 }

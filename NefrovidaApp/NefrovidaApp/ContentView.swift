@@ -14,7 +14,11 @@ struct ContentView: View {
         if viewModel.isLoggedIn {
             mainAppView
         } else {
-            loginView(isLoggedIn: $viewModel.isLoggedIn, loggedUser: $viewModel.loggedUser)
+
+            NavigationStack {
+                loginView(isLoggedIn: $viewModel.isLoggedIn, loggedUser: $viewModel.loggedUser,
+                    isFirstLogin: $viewModel.isFirstLogin)
+            }
         }
     }
 
@@ -27,7 +31,7 @@ struct ContentView: View {
                     currentView
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                    BottomNavigationBar(selectedTab: $viewModel.selectedTab, onSelect: { tab in
+                    BottomNavigationBar(selectedTab: $viewModel.selectedTab, isFirstLogin: $viewModel.isFirstLogin, onSelect: { tab in
                         viewModel.selectedTab = tab
                     })
                 }
@@ -82,7 +86,9 @@ struct ContentView: View {
     private var currentView: some View {
         switch viewModel.selectedTab {
         case .inicio:
-            HomeView(user: viewModel.loggedUser)
+            HomeView()
+        case .servicios:
+            ServicesView(userId: viewModel.loggedUser?.user_id ?? "")
         case .analisis:
             ReportsView(userId: viewModel.loggedUser?.user_id ?? "")
         case .foros:

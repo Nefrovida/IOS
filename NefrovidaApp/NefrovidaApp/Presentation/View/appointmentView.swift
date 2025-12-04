@@ -10,15 +10,19 @@ import SwiftUI
 struct appointmentView: View {
     let appointmentId: Int
     let userId: String
+    var onConfirm: (() -> Void)? = nil
     
     // ViewModel instance that manages appointment logic and state
     @StateObject private var vm: appointmentViewModel
     // Controls the display of the success alert
     @State private var showSuccessAlert = false
+    // Environment variable to dismiss the view
+    @Environment(\.dismiss) var dismiss
 
-    init(appointmentId: Int, userId: String) {
+    init(appointmentId: Int, userId: String, onConfirm: (() -> Void)? = nil) {
         self.appointmentId = appointmentId
         self.userId = userId
+        self.onConfirm = onConfirm
         // Creates repository and use cases, injecting dependencies manually
         let repo = AppointmentRepositoryD()
         let getUC = GetAppointmentsUseCase(repository: repo)
@@ -127,6 +131,7 @@ struct appointmentView: View {
                     Task {
                         let success = await vm.confirmSelectedSlot(userId: userId)
                         if success {
+                            onConfirm?()
                             showSuccessAlert = true
                         }
                     }
@@ -149,7 +154,9 @@ struct appointmentView: View {
         
         // Success appointment alert
         .alert("¡Cita Solicitada!", isPresented: $showSuccessAlert) {
-            Button("Aceptar", role: .cancel) { }
+            Button("Aceptar", role: .cancel) { 
+                dismiss()
+            }
         } message: {
             if let confirmed = vm.lastConfirmedSlot {
                 Text("Tu cita ha sido solicitada para el \(formatFull(date: confirmed))")

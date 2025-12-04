@@ -17,9 +17,9 @@ struct NavTabButton: View {
         Button(action: onTap) {
             VStack(spacing: 4) {
                 Image(systemName: tab.iconName)
-                    .font(.system(size: 20))
+                    .font(.system(size: 16))
                 Text(tab.label)
-                    .font(.caption)
+                    .font(.system(size: 10))
             }
             .foregroundColor(isSelected ? Color.nvBrand : .white)
             .padding(.vertical, 8)

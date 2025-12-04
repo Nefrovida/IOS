@@ -11,4 +11,9 @@ import Foundation
 protocol AuthRepository {
     // Username and password are entered, and if successful, the user's data is received.
     func login(username: String, password: String) async throws -> LoginEntity
+    func register(request: RegisterRequest) async throws -> RegisterResponse
+}
+
+protocol UserRepository {
+    func fetchFirstLogin(for userId: String) async throws -> Bool
 }

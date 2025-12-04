@@ -27,6 +27,12 @@ extension String {
             return "Perdido"
         case "CANCELED":
             return "Cancelado"
+        case "SENT":
+            return "Enviado"
+        case "PENDING":
+            return "Pendiente"
+        case "LAB":
+            return "En Laboratorio"
         default:
             return self    // por si llega uno nuevo
         }

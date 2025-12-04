@@ -76,10 +76,10 @@ struct RiskFormView: View {
                         )
 
                         // Gender selection dropdown.
-                        SelectField(
-                            label: "Género",
-                            options: generos,
-                            selection: $vm.generoSeleccionado
+                        nefroSelect(
+                            placeholder: "Género",
+                            selection: $vm.generoSeleccionado,
+                            options: generos
                         )
 
                         // Age field.
@@ -91,10 +91,10 @@ struct RiskFormView: View {
                         .keyboardType(.numberPad)
 
                         // Birth state selection dropdown.
-                        SelectField(
-                            label: "Estado de nacimiento",
-                            options: estados,
-                            selection: $vm.estadoNacimientoSeleccionado
+                        nefroSelect(
+                            placeholder: "Estado de nacimiento",
+                            selection: $vm.estadoNacimientoSeleccionado,
+                            options: estados
                         )
 
                         // Birth date picker.
@@ -175,7 +175,7 @@ struct RiskFormView: View {
                                 questionField(
                                     question: q.description,
                                     type: .choice(options: ops),
-                                    answer: Binding(
+                                    answer: Binding<String>(
                                         get: { vm.answers[q.id] ?? "" },
                                         set: { vm.answers[q.id] = $0 }
                                     )
@@ -235,6 +235,9 @@ struct RiskFormView: View {
                 // Load questions and options when the view appears.
                 Task { await vm.loadForm() }
             }
+        }
+        .onTapGesture {
+            UIApplication.shared.hideKeyboard()
         }
 
         // Custom bottom navigation bar.
