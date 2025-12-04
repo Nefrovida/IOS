@@ -2,8 +2,6 @@ import SwiftUI
 
 struct CalendarView: View {
     var idUser: String
-    var fromRiskForm: Bool = false   
-    
     @StateObject private var vm: AgendaViewModel
     
     @State private var showDetails = false
@@ -13,33 +11,26 @@ struct CalendarView: View {
     
     @State private var showSuccessMessage = false
     @State private var successMessageText = ""
-    
-    @State private var goHome = false
-    
-    @Environment(\.dismiss) var dismiss
-    
-    init(idUser: String, fromRiskForm: Bool = false) {
+
+    init(idUser: String) {
         self.idUser = idUser
-        self.fromRiskForm = fromRiskForm
-        
         let repo = RemoteAppointmentRepository()
         let uc = GetAppointmentsForDayUseCase(repository: repo)
         _vm = StateObject(wrappedValue: AgendaViewModel(getAppointmentsUC: uc, idUser: idUser))
     }
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
-                
-                // ---------- CALENDARIO NORMAL ----------
                 VStack(spacing: 0) {
-                    
                     Spacer()
                     
-                    Text(vm.monthYearTitle())
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .padding(.vertical)
+                    HStack(spacing: 12) {
+                        Text(vm.monthYearTitle())
+                            .font(.title)
+                            .fontWeight(.bold)
+                    }
+                    .padding(.horizontal)
                     
                     Spacer()
                     
@@ -49,70 +40,180 @@ struct CalendarView: View {
                         onSelect: vm.select
                     )
                     .simultaneousGesture(
-                        DragGesture().onEnded { value in
-                            if value.translation.width < -40 { vm.goNextWeek() }
-                            if value.translation.width > 40 { vm.goPrevWeek() }
-                        }
+                        DragGesture()
+                            .onEnded { value in
+                                if value.translation.width < -40 { vm.goNextWeek() }
+                                if value.translation.width > 40 { vm.goPrevWeek() }
+                            }
                     )
+                    
+                    if showSuccessMessage {
+                        SuccessMessage(
+                            message: successMessageText,
+                            onDismiss: {
+                                withAnimation {
+                                    showSuccessMessage = false
+                                }
+                            }
+                        )
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                    }
+                    
+                    if let err = vm.errorMessage {
+                        VStack(spacing: 8) {
+                            ErrorMessage(
+                                message: err,
+                                onDismiss: { }
+                            )
+                        }
+                        .padding(.horizontal)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                    }
                     
                     Spacer()
                     
-                    ScrollView {
-                        if vm.isLoading {
-                            ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
-                        } else if vm.appointments.isEmpty {
-                            Text("No hay citas para este día.")
-                                .foregroundStyle(.secondary)
-                                .frame(maxWidth: .infinity, minHeight: 240)
-                        } else {
-                            AgendaList(
-                                appointments: vm.appointments,
-                                onAppointmentTap: { appt in
-                                    selectedAppointment = appt
-                                    showDetails = true
-                                }
-                            )
-                            .padding(.top, 12)
+                    if vm.isLoading {
+                        ProgressView()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else if vm.errorMessage != nil {
+                        VStack(spacing: 10) {
+                            Button("Reintentar") {
+                                vm.select(date: vm.selectedDate)
+                            }
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        ScrollView {
+                            if vm.appointments.isEmpty {
+                                Text("No hay citas para este día.")
+                                    .foregroundStyle(.secondary)
+                                    .frame(maxWidth: .infinity, minHeight: 240)
+                            } else {
+                                AgendaList(
+                                    appointments: vm.appointments,
+                                    onAppointmentTap: { appt in
+                                        selectedAppointment = appt
+                                        showDetails = true
+                                    }
+                                )
+                                .padding(.top, 12)
+                            }
                         }
                     }
                 }
                 
-                // ---------- POPUP ----------
+                // Popup overlay
                 if showDetails, let appointment = selectedAppointment {
-                    Color.black.opacity(0.4).ignoresSafeArea()
-                        .onTapGesture { showDetails = false }
+                    Color.black.opacity(0.4)
+                        .edgesIgnoringSafeArea(.all)
+                        .onTapGesture {
+                            showDetails = false
+                        }
                     
                     AppointmentPopUp(
                         appointment: appointment,
-                        onCancel: { showCancelAlert = true },
+                        onCancel: {
+                            showCancelAlert = true
+                        },
                         onReschedule: {
                             showDetails = false
                             showRescheduleSheet = true
                         },
-                        onClose: { showDetails = false }
+                        onClose: {
+                            showDetails = false
+                        }
                     )
+                    .transition(.scale.combined(with: .opacity))
                 }
             }
-            
-            .navigationBarBackButtonHidden(fromRiskForm)
-            .navigationTitle("")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Regresar") {
-                        if fromRiskForm {
-                            goHome = true
-                        } else {
-                            dismiss()
+            .animation(.spring(response: 0.3), value: showDetails)
+            .alert("Cancelar Cita", isPresented: $showCancelAlert) {
+                Button("Cancelar Cita", role: .destructive) {
+                    Task {
+                        if let appt = selectedAppointment {
+                            vm.SelectedAppointment = appt
+                            let ok = await vm.cancelApp()
+                            if ok {
+                                showDetails = false
+                                selectedAppointment = nil
+                                vm.select(date: vm.selectedDate)
+                                successMessageText = "Cita cancelada correctamente"
+                                withAnimation {
+                                    showSuccessMessage = true
+                                }
+                            }
                         }
                     }
                 }
+                Button("No", role: .cancel) {}
+            } message: {
+                Text("¿Estás seguro que deseas cancelar esta cita?")
             }
-            
-            .navigationDestination(isPresented: $goHome) {
-                HomeView()
+            .sheet(isPresented: $showRescheduleSheet) {
+                if let appointment = selectedAppointment {
+                    NavigationView {
+                        Group {
+                            if appointment.appointmentType.uppercased() == "ANÁLISIS" {
+                                analysisView(
+                                    analysisId: appointment.appointmentId,
+                                    userId: idUser,
+                                    onConfirm: {
+                                        Task {
+                                            await cancelPreviousAppointment(appointment)
+                                            
+                                            successMessageText = "Analisis reagendado correctamente"
+                                            withAnimation {
+                                                showSuccessMessage = true
+                                            }
+                                            
+                                            vm.select(date: vm.selectedDate)
+                                        }
+                                    }
+                                )
+                            } else {
+                                appointmentView(
+                                    appointmentId: appointment.appointmentId,
+                                    userId: idUser,
+                                    onConfirm: {
+                                        Task {
+                                            await cancelPreviousAppointment(appointment)
+                                            
+                                            successMessageText = "Cita reagendada correctamente"
+                                            withAnimation {
+                                                showSuccessMessage = true
+                                            }
+                                            
+                                            vm.select(date: vm.selectedDate)
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                        .navigationTitle("Reagendar Horario")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarLeading) {
+                                Button("Cerrar") {
+                                    showRescheduleSheet = false
+                                }
+                            }
+                        }
+                    }
+                    .presentationDetents([.large])
+                }
             }
-            
             .onAppear { vm.onAppear() }
         }
     }
+    
+    private func cancelPreviousAppointment(_ appointment: Appointment) async {
+        let calendarRepo = RemoteAppointmentRepository()
+        let calendarUC = GetAppointmentsForDayUseCase(repository: calendarRepo)
+        let cancelVM = AgendaViewModel(getAppointmentsUC: calendarUC, idUser: idUser)
+        _ = await cancelVM.cancelSpecificAppointment(appointment)
+    }
+}
+
+#Preview {
+    CalendarView(idUser: "4b74425f-6c7a-4cf6-ac19-18372ac9854a")
 }
