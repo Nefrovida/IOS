@@ -24,11 +24,15 @@ struct UpBar: View {
                     .font(.system(size: 26))
 
                     NefroVidaLogo()
-
-                    buttonBar(imageName: "bell", text: "") {
+                    
+                    // When the functionality is complete, use the button.
+                    /*buttonBar(imageName: "bell", text: "") {
                         print("Notificaciones")
                     }
-                    .font(.system(size: 26))
+                    .font(.system(size: 26))*/
+                    
+                    Color.clear
+                        .frame(width: 46, height: 46)
                 }
                 .padding(.horizontal, 22)
                 .padding(.vertical, 10)
