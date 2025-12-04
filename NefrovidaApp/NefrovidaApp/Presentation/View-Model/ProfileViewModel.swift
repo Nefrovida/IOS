@@ -35,7 +35,7 @@ class ProfileViewModel: ObservableObject {
         do {
             self.profile = try await getMyProfileUC.execute()
         } catch {
-            self.errorMessage = "Error loading profile: \(error.localizedDescription)"
+            self.errorMessage = "Error al cargar perfil."
         }
     }
     
@@ -56,9 +56,9 @@ class ProfileViewModel: ObservableObject {
         
         do {
             self.profile = try await updateMyProfileUC.execute(data: dto)
-            self.successMessage = "Profile updated successfully"
+            self.successMessage = "Perfil actualizado correctamente"
         } catch {
-            self.errorMessage = "Error updating profile: \(error.localizedDescription)"
+            self.errorMessage = "Error al actualizar perfil"
         }
     }
     
@@ -70,7 +70,7 @@ class ProfileViewModel: ObservableObject {
         
         // Basic validation
         guard new == confirm else {
-            self.errorMessage = "New passwords do not match"
+            self.errorMessage = "Las contraseñas no coinciden"
             return false
         }
         
@@ -82,14 +82,14 @@ class ProfileViewModel: ObservableObject {
         do {
             let success = try await changePasswordUC.execute(data: dto)
             if success {
-                self.successMessage = "Password changed successfully"
+                self.successMessage = "Contraseña cambiada exitosamente"
                 return true
             } else {
-                self.errorMessage = "Failed to change password"
+                self.errorMessage = "Error al cambiar contraseña"
                 return false
             }
         } catch {
-            self.errorMessage = "Error changing password: \(error.localizedDescription)"
+            self.errorMessage = "Error al cambiar contraseña. (No cumple con los requerimientos)"
             return false
         }
     }

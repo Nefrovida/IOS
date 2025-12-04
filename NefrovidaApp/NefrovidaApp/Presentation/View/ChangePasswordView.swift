@@ -13,6 +13,7 @@ struct ChangePasswordView: View {
     
     @State private var newPassword = ""
     @State private var confirmNewPassword = ""
+    @State private var sherror = false
     
     var body: some View {
         ZStack {
@@ -27,29 +28,28 @@ struct ChangePasswordView: View {
             )
             .ignoresSafeArea()
             
-            VStack(spacing: 20) {
+            VStack(spacing: 50) {
+                Spacer()
                 Text("Cambiar Contraseña")
                     .font(.title)
                     .bold()
                     .padding(.top, 20)
                 
                 if let error = viewModel.errorMessage {
-                    Text(error)
-                        .foregroundColor(.red)
-                        .font(.caption)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
+                    ErrorMessage(
+                        message: error,
+                        onDismiss: { sherror = true }
+                    )
                 }
                 
                 if let success = viewModel.successMessage {
-                    Text(success)
-                        .foregroundColor(.green)
-                        .font(.caption)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
+                    SuccessMessage(
+                        message: success,
+                        onDismiss: { viewModel.successMessage = nil }
+                    )
                 }
                 
-                VStack(spacing: 15) {
+                VStack(spacing: 25) {
                     textField(
                         placeholder: "Nueva Contraseña",
                         text: $newPassword,
@@ -63,6 +63,12 @@ struct ChangePasswordView: View {
                         isSecure: true,
                         iconName: "eye"
                     )
+                    if sherror {
+                        Text("* La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial [#?!@$%^&*]. *")
+                            .foregroundColor(.red)
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(5)
+                    }
                 }
                 .padding(.horizontal)
                 
@@ -82,8 +88,6 @@ struct ChangePasswordView: View {
                                 confirm: confirmNewPassword
                             )
                             if success {
-                                // Clear fields or dismiss?
-                                // For now, just clear fields
                                 newPassword = ""
                                 confirmNewPassword = ""
                                 // Delay dismissal to show success message
