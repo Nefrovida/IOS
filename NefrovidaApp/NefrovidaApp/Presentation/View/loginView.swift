@@ -77,10 +77,15 @@ struct loginView: View {
                 .navigationTitle("Registrar Usuario")
             }
             
-            .onChange(of: viewModel.loggedUser) { _, newValue in
-                if let user = newValue {
-                    loggedUser = user
-                    isLoggedIn = true
+            .onChange(of: viewModel.loggedUser) {
+                if let user = viewModel.loggedUser {
+                    if user.role_id == 3 {
+                        loggedUser = user
+                        isLoggedIn = true
+                    } else {
+                        viewModel.errorMessage = "Esta aplicación es solo para pacientes. Por favor contacta al administrador."
+                        viewModel.loggedUser = nil
+                    }
                 }
             }
             

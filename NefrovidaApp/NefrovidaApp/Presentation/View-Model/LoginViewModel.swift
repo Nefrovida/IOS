@@ -67,7 +67,9 @@ final class LoginViewModel: ObservableObject {
             return "El servidor no responde. Intenta de nuevo"
         } else if e.contains("500") {
             return "Error del servidor. Intenta más tarde"
-        } else {
+        } else if e.contains("deactivated") {
+            return "Tu cuenta aun no esta activa, contactate con el administrador."
+        }else {
             return "Error al iniciar sesión. Intenta de nuevo"
         }
     }
