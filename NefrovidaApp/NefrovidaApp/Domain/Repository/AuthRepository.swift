@@ -17,3 +17,7 @@ protocol AuthRepository {
 protocol UserRepository {
     func fetchFirstLogin(for userId: String) async throws -> Bool
 }
+
+protocol ForgetPasswordRepository{
+    func forgetPassword(userName: String) async throws -> Bool
+}

@@ -1,16 +1,9 @@
-//
-//  LoginViewModel.swift
-//  NefrovidaApp
-//
-//  Created by Emilio Santiago López Quiñonez on 12/11/25.
-//
-
 import Foundation
 import Combine
 
 @MainActor
 final class LoginViewModel: ObservableObject {
-    // The username and password are received from the text inputs
+    
     @Published var username: String = ""
     @Published var password: String = ""
     @Published var isLoading = false
@@ -19,19 +12,22 @@ final class LoginViewModel: ObservableObject {
     @Published var isLoggedIn: Bool = false
     @Published var isFirstLogin: Bool = false
     
-    // The logingUseCase is called
+    @Published var forgotPassword: Bool = false   // para mostrar el modal
+    
     private let loginUseCase: LoginUseCase
     private let isFirstLoginUseCase: isLogginUsesCase
-    
-    // Initializes the login use case with a repository that handles server requests
+    let forgetPasswordUseCase: ForgetPasswordUseCase
+
     init() {
-        let repository = AuthRepositoryD()
+        let authRepository = AuthRepositoryD()
         let userRepository = UserRemoteRepository()
-        self.loginUseCase = LoginUseCase(repository: repository)
+        
+        self.loginUseCase = LoginUseCase(repository: authRepository)
         self.isFirstLoginUseCase = isLogginUsesCase(repository: userRepository)
+        self.forgetPasswordUseCase = ForgetPasswordUseCase(repository: ForgetPasswordRemoteRepository())
     }
     
-    // The fields are validated to ensure they are complete.
+    // LOGIN
     func login() async {
         guard !username.isEmpty, !password.isEmpty else {
             errorMessage = "Por favor ingresa usuario y contraseña"
@@ -41,32 +37,35 @@ final class LoginViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         
-        // Calls the login use case to perform authentication
         do {
             let user = try await loginUseCase.execute(username: username, password: password)
             let firstL = try await isFirstLoginUseCase.execute(userId: user.user_id)
             self.loggedUser = user
             self.isLoggedIn = true
             self.isFirstLogin = firstL
-            print("Sesión iniciada como: \(user.username)")
         } catch {
-            // If the authentication fails, an error message is sent
             self.errorMessage = handleLoginError(error)
-            print("Error de login:", error.localizedDescription)
         }
         
         isLoading = false
     }
-    // Depending on the server error, the message is selected.
+    
+    // FORGET PASSWORD → llama al use case
+    func sendForgotPasswordRequest(username: String) async throws -> Bool {
+        try await forgetPasswordUseCase.execute(userName: username)
+    }
+    
+    // ERRORES LOGIN
     private func handleLoginError(_ error: Error) -> String {
-        let errorDescription = error.localizedDescription.lowercased()
-        if errorDescription.contains("401") || errorDescription.contains("credentials") {
+        let e = error.localizedDescription.lowercased()
+        
+        if e.contains("401") || e.contains("credentials") {
             return "Usuario o contraseña incorrectos"
-        } else if errorDescription.contains("network") || errorDescription.contains("connection") {
+        } else if e.contains("network") || e.contains("connection") {
             return "Error de conexión. Verifica tu internet"
-        } else if errorDescription.contains("timeout") {
+        } else if e.contains("timeout") {
             return "El servidor no responde. Intenta de nuevo"
-        } else if errorDescription.contains("500") {
+        } else if e.contains("500") {
             return "Error del servidor. Intenta más tarde"
         } else {
             return "Error al iniciar sesión. Intenta de nuevo"

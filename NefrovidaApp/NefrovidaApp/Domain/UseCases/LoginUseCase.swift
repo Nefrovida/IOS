@@ -32,3 +32,15 @@ final class isLogginUsesCase {
         return try await repository.fetchFirstLogin(for: userId)
     }
 }
+
+final class ForgetPasswordUseCase {
+    private let repository: ForgetPasswordRepository
+    
+    init(repository: ForgetPasswordRepository){
+        self.repository = repository
+    }
+    
+    func execute(userName: String) async throws -> Bool{
+        return try await repository.forgetPassword(userName: userName)
+    }
+}
