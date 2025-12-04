@@ -14,7 +14,7 @@ struct analysisView: View {
     
     @StateObject private var vm: analysisViewModel
     @State private var showSuccessAlert = false
-    @State private var goToRiskForm = false   // 👈 para navegar al historial
+    @State private var goToRiskForm = false  
     @Environment(\.dismiss) var dismiss
     
     init(analysisId: Int, userId: String, onConfirm: (() -> Void)? = nil) {
@@ -39,7 +39,6 @@ struct analysisView: View {
             
             Spacer()
             
-            // Título mes / año
             HStack {
                 Text(vm.monthYearTitle())
                     .font(.title)
@@ -49,7 +48,6 @@ struct analysisView: View {
             
             Spacer()
             
-            // Tira de semana + swipe
             WeekStrip(
                 days: vm.generateWeekDays(from: vm.selectedDate),
                 selected: vm.selectedDate,
@@ -68,7 +66,6 @@ struct analysisView: View {
             
             Divider()
             
-            // Slots
             if vm.isLoading {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -100,7 +97,6 @@ struct analysisView: View {
             
             Spacer()
             
-            // Zona inferior
             VStack(spacing: 12) {
                 if let selected = vm.selectedSlot {
                     Text("Seleccionado: \(format(date: selected))")
@@ -131,19 +127,15 @@ struct analysisView: View {
             Task { await vm.loadSlots() }
         }
         
-        // 🔗 Navegación invisible hacia Historia Clínica
         .navigationDestination(isPresented: $goToRiskForm) {
             RiskFormView(idUser: userId)
         }
         
-        // 🔔 Alert de éxito
         .alert("¡Análisis Solicitado!", isPresented: $showSuccessAlert) {
             Button("Aceptar") {
                 if analysisId == 1 {
-                    // 👉 SI ES HISTORIA CLÍNICA, PASA AL FORMULARIO
                     goToRiskForm = true
                 } else {
-                    // 👉 Si es cualquier otro análisis, solo cierra
                     dismiss()
                 }
             }
