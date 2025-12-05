@@ -45,8 +45,28 @@ final class AppointmentRepositoryD: appointmentRepository {
             let decoded = try JSONDecoder().decode([AppointmentModel].self, from: data)
             print("✅ Decoded \(decoded.count) appointments")
             
-            // Convert network models to domain entities
-            return decoded.map { $0.toEntity() }
+            // ADJUST: Add 6 hours to each date received from the backend
+            let adjustedAppointments = decoded.compactMap { model -> AppointmentEntity? in
+                let entity = model.toEntity()
+                
+                // Add 6 hours to compensate for the time zone difference.
+                guard let adjustedDate = Calendar.current.date(byAdding: .hour, value: 6, to: entity.date) else {
+                    return entity
+                }
+                
+                print("📅 Adjusted date: \(entity.date) -> \(adjustedDate)")
+                
+                return AppointmentEntity(
+                    id: entity.id,
+                    appointmentId: entity.appointmentId,
+                    date: adjustedDate,
+                    duration: entity.duration,
+                    status: entity.status,
+                    patientName: entity.patientName
+                )
+            }
+            
+            return adjustedAppointments
             
         } catch let decodingError as DecodingError {
             // Detailed decoding error inspection
@@ -89,13 +109,16 @@ final class AppointmentRepositoryD: appointmentRepository {
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
-        // Convert the local date to UTC using ISO8601 format
-        // Important for backend consistency
-        let iso8601Formatter = ISO8601DateFormatter()
-        iso8601Formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        iso8601Formatter.timeZone = TimeZone(identifier: "UTC")
+
+        guard let adjustedDate = Calendar.current.date(byAdding: .hour, value: -6, to: dateHour) else {
+            throw URLError(.badURL)
+        }
         
-        let dateString = iso8601Formatter.string(from: dateHour)
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0) ?? TimeZone(identifier: "GMT")!
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        let dateString = formatter.string(from: adjustedDate)
 
         // JSON body for the POST request
         let body: [String: Any] = [
@@ -106,8 +129,10 @@ final class AppointmentRepositoryD: appointmentRepository {
 
         print("📡 POST Request: \(url.absoluteString)")
         print("📦 Body: \(body)")
-        print("📅 Local Date: \(dateHour)")
-        print("📅 UTC Date sent: \(dateString)")
+        print("📅 User selected: \(dateHour)")
+        print("📅 Adjusted (-6h): \(adjustedDate)")
+        print("📅 Date sent to backend: \(dateString)")
+        print("📅 Expected to be saved in DB: \(dateHour)")
 
         // Convert body dictionary to JSON data
         request.httpBody = try JSONSerialization.data(withJSONObject: body, options: [])
