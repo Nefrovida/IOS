@@ -31,7 +31,7 @@ struct ContentView: View {
                     currentView
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                    BottomNavigationBar(selectedTab: $viewModel.selectedTab, isFirstLogin: $viewModel.isFirstLogin, onSelect: { tab in
+                    BottomNavigationBar(selectedTab: $viewModel.selectedTab, isFirstLogin: $viewModel.isFirstLogin, userRole: viewModel.loggedUser?.role_id ?? 3, onSelect: { tab in
                         viewModel.selectedTab = tab
                     })
                 }
