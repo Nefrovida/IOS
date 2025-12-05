@@ -45,8 +45,26 @@ final class AnalysisRepositoryD: AnalysisRepository {
             let decoded = try JSONDecoder().decode([AnalysisModel].self, from: data)
             print("✅ Decoded \(decoded.count) analysis")
             
-            // Convert network models to domain entities
-            return decoded.map { $0.toEntity() }
+            let adjustedAnalysis = decoded.compactMap { model -> AnalysisEntity? in
+                let entity = model.toEntity()
+                
+                guard let adjustedDate = Calendar.current.date(byAdding: .hour, value: 6, to: entity.date) else {
+                    return entity
+                }
+                
+                print("📅 Adjusted date: \(entity.date) -> \(adjustedDate)")
+                
+                return AnalysisEntity(
+                        id: entity.id,
+                        analysisId: entity.analysisId, date: adjustedDate,
+                        duration: entity.duration,
+                        status: entity.status,
+                        place: entity.place,
+                        patientName: entity.patientName
+                    )
+            }
+
+            return adjustedAnalysis
             
         } catch let decodingError as DecodingError {
             // Detailed decoding error inspection
@@ -90,12 +108,15 @@ final class AnalysisRepositoryD: AnalysisRepository {
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        // Convert the local date to UTC using ISO8601 format
-        let iso8601Formatter = ISO8601DateFormatter()
-        iso8601Formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        iso8601Formatter.timeZone = TimeZone(identifier: "UTC")
+        guard let adjustedDate = Calendar.current.date(byAdding: .hour, value: -6, to: analysisDate) else {
+            throw URLError(.badURL)
+        }
         
-        let dateString = iso8601Formatter.string(from: analysisDate)
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0) ?? TimeZone(identifier: "GMT")!
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        let dateString = formatter.string(from: adjustedDate)
         
         // JSON body for the POST request
         var body: [String: Any] = [
@@ -111,8 +132,10 @@ final class AnalysisRepositoryD: AnalysisRepository {
         
         print("📡 POST Request: \(url.absoluteString)")
         print("📦 Body: \(body)")
-        print("📅 Local Date: \(analysisDate)")
-        print("📅 UTC Date sent: \(dateString)")
+        print("📅 User selected: \(analysisDate)")
+        print("📅 Adjusted (-6h): \(adjustedDate)")
+        print("📅 Date sent to backend: \(dateString)")
+        print("📅 Expected to be saved in DB: \(analysisDate)")
         
         // Convert body dictionary to JSON data
         request.httpBody = try JSONSerialization.data(withJSONObject: body, options: [])
