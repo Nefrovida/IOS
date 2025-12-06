@@ -44,29 +44,7 @@ final class AppointmentRepositoryD: appointmentRepository {
             // Decode the JSON array into AppointmentModel objects
             let decoded = try JSONDecoder().decode([AppointmentModel].self, from: data)
             print("✅ Decoded \(decoded.count) appointments")
-            
-            // ADJUST: Add 6 hours to each date received from the backend
-            let adjustedAppointments = decoded.compactMap { model -> AppointmentEntity? in
-                let entity = model.toEntity()
-                
-                // Add 6 hours to compensate for the time zone difference.
-                guard let adjustedDate = Calendar.current.date(byAdding: .hour, value: 6, to: entity.date) else {
-                    return entity
-                }
-                
-                print("📅 Adjusted date: \(entity.date) -> \(adjustedDate)")
-                
-                return AppointmentEntity(
-                    id: entity.id,
-                    appointmentId: entity.appointmentId,
-                    date: adjustedDate,
-                    duration: entity.duration,
-                    status: entity.status,
-                    patientName: entity.patientName
-                )
-            }
-            
-            return adjustedAppointments
+            return decoded.map { $0.toEntity() }
             
         } catch let decodingError as DecodingError {
             // Detailed decoding error inspection
@@ -110,15 +88,11 @@ final class AppointmentRepositoryD: appointmentRepository {
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
 
-        guard let adjustedDate = Calendar.current.date(byAdding: .hour, value: -6, to: dateHour) else {
-            throw URLError(.badURL)
-        }
-        
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-        formatter.timeZone = TimeZone(secondsFromGMT: 0) ?? TimeZone(identifier: "GMT")!
+        formatter.timeZone = TimeZone.current
         formatter.locale = Locale(identifier: "en_US_POSIX")
-        let dateString = formatter.string(from: adjustedDate)
+        let dateString = formatter.string(from: dateHour)
 
         // JSON body for the POST request
         let body: [String: Any] = [
@@ -130,7 +104,6 @@ final class AppointmentRepositoryD: appointmentRepository {
         print("📡 POST Request: \(url.absoluteString)")
         print("📦 Body: \(body)")
         print("📅 User selected: \(dateHour)")
-        print("📅 Adjusted (-6h): \(adjustedDate)")
         print("📅 Date sent to backend: \(dateString)")
         print("📅 Expected to be saved in DB: \(dateHour)")
 
