@@ -24,34 +24,13 @@ final class RemoteAppointmentRepository: AppointmentRepository {
         case .success(let data):
             // If the response is successfully, try to decode the json.
             let response = try JSONDecoder().decode(AppointmentsResponse.self, from: data)
-            
-            let adjustedAppointments = response.appointments.map { appointment -> Appointment in
-                let adjustedDateString = adjustDateString(appointment.dateHour, addingHours: 6)
-                
-                return Appointment(
-                    patientAppointmentId: appointment.patientAppointmentId,
-                    patientId: appointment.patientId,
-                    appointmentId: appointment.appointmentId,
-                    dateHour: adjustedDateString,
-                    duration: appointment.duration,
-                    appointmentType: appointment.appointmentType,
-                    link: appointment.link,
-                    place: appointment.place,
-                    appointmentStatus: appointment.appointmentStatus,
-                    appointmentInfo: appointment.appointmentInfo
-                )
-            }
-            
-            var combined: [Appointment] = adjustedAppointments
-            
+            let normalAppointments = response.appointments
             let mappedAnalysis = response.analysis.map { analysis -> Appointment in
-                let adjustedDateString = adjustDateString(analysis.analysisDate, addingHours: 6)
-                
-                return Appointment(
+                Appointment(
                     patientAppointmentId: analysis.patientAnalysisId,
                     patientId: analysis.patientId,
                     appointmentId: analysis.analysisId,
-                    dateHour: adjustedDateString,
+                    dateHour: analysis.analysisDate,
                     duration: analysis.duration,
                     appointmentType: "ANÁLISIS",
                     link: nil,
@@ -60,10 +39,11 @@ final class RemoteAppointmentRepository: AppointmentRepository {
                     appointmentInfo: AppointmentInfo(
                         name: analysis.analysis?.name.trimmingCharacters(in: .whitespacesAndNewlines)
                         ?? "Análisis"
-                    ),
+                    )
                 )
             }
-            // Add the analysis to the array of the appointment.
+            
+            var combined: [Appointment] = normalAppointments
             combined.append(contentsOf: mappedAnalysis)
             
             // return the array.
@@ -72,22 +52,6 @@ final class RemoteAppointmentRepository: AppointmentRepository {
         case .failure(let error):
             throw error
         }
-    }
-    
-    private func adjustDateString(_ dateString: String, addingHours hours: Int) -> String {
-        let iso = ISO8601DateFormatter()
-        iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        iso.timeZone = TimeZone(secondsFromGMT: 0)
-        
-        guard let date = iso.date(from: dateString),
-              let adjustedDate = Calendar.current.date(byAdding: .hour, value: hours, to: date) else {
-            print("⚠️ No se pudo ajustar la fecha: \(dateString)")
-            return dateString
-        }
-        
-        let adjustedString = iso.string(from: adjustedDate)
-        print("📅 Adjusted: \(dateString) -> \(adjustedString)")
-        return adjustedString
     }
     
     func CancelAnalysis(id: Int) async throws -> Bool {

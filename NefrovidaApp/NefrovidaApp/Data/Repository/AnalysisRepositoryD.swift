@@ -45,26 +45,8 @@ final class AnalysisRepositoryD: AnalysisRepository {
             let decoded = try JSONDecoder().decode([AnalysisModel].self, from: data)
             print("✅ Decoded \(decoded.count) analysis")
             
-            let adjustedAnalysis = decoded.compactMap { model -> AnalysisEntity? in
-                let entity = model.toEntity()
-                
-                guard let adjustedDate = Calendar.current.date(byAdding: .hour, value: 6, to: entity.date) else {
-                    return entity
-                }
-                
-                print("📅 Adjusted date: \(entity.date) -> \(adjustedDate)")
-                
-                return AnalysisEntity(
-                        id: entity.id,
-                        analysisId: entity.analysisId, date: adjustedDate,
-                        duration: entity.duration,
-                        status: entity.status,
-                        place: entity.place,
-                        patientName: entity.patientName
-                    )
-            }
-
-            return adjustedAnalysis
+            let entities = decoded.map { $0.toEntity() }
+            return entities
             
         } catch let decodingError as DecodingError {
             // Detailed decoding error inspection
