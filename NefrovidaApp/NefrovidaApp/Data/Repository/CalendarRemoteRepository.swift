@@ -24,30 +24,26 @@ final class RemoteAppointmentRepository: AppointmentRepository {
         case .success(let data):
             // If the response is successfully, try to decode the json.
             let response = try JSONDecoder().decode(AppointmentsResponse.self, from: data)
-            
-            // Make a temporal array with the appointments that get by the backend.
-            var combined: [Appointment] = response.appointments
-            
-            // Map the analysis to adopt the struct.
-            // To show in the same calendar.
-            let mappedAnalysis = response.analysis.map {
+            let normalAppointments = response.appointments
+            let mappedAnalysis = response.analysis.map { analysis -> Appointment in
                 Appointment(
-                    patientAppointmentId: $0.patientAnalysisId,
-                    patientId: $0.patientId,
-                    appointmentId: $0.analysisId,
-                    dateHour: $0.analysisDate,
-                    duration: $0.duration,
+                    patientAppointmentId: analysis.patientAnalysisId,
+                    patientId: analysis.patientId,
+                    appointmentId: analysis.analysisId,
+                    dateHour: analysis.analysisDate,
+                    duration: analysis.duration,
                     appointmentType: "ANÁLISIS",
                     link: nil,
-                    place: $0.place,
-                    appointmentStatus: $0.analysisStatus,
+                    place: analysis.place,
+                    appointmentStatus: analysis.analysisStatus,
                     appointmentInfo: AppointmentInfo(
-                        name: $0.analysis?.name.trimmingCharacters(in: .whitespacesAndNewlines)
+                        name: analysis.analysis?.name.trimmingCharacters(in: .whitespacesAndNewlines)
                         ?? "Análisis"
-                    ),
+                    )
                 )
             }
-            // Add the analysis to the array of the appointment.
+            
+            var combined: [Appointment] = normalAppointments
             combined.append(contentsOf: mappedAnalysis)
             
             // return the array.
@@ -106,5 +102,3 @@ final class RemoteAppointmentRepository: AppointmentRepository {
         }
     }
 }
-
-        
