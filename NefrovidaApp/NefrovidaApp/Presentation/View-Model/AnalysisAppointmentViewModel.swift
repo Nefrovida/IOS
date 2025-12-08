@@ -72,62 +72,84 @@ final class analysisViewModel: ObservableObject {
             
             let dateComponents = calendar.dateComponents([.year, .month, .day], from: selectedDate)
             
-            // Time range for analysis (7 AM - 5 PM)
+            // from 7:30 to 9:00, every 10 minutes
             let startHour = 7
-            let endHour = 17
+            let startMinute = 30
+            let endHour = 9
+            let endMinute = 0
             
             let now = Date()
             let isToday = calendar.isDateInToday(selectedDate)
             let isPastDay = selectedDate < calendar.startOfDay(for: now)
             
-            // Generate 10-minute interval slots
-            for hour in startHour...endHour {
-                for minute in stride(from: 0, to: 60, by: 30) {
-                    var components = dateComponents
-                    components.hour = hour
-                    components.minute = minute
-                    components.second = 0
-                    components.timeZone = TimeZone.current
+            guard
+                let startDate = calendar.date(from: DateComponents(
+                    timeZone: TimeZone.current,
+                    year: dateComponents.year,
+                    month: dateComponents.month,
+                    day: dateComponents.day,
+                    hour: startHour,
+                    minute: startMinute,
+                    second: 0
+                )),
+                let endDateLimit = calendar.date(from: DateComponents(
+                    timeZone: TimeZone.current,
+                    year: dateComponents.year,
+                    month: dateComponents.month,
+                    day: dateComponents.day,
+                    hour: endHour,
+                    minute: endMinute,
+                    second: 0
+                ))
+            else {
+                print("No se pudieron construir startDate/endDateLimit para análisis")
+                self.slots = []
+                isLoading = false
+                return
+            }
+            
+            var current = startDate
+            while current <= endDateLimit {
+                let date = current
+                
+                let formatter = DateFormatter()
+                formatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
+                print("🔍 Slot local: \(formatter.string(from: date))")
+                
+                let occupied = takenAnalysis.contains { analysis in
+                    let slotComps = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
+                    let analysisComps = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: analysis.date)
                     
-                    if hour == endHour && minute > 0 {
-                        continue
-                    }
-                    
-                    guard let date = calendar.date(from: components) else { continue }
-                    
-                    let formatter = DateFormatter()
-                    formatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
-                    print("🔍 Slot local: \(formatter.string(from: date))")
-                    
-                    let occupied = takenAnalysis.contains { analysis in
-                        let slotComps = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
-                        let analysisComps = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: analysis.date)
-                        
-                        let isMatch = slotComps.year == analysisComps.year &&
+                    let isMatch = slotComps.year == analysisComps.year &&
                         slotComps.month == analysisComps.month &&
                         slotComps.day == analysisComps.day &&
                         slotComps.hour == analysisComps.hour &&
                         slotComps.minute == analysisComps.minute
-                        
-                        if isMatch && analysis.status == "CANCELED" {
-                            return false
-                        }
-                        if isMatch {
-                            print("   ✅ OCUPADO - Coincide con análisis ID: \(analysis.id)")
-                        }
-                        
-                        return isMatch
+                    
+                    if isMatch && analysis.status == "CANCELED" {
+                        return false
+                    }
+                    if isMatch {
+                        print("   OCUPADO - Coincide con análisis ID: \(analysis.id)")
                     }
                     
-                    let isPastTime = isToday && date < now
-                    let finalOccupied = occupied || isPastDay || isPastTime
-                    
-                    print("   Estado: \(finalOccupied ? "🔴 OCUPADO" : "🟢 DISPONIBLE")")
-                    
-                    generatedSlots.append(
-                        AnalysisSlotEntity(date: date, isOccupied: finalOccupied)
-                    )
+                    return isMatch
                 }
+                
+                let isPastTime = isToday && date < now
+                let finalOccupied = occupied || isPastDay || isPastTime
+                
+                print("   Estado: \(finalOccupied ? " OCUPADO" : " DISPONIBLE")")
+                
+                generatedSlots.append(
+                    AnalysisSlotEntity(date: date, isOccupied: finalOccupied)
+                )
+                
+                // sumar 10 minutos
+                guard let next = calendar.date(byAdding: .minute, value: 10, to: current) else {
+                    break
+                }
+                current = next
             }
             
             self.slots = generatedSlots
